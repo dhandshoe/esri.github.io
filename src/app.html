@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Environmental Compliance Management System</title>
+    <title>ECMS - Alaska LNG Environmental Compliance</title>
 
     <!-- ArcGIS Maps SDK for JavaScript -->
     <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css" />
@@ -40,10 +40,34 @@
         <calcite-navigation-item slot="primary" data-panel="graph">
           Relationships
         </calcite-navigation-item>
+        <calcite-navigation-item slot="primary" data-panel="drivers">
+          Drivers
+        </calcite-navigation-item>
+        <calcite-navigation-item slot="primary" data-panel="obligations">
+          Obligations
+        </calcite-navigation-item>
+        <calcite-navigation-item slot="primary" data-panel="tasks">
+          Tasks
+        </calcite-navigation-item>
+        <calcite-navigation-item slot="primary" data-panel="documents">
+          Documents
+        </calcite-navigation-item>
+        <calcite-navigation-item slot="primary" data-panel="training">
+          Training
+        </calcite-navigation-item>
+        <calcite-navigation-item slot="primary" data-panel="moc">
+          MOC
+        </calcite-navigation-item>
+        <calcite-navigation-item slot="primary" data-panel="transmittals">
+          Transmittals
+        </calcite-navigation-item>
+        <calcite-navigation-item slot="primary" data-panel="stakeholders">
+          Stakeholders
+        </calcite-navigation-item>
 
         <!-- Search -->
         <div slot="content-end" style="display:flex; align-items:center; gap:8px;">
-          <calcite-input id="search-input" icon="search" placeholder="Search permits..."
+          <calcite-input id="search-input" icon="search" placeholder="Search..."
             scale="s" clearable style="width:240px;"
           ></calcite-input>
           <calcite-action id="refresh-btn" icon="refresh" text="Refresh" scale="s"></calcite-action>

@@ -10,13 +10,21 @@ import * as mapManager from "../js/map-manager.js";
 import * as compliancePanel from "../js/compliance-panel.js";
 import * as alertPanel from "../js/alert-panel.js";
 import * as dashboardPanel from "../js/dashboard-panel.js";
+import * as driverPanel from "../js/driver-panel.js";
+import * as obligationPanel from "../js/obligation-panel.js";
+import * as taskPanel from "../js/task-panel.js";
+import * as documentPanel from "../js/document-panel.js";
+import * as trainingPanel from "../js/training-panel.js";
+import * as mocPanel from "../js/moc-panel.js";
+import * as transmittalPanel from "../js/transmittal-panel.js";
+import * as stakeholderPanel from "../js/stakeholder-panel.js";
 
 // ---------------------------------------------------------------------------
 // State
 // ---------------------------------------------------------------------------
 
 let _initialized = false;
-let _activePanel = "compliance"; // compliance | alerts | dashboard | graph
+let _activePanel = "compliance"; // compliance | alerts | dashboard | graph | drivers | obligations | tasks | documents | training | moc | transmittals | stakeholders
 let _refreshTimer = null;
 
 // ---------------------------------------------------------------------------
@@ -80,6 +88,15 @@ export async function initialize(options = {}) {
       container: EL.bottomPanel(),
     });
 
+    driverPanel.initialize({ container: EL.leftPanel() });
+    obligationPanel.initialize({ container: EL.leftPanel() });
+    taskPanel.initialize({ container: EL.leftPanel() });
+    documentPanel.initialize({ container: EL.leftPanel() });
+    trainingPanel.initialize({ container: EL.leftPanel() });
+    mocPanel.initialize({ container: EL.leftPanel() });
+    transmittalPanel.initialize({ container: EL.leftPanel() });
+    stakeholderPanel.initialize({ container: EL.leftPanel() });
+
     // Wire up navigation
     bindNavigation();
     bindSearch();
@@ -138,6 +155,30 @@ export function switchPanel(panelName) {
       break;
     case "dashboard":
       dashboardPanel.refresh();
+      break;
+    case "drivers":
+      driverPanel.refresh();
+      break;
+    case "obligations":
+      obligationPanel.refresh();
+      break;
+    case "tasks":
+      taskPanel.refresh();
+      break;
+    case "documents":
+      documentPanel.refresh();
+      break;
+    case "training":
+      trainingPanel.refresh();
+      break;
+    case "moc":
+      mocPanel.refresh();
+      break;
+    case "transmittals":
+      transmittalPanel.refresh();
+      break;
+    case "stakeholders":
+      stakeholderPanel.refresh();
       break;
   }
 }
@@ -210,6 +251,9 @@ export async function refreshAll() {
       compliancePanel.refresh(),
       alertPanel.refresh(),
       dashboardPanel.refresh(),
+      driverPanel.refresh(),
+      obligationPanel.refresh(),
+      taskPanel.refresh(),
     ]);
     updateStatus("Updated " + new Date().toLocaleTimeString());
   } catch (error) {

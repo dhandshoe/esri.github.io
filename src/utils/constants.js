@@ -103,6 +103,133 @@ export const ZoneType = Object.freeze({
 });
 
 // ---------------------------------------------------------------------------
+// Project Types
+// ---------------------------------------------------------------------------
+
+/** @enum {string} */
+export const ProjectType = Object.freeze({
+  GAS_TREATMENT: "GasTreatment",
+  PIPELINE: "Pipeline",
+  EXPORT_TERMINAL: "ExportTerminal",
+  IMPORT_TERMINAL: "ImportTerminal",
+  OTHER: "Other",
+});
+
+// ---------------------------------------------------------------------------
+// Driver Types
+// ---------------------------------------------------------------------------
+
+/** @enum {string} */
+export const DriverType = Object.freeze({
+  PERMIT: "Permit",
+  LAND_USE_AGREEMENT: "LandUseAgreement",
+  REGULATORY_ORDER: "RegulatoryOrder",
+  CONSENT: "Consent",
+  AUTHORIZATION: "Authorization",
+  CERTIFICATION: "Certification",
+  LICENSE: "License",
+  OTHER: "Other",
+});
+
+// ---------------------------------------------------------------------------
+// Obligation Types
+// ---------------------------------------------------------------------------
+
+/** @enum {string} */
+export const ObligationType = Object.freeze({
+  CONTINUOUS: "Continuous",
+  EVENT_DRIVEN: "EventDriven",
+  DIRECT: "Direct",
+  PERIODIC: "Periodic",
+  CONDITIONAL: "Conditional",
+  ONE_TIME: "OneTime",
+});
+
+// ---------------------------------------------------------------------------
+// Obligation Status
+// ---------------------------------------------------------------------------
+
+/** @enum {string} */
+export const ObligationStatus = Object.freeze({
+  ACTIVE: "Active",
+  COMPLETED: "Completed",
+  OVERDUE: "Overdue",
+  NOT_STARTED: "NotStarted",
+  WAIVED: "Waived",
+  SUPERSEDED: "Superseded",
+});
+
+// ---------------------------------------------------------------------------
+// Task Status
+// ---------------------------------------------------------------------------
+
+/** @enum {string} */
+export const TaskStatus = Object.freeze({
+  NOT_STARTED: "NotStarted",
+  IN_PROGRESS: "InProgress",
+  COMPLETED: "Completed",
+  OVERDUE: "Overdue",
+  ON_HOLD: "OnHold",
+  CANCELLED: "Cancelled",
+});
+
+// ---------------------------------------------------------------------------
+// Task Types
+// ---------------------------------------------------------------------------
+
+/** @enum {string} */
+export const TaskType = Object.freeze({
+  MONITORING: "Monitoring",
+  REPORTING: "Reporting",
+  INSPECTION: "Inspection",
+  SUBMISSION: "Submission",
+  MAINTENANCE: "Maintenance",
+  TRAINING: "Training",
+  REVIEW: "Review",
+  OTHER: "Other",
+});
+
+// ---------------------------------------------------------------------------
+// MOC Status
+// ---------------------------------------------------------------------------
+
+/** @enum {string} */
+export const MOCStatus = Object.freeze({
+  INITIATED: "Initiated",
+  UNDER_REVIEW: "UnderReview",
+  APPROVED: "Approved",
+  IMPLEMENTED: "Implemented",
+  CLOSED: "Closed",
+  REJECTED: "Rejected",
+});
+
+// ---------------------------------------------------------------------------
+// Transmittal Direction
+// ---------------------------------------------------------------------------
+
+/** @enum {string} */
+export const TransmittalDirection = Object.freeze({
+  OUTGOING: "Outgoing",
+  INCOMING: "Incoming",
+});
+
+// ---------------------------------------------------------------------------
+// Stakeholder Types
+// ---------------------------------------------------------------------------
+
+/** @enum {string} */
+export const StakeholderType = Object.freeze({
+  LANDOWNER: "Landowner",
+  AGENCY: "Agency",
+  CONTRACTOR: "Contractor",
+  COMMUNITY: "Community",
+  TRIBAL: "Tribal",
+  NGO: "NGO",
+  GOVERNMENT: "Government",
+  OTHER: "Other",
+});
+
+// ---------------------------------------------------------------------------
 // Condition / Trigger Operators
 // ---------------------------------------------------------------------------
 
@@ -215,6 +342,66 @@ export const Fields = Object.freeze({
   AUDIT_USER: "EditUser",
   AUDIT_DATE: "EditDate",
   AUDIT_ACTION: "Action",
+
+  // Projects
+  PROJECT_ID: "ProjectID",
+  PROJECT_NAME: "ProjectName",
+  PROJECT_TYPE: "ProjectType",
+  PROJECT_STATUS: "ProjectStatus",
+
+  // Drivers
+  DRIVER_ID: "DriverID",
+  DRIVER_NAME: "DriverName",
+  DRIVER_TYPE: "DriverType",
+  DRIVER_STATUS: "DriverStatus",
+  DRIVER_DISPLAY_NAME: "DriverDisplayName",
+  PERMIT_NUMBER: "PermitNumber",
+
+  // Obligations
+  OBLIGATION_ID: "ObligationID",
+  OBLIGATION_NUMBER: "ObligationNumber",
+  OBLIGATION_NAME: "ObligationName",
+  OBLIGATION_TYPE: "ObligationType",
+  OBLIGATION_STATUS: "ObligationStatus",
+
+  // Tasks
+  TASK_ID: "TaskID",
+  TASK_NAME: "TaskName",
+  TASK_TYPE: "TaskType",
+  TASK_STATUS: "TaskStatus",
+  TASK_DUE_DATE: "DueDate",
+  TASK_COMPLETION_DATE: "CompletionDate",
+
+  // Documents
+  DOCUMENT_ID: "DocumentID",
+  DOCUMENT_NAME: "DocumentName",
+  DOCUMENT_DCN: "DCN",
+  DOCUMENT_REVISION: "Revision",
+  DOCUMENT_CATEGORY: "DocumentCategory",
+
+  // Training
+  TRAINING_REQ_ID: "TrainingReqID",
+  TRAINING_NAME: "TrainingName",
+  TRAINING_TYPE: "TrainingType",
+
+  // MOC
+  MOC_ID: "MOCID",
+  MOC_NUMBER: "MOCNumber",
+  MOC_TITLE: "MOCTitle",
+  MOC_STATUS: "MOCStatus",
+
+  // Transmittals
+  TRANSMITTAL_ID: "TransmittalID",
+  TRANSMITTAL_NUMBER: "TransmittalNumber",
+  TRANSMITTAL_DIRECTION: "Direction",
+  TRANSMITTAL_STATUS: "TransmittalStatus",
+
+  // Stakeholders
+  STAKEHOLDER_ID: "StakeholderID",
+  STAKEHOLDER_NAME: "StakeholderName",
+  STAKEHOLDER_TYPE: "StakeholderType",
+  COMPLAINT_ID: "ComplaintID",
+  COMPLAINT_STATUS: "ComplaintStatus",
 });
 
 // ---------------------------------------------------------------------------
@@ -244,6 +431,23 @@ export const API = Object.freeze({
     COMPLIANCE_BOUNDARIES: 5,
     CONTACTS: 6,
     AUDIT_LOG: 7,
+    PROJECTS: 8,
+    PROJECT_ACCESS: 9,
+    DRIVERS: 10,
+    DRIVER_AMENDMENTS: 11,
+    DRIVER_POCS: 12,
+    OBLIGATIONS: 13,
+    OBLIGATION_TASK_JUNCTION: 14,
+    TASKS: 15,
+    COMPLETION_EVIDENCE: 16,
+    DOCUMENTS: 17,
+    TRAINING_REQUIREMENTS: 18,
+    TRAINING_HISTORY: 19,
+    MANAGEMENT_OF_CHANGE: 20,
+    TRANSMITTALS: 21,
+    TRANSMITTAL_DOCUMENTS: 22,
+    STAKEHOLDERS: 23,
+    STAKEHOLDER_COMPLAINTS: 24,
   }),
 });
 
@@ -261,9 +465,9 @@ export const Defaults = Object.freeze({
   /** Dashboard auto-refresh interval in milliseconds. */
   REFRESH_INTERVAL_MS: 300_000, // 5 minutes
   /** Map default center [longitude, latitude]. */
-  MAP_CENTER: [-98.5795, 39.8283],
+  MAP_CENTER: [-152.4937, 61.2181],
   /** Map default zoom level. */
-  MAP_ZOOM: 5,
+  MAP_ZOOM: 6,
 });
 
 // ---------------------------------------------------------------------------
@@ -277,6 +481,11 @@ export const NodeType = Object.freeze({
   ALERT: "Alert",
   ASSET: "Asset",
   CONTACT: "Contact",
+  DRIVER: "Driver",
+  OBLIGATION: "Obligation",
+  TASK: "Task",
+  DOCUMENT: "Document",
+  STAKEHOLDER: "Stakeholder",
 });
 
 export const NodeColors = Object.freeze({
@@ -286,4 +495,9 @@ export const NodeColors = Object.freeze({
   [NodeType.ALERT]: "#d00000",
   [NodeType.ASSET]: "#6c757d",
   [NodeType.CONTACT]: "#7b2d8e",
+  [NodeType.DRIVER]: "#1b4332",
+  [NodeType.OBLIGATION]: "#e76f51",
+  [NodeType.TASK]: "#457b9d",
+  [NodeType.DOCUMENT]: "#6d6875",
+  [NodeType.STAKEHOLDER]: "#bc6c25",
 });

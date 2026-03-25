@@ -688,6 +688,23 @@ def build_schema(config, workspace_override=None, log_dir=None):
         "PermitDocuments",
         "SpatialLinks",
         "PermitContactJunction",
+        "Projects",
+        "ProjectAccess",
+        "Drivers",
+        "DriverAmendments",
+        "DriverPOCs",
+        "Obligations",
+        "ObligationTaskJunction",
+        "Tasks",
+        "CompletionEvidence",
+        "Documents",
+        "TrainingRequirements",
+        "TrainingHistory",
+        "ManagementOfChange",
+        "Transmittals",
+        "TransmittalDocuments",
+        "Stakeholders",
+        "StakeholderComplaints",
     ]
 
     for table_name in table_names:

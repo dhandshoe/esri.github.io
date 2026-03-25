@@ -1,0 +1,52 @@
+// =============================================================================
+// driver_display_name.arcade
+// Environmental Compliance Management System
+// Driver Managed Metadata Display Name Expression
+//
+// Purpose: Generates the managed metadata display name for driver features
+//          following the convention: "Agency Description Permit Number".
+//          Gracefully handles missing fields by trimming empty parts.
+//
+// Expected Fields:
+//   - IssuingAgency (Text) - e.g. "EPA"
+//   - DriverName (Text) - description/name, e.g. "Air Quality Permit"
+//   - PermitNumber (Text) - e.g. "AQ-2024-0042"
+//
+// Example Output:
+//   "EPA Air Quality Permit AQ-2024-0042"
+//
+// Fallback:
+//   Returns DriverName alone if both IssuingAgency and PermitNumber are empty.
+//   Returns "Unknown Driver" if all fields are empty.
+// =============================================================================
+
+// --- Read feature attributes ---
+var issuingAgency = $feature.IssuingAgency
+var driverName = $feature.DriverName
+var permitNumber = $feature.PermitNumber
+
+// --- Build display name from non-empty parts ---
+// Collect each part into an array, skipping any that are null or empty.
+var parts = []
+
+if (!IsEmpty(issuingAgency) && Trim(issuingAgency) != "") {
+    Push(parts, Trim(issuingAgency))
+}
+
+if (!IsEmpty(driverName) && Trim(driverName) != "") {
+    Push(parts, Trim(driverName))
+}
+
+if (!IsEmpty(permitNumber) && Trim(permitNumber) != "") {
+    Push(parts, Trim(permitNumber))
+}
+
+// --- Assemble the final display name ---
+// If we have parts, join them with a space separator.
+// If no parts are available at all, return a fallback.
+if (Count(parts) > 0) {
+    return Concatenate(parts, " ")
+}
+
+// --- Fallback for completely empty records ---
+return "Unknown Driver"

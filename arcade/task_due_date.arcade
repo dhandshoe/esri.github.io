@@ -1,0 +1,88 @@
+// =============================================================================
+// task_due_date.arcade
+// Environmental Compliance Management System
+// Task Status Evaluation Expression
+//
+// Purpose: Evaluates the status of a task feature based on due dates,
+//          completion information, and auto-renewal settings. Returns a
+//          human-readable text string suitable for popup display.
+//
+// Expected Fields:
+//   - TaskStatus (Text) - current task status
+//   - DueDate (Date) - when the task is due
+//   - CompletionDate (Date) - when the task was completed
+//   - AutoRenewal (Number) - 1 if auto-renewal is enabled, 0 otherwise
+//   - RenewalFrequencyDays (Number) - days between renewals
+//   - NextDueDate (Date) - next due date for recurring/auto-renewing tasks
+//
+// Returns: A formatted text string for popup display, e.g.:
+//   "OVERDUE (15 days past due)"
+//   "DUE_SOON (3 days remaining)"
+//   "APPROACHING (22 days remaining)"
+//   "Completed on 2024-06-15 (Auto-Renew)"
+//   "ON_TRACK"
+// =============================================================================
+
+// --- Current timestamp ---
+var now = Now()
+
+// --- Read feature attributes ---
+var taskStatus = $feature.TaskStatus
+var dueDate = $feature.DueDate
+var completionDate = $feature.CompletionDate
+var autoRenewal = $feature.AutoRenewal
+var renewalFrequencyDays = $feature.RenewalFrequencyDays
+var nextDueDate = $feature.NextDueDate
+
+// --- Auto-renewal suffix ---
+// Determine the suffix once so it can be appended to any result.
+var renewalSuffix = IIf(autoRenewal == 1, " (Auto-Renew)", "")
+
+// --- Terminal states: Completed or Cancelled ---
+// If the task has reached a final state, return the status along with
+// completion details when available.
+if (taskStatus == "Completed") {
+    var completedInfo = "Completed"
+    if (!IsEmpty(completionDate)) {
+        completedInfo = "Completed on " + Text(completionDate, "YYYY-MM-DD")
+    }
+    // For auto-renewing tasks, include next due date if available
+    if (autoRenewal == 1 && !IsEmpty(nextDueDate)) {
+        completedInfo += " | Next due: " + Text(nextDueDate, "YYYY-MM-DD")
+    }
+    return completedInfo + renewalSuffix
+}
+
+if (taskStatus == "Cancelled") {
+    return "Cancelled" + renewalSuffix
+}
+
+// --- Overdue check ---
+// If the due date has passed and the task is still active, calculate
+// how many days overdue it is using DateDiff.
+if (!IsEmpty(dueDate) && dueDate < now) {
+    var daysOverdue = Round(DateDiff(now, dueDate, 'days'), 0)
+    return "OVERDUE (" + daysOverdue + " days past due)" + renewalSuffix
+}
+
+// --- Due soon check (within 7 days) ---
+// Tasks due within the next 7 days need immediate attention.
+if (!IsEmpty(dueDate)) {
+    var daysRemaining = Round(DateDiff(dueDate, now, 'days'), 0)
+
+    if (daysRemaining >= 0 && daysRemaining <= 7) {
+        return "DUE_SOON (" + daysRemaining + " days remaining)" + renewalSuffix
+    }
+
+    // --- Approaching check (within 30 days) ---
+    // Tasks due within 30 days should be on the radar for planning.
+    if (daysRemaining > 7 && daysRemaining <= 30) {
+        return "APPROACHING (" + daysRemaining + " days remaining)" + renewalSuffix
+    }
+}
+
+// --- Default status ---
+// Return the existing task status if set, otherwise default to ON_TRACK.
+var result = IIf(!IsEmpty(taskStatus), taskStatus, "ON_TRACK")
+
+return result + renewalSuffix

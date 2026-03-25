@@ -591,3 +591,262 @@ calcite-dialog .form-group {
 
 .w-full { width: 100%; }
 .h-full { height: 100%; }
+
+/* ---------------------------------------------------------------------------
+   Obligation / Task Status Badges
+   --------------------------------------------------------------------------- */
+
+.status-badge--active {
+  background: #d0e8f5;
+  color: #0077b6;
+}
+
+.status-badge--overdue {
+  background: var(--status-noncompliant-bg);
+  color: var(--status-noncompliant);
+}
+
+.status-badge--completed {
+  background: var(--status-compliant-bg);
+  color: var(--status-compliant);
+}
+
+.status-badge--notstarted,
+.status-badge--pending {
+  background: var(--status-unknown-bg);
+  color: var(--status-unknown);
+}
+
+.status-badge--inprogress {
+  background: #d0e8f5;
+  color: #0077b6;
+}
+
+.status-badge--onhold {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge--cancelled,
+.status-badge--rejected {
+  background: #e9ecef;
+  color: #495057;
+  text-decoration: line-through;
+}
+
+.status-badge--duesoon {
+  background: #fff3cd;
+  color: #e09f3e;
+}
+
+/* ---------------------------------------------------------------------------
+   MOC Workflow Timeline
+   --------------------------------------------------------------------------- */
+
+.moc-timeline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 16px 12px;
+  overflow-x: auto;
+}
+
+.moc-timeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  min-width: 80px;
+}
+
+.moc-timeline-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--calcite-color-border-3, #e0e0e0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  z-index: 1;
+}
+
+.moc-timeline-dot.active {
+  background: #0077b6;
+}
+
+.moc-timeline-dot.completed {
+  background: var(--status-compliant);
+}
+
+.moc-timeline-dot.rejected {
+  background: var(--status-noncompliant);
+}
+
+.moc-timeline-label {
+  font-size: 0.7rem;
+  margin-top: 4px;
+  text-align: center;
+  color: var(--calcite-color-text-3, #6c757d);
+}
+
+.moc-timeline-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--calcite-color-border-3, #e0e0e0);
+  min-width: 20px;
+}
+
+.moc-timeline-connector.completed {
+  background: var(--status-compliant);
+}
+
+/* ---------------------------------------------------------------------------
+   Training Matrix
+   --------------------------------------------------------------------------- */
+
+.training-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.training-matrix th,
+.training-matrix td {
+  padding: 4px 8px;
+  text-align: center;
+  border: 1px solid var(--calcite-color-border-3, #e0e0e0);
+}
+
+.training-matrix th {
+  background: var(--calcite-color-foreground-2, #f0f0f0);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.training-matrix th:first-child {
+  text-align: left;
+  min-width: 150px;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+
+.training-matrix td:first-child {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  background: #fff;
+  z-index: 1;
+}
+
+.training-cell--completed { background: #d8f3dc; }
+.training-cell--overdue { background: #ffd6d6; }
+.training-cell--expiring { background: #fff3cd; }
+.training-cell--required { background: #d0e8f5; }
+.training-cell--exempt { background: #e9ecef; }
+
+/* ---------------------------------------------------------------------------
+   Transmittal Direction Indicators
+   --------------------------------------------------------------------------- */
+
+.direction-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.direction-badge--outgoing {
+  background: #d0e8f5;
+  color: #0077b6;
+}
+
+.direction-badge--incoming {
+  background: #d8f3dc;
+  color: #2d6a4f;
+}
+
+/* ---------------------------------------------------------------------------
+   Stakeholder Complaint FERC Indicator
+   --------------------------------------------------------------------------- */
+
+.ferc-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #ffd6d6;
+  color: #d00000;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+   Panel Tab Navigation (inline for many tabs)
+   --------------------------------------------------------------------------- */
+
+calcite-tabs {
+  --calcite-tabs-border-active: var(--status-compliant);
+}
+
+/* ---------------------------------------------------------------------------
+   Due Date Indicator
+   --------------------------------------------------------------------------- */
+
+.due-date {
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.due-date--overdue {
+  color: var(--status-noncompliant);
+  font-weight: 600;
+}
+
+.due-date--soon {
+  color: var(--status-atrisk);
+  font-weight: 600;
+}
+
+.due-date--ok {
+  color: var(--calcite-color-text-3, #6c757d);
+}
+
+/* ---------------------------------------------------------------------------
+   Export Button Row
+   --------------------------------------------------------------------------- */
+
+.panel-actions {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--calcite-color-border-3, #e0e0e0);
+}
+
+/* ---------------------------------------------------------------------------
+   Empty State
+   --------------------------------------------------------------------------- */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--calcite-color-text-3, #6c757d);
+  text-align: center;
+}
+
+.empty-state calcite-icon {
+  margin-bottom: 12px;
+  opacity: 0.4;
+}

@@ -59,7 +59,24 @@
         "AuditTrail": 5,
         "PermitDocuments": 6,
         "SpatialLinks": 7,
-        "PermitContactJunction": 8
+        "PermitContactJunction": 8,
+        "Projects": 9,
+        "ProjectAccess": 10,
+        "Drivers": 11,
+        "DriverAmendments": 12,
+        "DriverPOCs": 13,
+        "Obligations": 14,
+        "ObligationTaskJunction": 15,
+        "Tasks": 16,
+        "CompletionEvidence": 17,
+        "Documents": 18,
+        "TrainingRequirements": 19,
+        "TrainingHistory": 20,
+        "ManagementOfChange": 21,
+        "Transmittals": 22,
+        "TransmittalDocuments": 23,
+        "Stakeholders": 24,
+        "StakeholderComplaints": 25
     },
     "coded_domains": {
         "PermitType": {
@@ -241,6 +258,284 @@
                 "Rejected": "Rejected",
                 "Final": "Final"
             }
+        },
+        "ProjectType": {
+            "description": "Type of project component",
+            "field_type": "TEXT",
+            "values": {
+                "GasTreatment": "Gas Treatment Facility",
+                "Pipeline": "Pipeline",
+                "ExportTerminal": "Export Terminal",
+                "ImportTerminal": "Import Terminal",
+                "Other": "Other Project"
+            }
+        },
+        "ProjectStatus": {
+            "description": "Current status of a project",
+            "field_type": "TEXT",
+            "values": {
+                "Active": "Active",
+                "Planning": "Planning",
+                "Construction": "Under Construction",
+                "Operations": "In Operations",
+                "Decommissioned": "Decommissioned"
+            }
+        },
+        "AccessLevel": {
+            "description": "User access permission level",
+            "field_type": "TEXT",
+            "values": {
+                "Admin": "Administrator",
+                "Manager": "Manager",
+                "Editor": "Editor",
+                "Viewer": "View Only",
+                "FieldUser": "Field User"
+            }
+        },
+        "DriverType": {
+            "description": "Type of regulatory driver",
+            "field_type": "TEXT",
+            "values": {
+                "Permit": "Permit",
+                "LandUseAgreement": "Land Use Agreement",
+                "RegulatoryOrder": "Regulatory Order",
+                "Consent": "Consent",
+                "Authorization": "Authorization",
+                "Certification": "Certification",
+                "License": "License",
+                "Other": "Other"
+            }
+        },
+        "DriverStatus": {
+            "description": "Current status of a driver",
+            "field_type": "TEXT",
+            "values": {
+                "Active": "Active",
+                "Expired": "Expired",
+                "Pending": "Pending",
+                "Amended": "Amended",
+                "Renewed": "Renewed",
+                "Suspended": "Suspended",
+                "Revoked": "Revoked"
+            }
+        },
+        "AmendmentType": {
+            "description": "Type of driver amendment",
+            "field_type": "TEXT",
+            "values": {
+                "Amendment": "Amendment",
+                "Renewal": "Renewal",
+                "Modification": "Modification",
+                "Transfer": "Transfer",
+                "Extension": "Extension"
+            }
+        },
+        "ObligationType": {
+            "description": "Type of compliance obligation",
+            "field_type": "TEXT",
+            "values": {
+                "Continuous": "Continuous",
+                "EventDriven": "Event Driven",
+                "Direct": "Direct",
+                "Periodic": "Periodic",
+                "Conditional": "Conditional",
+                "OneTime": "One-Time"
+            }
+        },
+        "ObligationStatus": {
+            "description": "Current status of an obligation",
+            "field_type": "TEXT",
+            "values": {
+                "Active": "Active",
+                "Completed": "Completed",
+                "Overdue": "Overdue",
+                "NotStarted": "Not Started",
+                "Waived": "Waived",
+                "Superseded": "Superseded"
+            }
+        },
+        "TaskStatus": {
+            "description": "Current status of a task",
+            "field_type": "TEXT",
+            "values": {
+                "NotStarted": "Not Started",
+                "InProgress": "In Progress",
+                "Completed": "Completed",
+                "Overdue": "Overdue",
+                "OnHold": "On Hold",
+                "Cancelled": "Cancelled"
+            }
+        },
+        "TaskType": {
+            "description": "Type of compliance task",
+            "field_type": "TEXT",
+            "values": {
+                "Monitoring": "Monitoring",
+                "Reporting": "Reporting",
+                "Inspection": "Inspection",
+                "Submission": "Submission",
+                "Maintenance": "Maintenance",
+                "Training": "Training",
+                "Review": "Review",
+                "Other": "Other"
+            }
+        },
+        "DocumentCategory": {
+            "description": "Category of document",
+            "field_type": "TEXT",
+            "values": {
+                "Permit": "Permit Document",
+                "Application": "Application",
+                "Report": "Report",
+                "Correspondence": "Correspondence",
+                "Drawing": "Drawing",
+                "Procedure": "Procedure",
+                "Plan": "Plan",
+                "Evidence": "Completion Evidence",
+                "Transmittal": "Transmittal",
+                "Other": "Other"
+            }
+        },
+        "DocumentStatus": {
+            "description": "Current status of a document",
+            "field_type": "TEXT",
+            "values": {
+                "Draft": "Draft",
+                "InReview": "In Review",
+                "Approved": "Approved",
+                "Superseded": "Superseded",
+                "Archived": "Archived"
+            }
+        },
+        "FileType": {
+            "description": "File type designation",
+            "field_type": "TEXT",
+            "values": {
+                "Native": "Native File",
+                "Final": "Final File",
+                "Both": "Both Native and Final"
+            }
+        },
+        "TrainingType": {
+            "description": "Type of training",
+            "field_type": "TEXT",
+            "values": {
+                "Initial": "Initial Training",
+                "Refresher": "Refresher",
+                "Certification": "Certification",
+                "Orientation": "Orientation",
+                "Specialized": "Specialized"
+            }
+        },
+        "TrainingStatus": {
+            "description": "Status of training requirement",
+            "field_type": "TEXT",
+            "values": {
+                "Required": "Required",
+                "Scheduled": "Scheduled",
+                "Completed": "Completed",
+                "Overdue": "Overdue",
+                "Exempt": "Exempt"
+            }
+        },
+        "MOCStatus": {
+            "description": "Management of Change workflow status",
+            "field_type": "TEXT",
+            "values": {
+                "Initiated": "Initiated",
+                "UnderReview": "Under Review",
+                "Approved": "Approved",
+                "Implemented": "Implemented",
+                "Closed": "Closed",
+                "Rejected": "Rejected"
+            }
+        },
+        "MOCType": {
+            "description": "Type of management of change",
+            "field_type": "TEXT",
+            "values": {
+                "Process": "Process Change",
+                "Equipment": "Equipment Change",
+                "Personnel": "Personnel Change",
+                "Regulatory": "Regulatory Change",
+                "Organizational": "Organizational Change",
+                "Emergency": "Emergency Change"
+            }
+        },
+        "MOCPriority": {
+            "description": "MOC priority level",
+            "field_type": "TEXT",
+            "values": {
+                "Critical": "Critical",
+                "High": "High",
+                "Medium": "Medium",
+                "Low": "Low"
+            }
+        },
+        "TransmittalDirection": {
+            "description": "Direction of transmittal",
+            "field_type": "TEXT",
+            "values": {
+                "Outgoing": "Outgoing",
+                "Incoming": "Incoming"
+            }
+        },
+        "TransmittalStatus": {
+            "description": "Current status of transmittal",
+            "field_type": "TEXT",
+            "values": {
+                "Draft": "Draft",
+                "Sent": "Sent",
+                "Received": "Received",
+                "Acknowledged": "Acknowledged",
+                "ActionRequired": "Action Required"
+            }
+        },
+        "StakeholderType": {
+            "description": "Type of stakeholder",
+            "field_type": "TEXT",
+            "values": {
+                "Landowner": "Landowner",
+                "Agency": "Government Agency",
+                "Contractor": "Contractor",
+                "Community": "Community Member",
+                "Tribal": "Tribal Entity",
+                "NGO": "Non-Governmental Organization",
+                "Government": "Government Entity",
+                "Other": "Other"
+            }
+        },
+        "ComplaintStatus": {
+            "description": "Status of a stakeholder complaint",
+            "field_type": "TEXT",
+            "values": {
+                "Open": "Open",
+                "InProgress": "In Progress",
+                "Resolved": "Resolved",
+                "Closed": "Closed",
+                "Escalated": "Escalated"
+            }
+        },
+        "POCRole": {
+            "description": "Point of contact role for a driver",
+            "field_type": "TEXT",
+            "values": {
+                "Owner": "Owner",
+                "EPCM": "EPCM Contractor",
+                "Contractor": "Contractor",
+                "Agency": "Regulatory Agency",
+                "Consultant": "Consultant",
+                "Other": "Other"
+            }
+        },
+        "CulturalResourceAccess": {
+            "description": "Access level for cultural resource information",
+            "field_type": "TEXT",
+            "values": {
+                "Full": "Full Access",
+                "Restricted": "Restricted Access",
+                "Prohibited": "Prohibited"
+            }
         }
     },
     "field_mappings": {
@@ -401,6 +696,282 @@
             {"name": "Role", "type": "TEXT", "length": 100, "alias": "Contact Role for Permit"},
             {"name": "AssignedDate", "type": "DATE", "alias": "Date Assigned"},
             {"name": "IsActive", "type": "SHORT", "alias": "Is Active (1=Yes, 0=No)"}
+        ],
+        "Projects": [
+            {"name": "ProjectID", "type": "TEXT", "length": 50, "alias": "Project ID", "nullable": false},
+            {"name": "ProjectName", "type": "TEXT", "length": 255, "alias": "Project Name", "nullable": false},
+            {"name": "ProjectCode", "type": "TEXT", "length": 20, "alias": "Project Code"},
+            {"name": "ProjectType", "type": "TEXT", "length": 50, "alias": "Project Type", "domain": "ProjectType"},
+            {"name": "ProjectStatus", "type": "TEXT", "length": 50, "alias": "Project Status", "domain": "ProjectStatus"},
+            {"name": "Description", "type": "TEXT", "length": 4000, "alias": "Description"},
+            {"name": "OwnerEntity", "type": "TEXT", "length": 255, "alias": "Owner Entity"},
+            {"name": "ManagingEntity", "type": "TEXT", "length": 255, "alias": "Managing Entity"},
+            {"name": "StartDate", "type": "DATE", "alias": "Start Date"},
+            {"name": "EndDate", "type": "DATE", "alias": "End Date"},
+            {"name": "ParentProjectID", "type": "TEXT", "length": 50, "alias": "Parent Project ID"},
+            {"name": "GeographicArea", "type": "TEXT", "length": 500, "alias": "Geographic Area"}
+        ],
+        "ProjectAccess": [
+            {"name": "AccessID", "type": "TEXT", "length": 50, "alias": "Access ID", "nullable": false},
+            {"name": "ProjectID", "type": "TEXT", "length": 50, "alias": "Project ID", "nullable": false},
+            {"name": "UserID", "type": "TEXT", "length": 255, "alias": "User ID", "nullable": false},
+            {"name": "UserName", "type": "TEXT", "length": 255, "alias": "User Name"},
+            {"name": "UserEmail", "type": "TEXT", "length": 255, "alias": "User Email"},
+            {"name": "AccessLevel", "type": "TEXT", "length": 50, "alias": "Access Level", "domain": "AccessLevel"},
+            {"name": "OnboardDate", "type": "DATE", "alias": "Onboard Date"},
+            {"name": "OffboardDate", "type": "DATE", "alias": "Offboard Date"},
+            {"name": "IsActive", "type": "SHORT", "alias": "Is Active (1=Yes, 0=No)"},
+            {"name": "ApprovedBy", "type": "TEXT", "length": 255, "alias": "Approved By"},
+            {"name": "ApprovalDate", "type": "DATE", "alias": "Approval Date"},
+            {"name": "Notes", "type": "TEXT", "length": 2000, "alias": "Notes"}
+        ],
+        "Drivers": [
+            {"name": "DriverID", "type": "TEXT", "length": 50, "alias": "Driver ID", "nullable": false},
+            {"name": "DriverName", "type": "TEXT", "length": 500, "alias": "Driver Name", "nullable": false},
+            {"name": "DriverDisplayName", "type": "TEXT", "length": 500, "alias": "Display Name (Agency Desc Permit#)"},
+            {"name": "DriverType", "type": "TEXT", "length": 50, "alias": "Driver Type", "domain": "DriverType"},
+            {"name": "DriverStatus", "type": "TEXT", "length": 50, "alias": "Driver Status", "domain": "DriverStatus"},
+            {"name": "ProjectID", "type": "TEXT", "length": 50, "alias": "Project ID"},
+            {"name": "IssuingAgency", "type": "TEXT", "length": 255, "alias": "Issuing Agency"},
+            {"name": "AgencyContact", "type": "TEXT", "length": 255, "alias": "Agency Contact"},
+            {"name": "PermitNumber", "type": "TEXT", "length": 100, "alias": "Permit Number"},
+            {"name": "IssueDate", "type": "DATE", "alias": "Issue Date"},
+            {"name": "ExpirationDate", "type": "DATE", "alias": "Expiration Date"},
+            {"name": "EffectiveDate", "type": "DATE", "alias": "Effective Date"},
+            {"name": "Description", "type": "TEXT", "length": 4000, "alias": "Description"},
+            {"name": "RegulatoryFramework", "type": "TEXT", "length": 255, "alias": "Regulatory Framework"},
+            {"name": "NativeFilePath", "type": "TEXT", "length": 1000, "alias": "Native File Path"},
+            {"name": "FinalFilePath", "type": "TEXT", "length": 1000, "alias": "Final File Path"},
+            {"name": "ApplicationFilePath", "type": "TEXT", "length": 1000, "alias": "Application File Path"},
+            {"name": "ComplianceStatus", "type": "TEXT", "length": 50, "alias": "Compliance Status", "domain": "ComplianceStatus"},
+            {"name": "RiskScore", "type": "FLOAT", "alias": "Risk Score"},
+            {"name": "LastReviewDate", "type": "DATE", "alias": "Last Review Date"},
+            {"name": "NextReviewDate", "type": "DATE", "alias": "Next Review Date"}
+        ],
+        "DriverAmendments": [
+            {"name": "AmendmentID", "type": "TEXT", "length": 50, "alias": "Amendment ID", "nullable": false},
+            {"name": "DriverID", "type": "TEXT", "length": 50, "alias": "Driver ID", "nullable": false},
+            {"name": "AmendmentType", "type": "TEXT", "length": 50, "alias": "Amendment Type", "domain": "AmendmentType"},
+            {"name": "AmendmentNumber", "type": "TEXT", "length": 50, "alias": "Amendment Number"},
+            {"name": "AmendmentDate", "type": "DATE", "alias": "Amendment Date"},
+            {"name": "EffectiveDate", "type": "DATE", "alias": "Effective Date"},
+            {"name": "Description", "type": "TEXT", "length": 4000, "alias": "Description"},
+            {"name": "FilePath", "type": "TEXT", "length": 1000, "alias": "File Path"},
+            {"name": "ApprovedBy", "type": "TEXT", "length": 255, "alias": "Approved By"}
+        ],
+        "DriverPOCs": [
+            {"name": "POCID", "type": "TEXT", "length": 50, "alias": "POC ID", "nullable": false},
+            {"name": "DriverID", "type": "TEXT", "length": 50, "alias": "Driver ID", "nullable": false},
+            {"name": "ContactID", "type": "TEXT", "length": 50, "alias": "Contact ID"},
+            {"name": "POCRole", "type": "TEXT", "length": 50, "alias": "POC Role", "domain": "POCRole"},
+            {"name": "Organization", "type": "TEXT", "length": 255, "alias": "Organization"},
+            {"name": "IsPrimary", "type": "SHORT", "alias": "Is Primary (1=Yes, 0=No)"},
+            {"name": "Notes", "type": "TEXT", "length": 2000, "alias": "Notes"}
+        ],
+        "Obligations": [
+            {"name": "ObligationID", "type": "TEXT", "length": 50, "alias": "Obligation ID", "nullable": false},
+            {"name": "ObligationNumber", "type": "TEXT", "length": 50, "alias": "Obligation Number", "nullable": false},
+            {"name": "ObligationName", "type": "TEXT", "length": 500, "alias": "Obligation Name"},
+            {"name": "DriverID", "type": "TEXT", "length": 50, "alias": "Driver ID", "nullable": false},
+            {"name": "ProjectID", "type": "TEXT", "length": 50, "alias": "Project ID"},
+            {"name": "ObligationType", "type": "TEXT", "length": 50, "alias": "Obligation Type", "domain": "ObligationType"},
+            {"name": "ObligationStatus", "type": "TEXT", "length": 50, "alias": "Obligation Status", "domain": "ObligationStatus"},
+            {"name": "Description", "type": "TEXT", "length": 4000, "alias": "Description"},
+            {"name": "ConditionReference", "type": "TEXT", "length": 255, "alias": "Condition Reference"},
+            {"name": "IdentifiedTasks", "type": "TEXT", "length": 4000, "alias": "Identified Tasks"},
+            {"name": "IdentifiedControls", "type": "TEXT", "length": 4000, "alias": "Identified Controls"},
+            {"name": "TrainingRequired", "type": "SHORT", "alias": "Training Required (1=Yes, 0=No)"},
+            {"name": "TrainingDescription", "type": "TEXT", "length": 2000, "alias": "Training Description"},
+            {"name": "GeographicArea", "type": "TEXT", "length": 500, "alias": "Geographic Area / GIS Reference"},
+            {"name": "ResponsibleCompany", "type": "TEXT", "length": 255, "alias": "Responsible Company"},
+            {"name": "ResponsibleIndividual", "type": "TEXT", "length": 255, "alias": "Responsible Individual"},
+            {"name": "ChecklistRequired", "type": "SHORT", "alias": "Checklist Required (1=Yes, 0=No)"},
+            {"name": "ChecklistPath", "type": "TEXT", "length": 1000, "alias": "Checklist File Path"},
+            {"name": "OperationalControlRef", "type": "TEXT", "length": 500, "alias": "Operational Control Reference"},
+            {"name": "AgencyName", "type": "TEXT", "length": 255, "alias": "Agency Name"},
+            {"name": "Frequency", "type": "TEXT", "length": 100, "alias": "Frequency"},
+            {"name": "StartDate", "type": "DATE", "alias": "Start Date"},
+            {"name": "EndDate", "type": "DATE", "alias": "End Date"},
+            {"name": "DueDate", "type": "DATE", "alias": "Due Date"},
+            {"name": "Priority", "type": "TEXT", "length": 50, "alias": "Priority", "domain": "Priority"},
+            {"name": "RiskScore", "type": "FLOAT", "alias": "Risk Score"}
+        ],
+        "ObligationTaskJunction": [
+            {"name": "JunctionID", "type": "TEXT", "length": 50, "alias": "Junction ID", "nullable": false},
+            {"name": "ObligationID", "type": "TEXT", "length": 50, "alias": "Obligation ID", "nullable": false},
+            {"name": "TaskID", "type": "TEXT", "length": 50, "alias": "Task ID", "nullable": false},
+            {"name": "RelationshipNotes", "type": "TEXT", "length": 2000, "alias": "Relationship Notes"}
+        ],
+        "Tasks": [
+            {"name": "TaskID", "type": "TEXT", "length": 50, "alias": "Task ID", "nullable": false},
+            {"name": "TaskNumber", "type": "TEXT", "length": 50, "alias": "Task Number"},
+            {"name": "TaskName", "type": "TEXT", "length": 500, "alias": "Task Name", "nullable": false},
+            {"name": "TaskType", "type": "TEXT", "length": 50, "alias": "Task Type", "domain": "TaskType"},
+            {"name": "TaskStatus", "type": "TEXT", "length": 50, "alias": "Task Status", "domain": "TaskStatus"},
+            {"name": "Description", "type": "TEXT", "length": 4000, "alias": "Description"},
+            {"name": "AssignedTo", "type": "TEXT", "length": 255, "alias": "Assigned To"},
+            {"name": "AssignedCompany", "type": "TEXT", "length": 255, "alias": "Assigned Company"},
+            {"name": "DueDate", "type": "DATE", "alias": "Due Date"},
+            {"name": "CompletionDate", "type": "DATE", "alias": "Completion Date"},
+            {"name": "AutoRenewal", "type": "SHORT", "alias": "Auto Renewal (1=Yes, 0=No)"},
+            {"name": "RenewalFrequencyDays", "type": "LONG", "alias": "Renewal Frequency (Days)"},
+            {"name": "NextDueDate", "type": "DATE", "alias": "Next Due Date"},
+            {"name": "ProjectID", "type": "TEXT", "length": 50, "alias": "Project ID"},
+            {"name": "Priority", "type": "TEXT", "length": 50, "alias": "Priority", "domain": "Priority"}
+        ],
+        "CompletionEvidence": [
+            {"name": "EvidenceID", "type": "TEXT", "length": 50, "alias": "Evidence ID", "nullable": false},
+            {"name": "TaskID", "type": "TEXT", "length": 50, "alias": "Task ID", "nullable": false},
+            {"name": "EvidenceType", "type": "TEXT", "length": 100, "alias": "Evidence Type"},
+            {"name": "Description", "type": "TEXT", "length": 2000, "alias": "Description"},
+            {"name": "FilePath", "type": "TEXT", "length": 1000, "alias": "File Path"},
+            {"name": "TransmittalID", "type": "TEXT", "length": 50, "alias": "Transmittal ID"},
+            {"name": "SubmittedDate", "type": "DATE", "alias": "Submitted Date"},
+            {"name": "SubmittedBy", "type": "TEXT", "length": 255, "alias": "Submitted By"},
+            {"name": "ReceivedBy", "type": "TEXT", "length": 255, "alias": "Received By"},
+            {"name": "IsVerified", "type": "SHORT", "alias": "Is Verified (1=Yes, 0=No)"},
+            {"name": "VerifiedBy", "type": "TEXT", "length": 255, "alias": "Verified By"},
+            {"name": "VerifiedDate", "type": "DATE", "alias": "Verified Date"}
+        ],
+        "Documents": [
+            {"name": "DocumentID", "type": "TEXT", "length": 50, "alias": "Document ID", "nullable": false},
+            {"name": "DocumentName", "type": "TEXT", "length": 500, "alias": "Document Name", "nullable": false},
+            {"name": "DCN", "type": "TEXT", "length": 100, "alias": "Document Control Number"},
+            {"name": "Revision", "type": "TEXT", "length": 20, "alias": "Revision"},
+            {"name": "DocumentCategory", "type": "TEXT", "length": 50, "alias": "Document Category", "domain": "DocumentCategory"},
+            {"name": "DocumentStatus", "type": "TEXT", "length": 50, "alias": "Document Status", "domain": "DocumentStatus"},
+            {"name": "FileType", "type": "TEXT", "length": 50, "alias": "File Type", "domain": "FileType"},
+            {"name": "NativeFilePath", "type": "TEXT", "length": 1000, "alias": "Native File Path"},
+            {"name": "FinalFilePath", "type": "TEXT", "length": 1000, "alias": "Final File Path"},
+            {"name": "DriverID", "type": "TEXT", "length": 50, "alias": "Driver ID"},
+            {"name": "ObligationID", "type": "TEXT", "length": 50, "alias": "Obligation ID"},
+            {"name": "TaskID", "type": "TEXT", "length": 50, "alias": "Task ID"},
+            {"name": "ProjectID", "type": "TEXT", "length": 50, "alias": "Project ID"},
+            {"name": "Description", "type": "TEXT", "length": 4000, "alias": "Description"},
+            {"name": "SubmittedTo", "type": "TEXT", "length": 500, "alias": "Submitted To"},
+            {"name": "SubmittedDate", "type": "DATE", "alias": "Submitted Date"},
+            {"name": "SubmittedBy", "type": "TEXT", "length": 255, "alias": "Submitted By"},
+            {"name": "DueDate", "type": "DATE", "alias": "Due Date"},
+            {"name": "AutoRenewal", "type": "SHORT", "alias": "Auto Renewal (1=Yes, 0=No)"},
+            {"name": "RenewalFrequencyDays", "type": "LONG", "alias": "Renewal Frequency (Days)"},
+            {"name": "NextDueDate", "type": "DATE", "alias": "Next Due Date"},
+            {"name": "UploadDate", "type": "DATE", "alias": "Upload Date"},
+            {"name": "UploadedBy", "type": "TEXT", "length": 255, "alias": "Uploaded By"},
+            {"name": "Version", "type": "SHORT", "alias": "Version Number"},
+            {"name": "IsActive", "type": "SHORT", "alias": "Is Active (1=Yes, 0=No)"}
+        ],
+        "TrainingRequirements": [
+            {"name": "TrainingReqID", "type": "TEXT", "length": 50, "alias": "Training Requirement ID", "nullable": false},
+            {"name": "TrainingName", "type": "TEXT", "length": 500, "alias": "Training Name", "nullable": false},
+            {"name": "TrainingType", "type": "TEXT", "length": 50, "alias": "Training Type", "domain": "TrainingType"},
+            {"name": "Description", "type": "TEXT", "length": 4000, "alias": "Description"},
+            {"name": "ObligationID", "type": "TEXT", "length": 50, "alias": "Obligation ID"},
+            {"name": "DriverID", "type": "TEXT", "length": 50, "alias": "Driver ID"},
+            {"name": "ProjectID", "type": "TEXT", "length": 50, "alias": "Project ID"},
+            {"name": "Frequency", "type": "TEXT", "length": 100, "alias": "Frequency"},
+            {"name": "DurationHours", "type": "FLOAT", "alias": "Duration (Hours)"},
+            {"name": "Provider", "type": "TEXT", "length": 255, "alias": "Training Provider"},
+            {"name": "IsActive", "type": "SHORT", "alias": "Is Active (1=Yes, 0=No)"},
+            {"name": "AutoRenewal", "type": "SHORT", "alias": "Auto Renewal (1=Yes, 0=No)"},
+            {"name": "RenewalFrequencyDays", "type": "LONG", "alias": "Renewal Frequency (Days)"}
+        ],
+        "TrainingHistory": [
+            {"name": "TrainingHistoryID", "type": "TEXT", "length": 50, "alias": "Training History ID", "nullable": false},
+            {"name": "TrainingReqID", "type": "TEXT", "length": 50, "alias": "Training Requirement ID", "nullable": false},
+            {"name": "UserID", "type": "TEXT", "length": 255, "alias": "User ID", "nullable": false},
+            {"name": "UserName", "type": "TEXT", "length": 255, "alias": "User Name"},
+            {"name": "CompletionDate", "type": "DATE", "alias": "Completion Date"},
+            {"name": "ExpirationDate", "type": "DATE", "alias": "Expiration Date"},
+            {"name": "TrainingStatus", "type": "TEXT", "length": 50, "alias": "Training Status", "domain": "TrainingStatus"},
+            {"name": "Score", "type": "FLOAT", "alias": "Score"},
+            {"name": "CertificateNumber", "type": "TEXT", "length": 100, "alias": "Certificate Number"},
+            {"name": "EvidenceFilePath", "type": "TEXT", "length": 1000, "alias": "Evidence File Path"},
+            {"name": "TransmittalID", "type": "TEXT", "length": 50, "alias": "Transmittal ID"},
+            {"name": "SubmittedTo", "type": "TEXT", "length": 500, "alias": "Submitted To"},
+            {"name": "SubmittedDate", "type": "DATE", "alias": "Submitted Date"},
+            {"name": "Notes", "type": "TEXT", "length": 2000, "alias": "Notes"}
+        ],
+        "ManagementOfChange": [
+            {"name": "MOCID", "type": "TEXT", "length": 50, "alias": "MOC ID", "nullable": false},
+            {"name": "MOCNumber", "type": "TEXT", "length": 50, "alias": "MOC Number", "nullable": false},
+            {"name": "MOCTitle", "type": "TEXT", "length": 500, "alias": "MOC Title"},
+            {"name": "MOCType", "type": "TEXT", "length": 50, "alias": "MOC Type", "domain": "MOCType"},
+            {"name": "MOCStatus", "type": "TEXT", "length": 50, "alias": "MOC Status", "domain": "MOCStatus"},
+            {"name": "MOCPriority", "type": "TEXT", "length": 50, "alias": "MOC Priority", "domain": "MOCPriority"},
+            {"name": "Description", "type": "TEXT", "length": 4000, "alias": "Description"},
+            {"name": "Justification", "type": "TEXT", "length": 4000, "alias": "Justification"},
+            {"name": "RiskAssessment", "type": "TEXT", "length": 4000, "alias": "Risk Assessment"},
+            {"name": "ProjectID", "type": "TEXT", "length": 50, "alias": "Project ID"},
+            {"name": "RequestedBy", "type": "TEXT", "length": 255, "alias": "Requested By"},
+            {"name": "RequestDate", "type": "DATE", "alias": "Request Date"},
+            {"name": "ReviewedBy", "type": "TEXT", "length": 255, "alias": "Reviewed By"},
+            {"name": "ReviewDate", "type": "DATE", "alias": "Review Date"},
+            {"name": "ApprovedBy", "type": "TEXT", "length": 255, "alias": "Approved By"},
+            {"name": "ApprovalDate", "type": "DATE", "alias": "Approval Date"},
+            {"name": "ImplementedBy", "type": "TEXT", "length": 255, "alias": "Implemented By"},
+            {"name": "ImplementationDate", "type": "DATE", "alias": "Implementation Date"},
+            {"name": "ClosedBy", "type": "TEXT", "length": 255, "alias": "Closed By"},
+            {"name": "ClosedDate", "type": "DATE", "alias": "Closed Date"},
+            {"name": "AffectedDrivers", "type": "TEXT", "length": 2000, "alias": "Affected Drivers"},
+            {"name": "AffectedObligations", "type": "TEXT", "length": 2000, "alias": "Affected Obligations"}
+        ],
+        "Transmittals": [
+            {"name": "TransmittalID", "type": "TEXT", "length": 50, "alias": "Transmittal ID", "nullable": false},
+            {"name": "TransmittalNumber", "type": "TEXT", "length": 50, "alias": "Transmittal Number", "nullable": false},
+            {"name": "Direction", "type": "TEXT", "length": 50, "alias": "Direction", "domain": "TransmittalDirection"},
+            {"name": "TransmittalStatus", "type": "TEXT", "length": 50, "alias": "Transmittal Status", "domain": "TransmittalStatus"},
+            {"name": "ProjectID", "type": "TEXT", "length": 50, "alias": "Project ID"},
+            {"name": "FromEntity", "type": "TEXT", "length": 500, "alias": "From Entity"},
+            {"name": "ToEntity", "type": "TEXT", "length": 500, "alias": "To Entity"},
+            {"name": "Subject", "type": "TEXT", "length": 500, "alias": "Subject"},
+            {"name": "Description", "type": "TEXT", "length": 4000, "alias": "Description"},
+            {"name": "SentDate", "type": "DATE", "alias": "Sent Date"},
+            {"name": "ReceivedDate", "type": "DATE", "alias": "Received Date"},
+            {"name": "AcknowledgedDate", "type": "DATE", "alias": "Acknowledged Date"},
+            {"name": "DueDate", "type": "DATE", "alias": "Due Date"},
+            {"name": "ResponseRequired", "type": "SHORT", "alias": "Response Required (1=Yes, 0=No)"},
+            {"name": "ResponseDate", "type": "DATE", "alias": "Response Date"},
+            {"name": "Method", "type": "TEXT", "length": 100, "alias": "Delivery Method"},
+            {"name": "TrackingNumber", "type": "TEXT", "length": 100, "alias": "Tracking Number"}
+        ],
+        "TransmittalDocuments": [
+            {"name": "TransDocID", "type": "TEXT", "length": 50, "alias": "Transmittal Document ID", "nullable": false},
+            {"name": "TransmittalID", "type": "TEXT", "length": 50, "alias": "Transmittal ID", "nullable": false},
+            {"name": "DocumentID", "type": "TEXT", "length": 50, "alias": "Document ID"},
+            {"name": "DocumentName", "type": "TEXT", "length": 255, "alias": "Document Name"},
+            {"name": "FilePath", "type": "TEXT", "length": 1000, "alias": "File Path"}
+        ],
+        "Stakeholders": [
+            {"name": "StakeholderID", "type": "TEXT", "length": 50, "alias": "Stakeholder ID", "nullable": false},
+            {"name": "StakeholderName", "type": "TEXT", "length": 500, "alias": "Stakeholder Name", "nullable": false},
+            {"name": "StakeholderType", "type": "TEXT", "length": 50, "alias": "Stakeholder Type", "domain": "StakeholderType"},
+            {"name": "Organization", "type": "TEXT", "length": 255, "alias": "Organization"},
+            {"name": "ContactPerson", "type": "TEXT", "length": 255, "alias": "Contact Person"},
+            {"name": "Email", "type": "TEXT", "length": 255, "alias": "Email"},
+            {"name": "Phone", "type": "TEXT", "length": 50, "alias": "Phone"},
+            {"name": "Address", "type": "TEXT", "length": 1000, "alias": "Address"},
+            {"name": "ProjectID", "type": "TEXT", "length": 50, "alias": "Project ID"},
+            {"name": "LandParcelID", "type": "TEXT", "length": 100, "alias": "Land Parcel ID"},
+            {"name": "IsActive", "type": "SHORT", "alias": "Is Active (1=Yes, 0=No)"},
+            {"name": "Notes", "type": "TEXT", "length": 4000, "alias": "Notes"},
+            {"name": "CulturalResourceAccess", "type": "TEXT", "length": 50, "alias": "Cultural Resource Access", "domain": "CulturalResourceAccess"}
+        ],
+        "StakeholderComplaints": [
+            {"name": "ComplaintID", "type": "TEXT", "length": 50, "alias": "Complaint ID", "nullable": false},
+            {"name": "StakeholderID", "type": "TEXT", "length": 50, "alias": "Stakeholder ID", "nullable": false},
+            {"name": "ProjectID", "type": "TEXT", "length": 50, "alias": "Project ID"},
+            {"name": "ComplaintDate", "type": "DATE", "alias": "Complaint Date"},
+            {"name": "ComplaintStatus", "type": "TEXT", "length": 50, "alias": "Complaint Status", "domain": "ComplaintStatus"},
+            {"name": "Category", "type": "TEXT", "length": 100, "alias": "Category"},
+            {"name": "Description", "type": "TEXT", "length": 4000, "alias": "Description"},
+            {"name": "Location", "type": "TEXT", "length": 500, "alias": "Location"},
+            {"name": "ReceivedBy", "type": "TEXT", "length": 255, "alias": "Received By"},
+            {"name": "AssignedTo", "type": "TEXT", "length": 255, "alias": "Assigned To"},
+            {"name": "ResolutionDate", "type": "DATE", "alias": "Resolution Date"},
+            {"name": "ResolutionDescription", "type": "TEXT", "length": 4000, "alias": "Resolution Description"},
+            {"name": "FERCReportRequired", "type": "SHORT", "alias": "FERC Report Required (1=Yes, 0=No)"},
+            {"name": "FERCReportDate", "type": "DATE", "alias": "FERC Report Date"},
+            {"name": "FERCReportNumber", "type": "TEXT", "length": 100, "alias": "FERC Report Number"}
         ]
     },
     "relationship_classes": [
@@ -486,6 +1057,169 @@
             "junction_destination_key": "ContactID",
             "forward_label": "Permit has Contacts",
             "backward_label": "Contact associated with Permits"
+        },
+        {
+            "name": "Projects_to_Drivers",
+            "origin": "Projects",
+            "destination": "Drivers",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "ProjectID",
+            "destination_key": "ProjectID",
+            "forward_label": "Project has Drivers",
+            "backward_label": "Driver belongs to Project"
+        },
+        {
+            "name": "Projects_to_Access",
+            "origin": "Projects",
+            "destination": "ProjectAccess",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "ProjectID",
+            "destination_key": "ProjectID",
+            "forward_label": "Project has Access Records",
+            "backward_label": "Access Record belongs to Project"
+        },
+        {
+            "name": "Drivers_to_Amendments",
+            "origin": "Drivers",
+            "destination": "DriverAmendments",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "DriverID",
+            "destination_key": "DriverID",
+            "forward_label": "Driver has Amendments",
+            "backward_label": "Amendment belongs to Driver"
+        },
+        {
+            "name": "Drivers_to_POCs",
+            "origin": "Drivers",
+            "destination": "DriverPOCs",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "DriverID",
+            "destination_key": "DriverID",
+            "forward_label": "Driver has Points of Contact",
+            "backward_label": "POC belongs to Driver"
+        },
+        {
+            "name": "Drivers_to_Obligations",
+            "origin": "Drivers",
+            "destination": "Obligations",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "DriverID",
+            "destination_key": "DriverID",
+            "forward_label": "Driver has Obligations",
+            "backward_label": "Obligation belongs to Driver"
+        },
+        {
+            "name": "Obligations_to_Tasks",
+            "origin": "Obligations",
+            "destination": "Tasks",
+            "cardinality": "MANY_TO_MANY",
+            "origin_key": "ObligationID",
+            "destination_key": "TaskID",
+            "junction_table": "ObligationTaskJunction",
+            "junction_origin_key": "ObligationID",
+            "junction_destination_key": "TaskID",
+            "forward_label": "Obligation has Tasks",
+            "backward_label": "Task fulfills Obligations"
+        },
+        {
+            "name": "Tasks_to_Evidence",
+            "origin": "Tasks",
+            "destination": "CompletionEvidence",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "TaskID",
+            "destination_key": "TaskID",
+            "forward_label": "Task has Evidence",
+            "backward_label": "Evidence belongs to Task"
+        },
+        {
+            "name": "Drivers_to_Documents",
+            "origin": "Drivers",
+            "destination": "Documents",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "DriverID",
+            "destination_key": "DriverID",
+            "forward_label": "Driver has Documents",
+            "backward_label": "Document belongs to Driver"
+        },
+        {
+            "name": "Obligations_to_Documents",
+            "origin": "Obligations",
+            "destination": "Documents",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "ObligationID",
+            "destination_key": "ObligationID",
+            "forward_label": "Obligation has Documents",
+            "backward_label": "Document belongs to Obligation"
+        },
+        {
+            "name": "Obligations_to_Training",
+            "origin": "Obligations",
+            "destination": "TrainingRequirements",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "ObligationID",
+            "destination_key": "ObligationID",
+            "forward_label": "Obligation has Training Requirements",
+            "backward_label": "Training Requirement from Obligation"
+        },
+        {
+            "name": "Training_to_History",
+            "origin": "TrainingRequirements",
+            "destination": "TrainingHistory",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "TrainingReqID",
+            "destination_key": "TrainingReqID",
+            "forward_label": "Training has History Records",
+            "backward_label": "History Record for Training"
+        },
+        {
+            "name": "Projects_to_MOC",
+            "origin": "Projects",
+            "destination": "ManagementOfChange",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "ProjectID",
+            "destination_key": "ProjectID",
+            "forward_label": "Project has MOC Records",
+            "backward_label": "MOC Record belongs to Project"
+        },
+        {
+            "name": "Projects_to_Transmittals",
+            "origin": "Projects",
+            "destination": "Transmittals",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "ProjectID",
+            "destination_key": "ProjectID",
+            "forward_label": "Project has Transmittals",
+            "backward_label": "Transmittal belongs to Project"
+        },
+        {
+            "name": "Transmittals_to_Documents",
+            "origin": "Transmittals",
+            "destination": "TransmittalDocuments",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "TransmittalID",
+            "destination_key": "TransmittalID",
+            "forward_label": "Transmittal has Documents",
+            "backward_label": "Document in Transmittal"
+        },
+        {
+            "name": "Projects_to_Stakeholders",
+            "origin": "Projects",
+            "destination": "Stakeholders",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "ProjectID",
+            "destination_key": "ProjectID",
+            "forward_label": "Project has Stakeholders",
+            "backward_label": "Stakeholder belongs to Project"
+        },
+        {
+            "name": "Stakeholders_to_Complaints",
+            "origin": "Stakeholders",
+            "destination": "StakeholderComplaints",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "StakeholderID",
+            "destination_key": "StakeholderID",
+            "forward_label": "Stakeholder has Complaints",
+            "backward_label": "Complaint from Stakeholder"
         }
     ],
     "compliance_thresholds": {

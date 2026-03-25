@@ -1,0 +1,112 @@
+// =============================================================================
+// obligation_status.arcade
+// Environmental Compliance Management System
+// Dynamic Obligation Compliance Status Evaluation Expression
+//
+// Purpose: Evaluates the compliance status of an obligation feature by
+//          examining due dates, end dates, obligation type, and related tasks.
+//          Returns a status string suitable for renderers, labels, and popups.
+//
+// Expected Fields:
+//   - ObligationStatus (Text) - current obligation status
+//   - ObligationType (Text) - e.g. "Continuous", "One-Time", "Recurring"
+//   - DueDate (Date) - when the obligation is due
+//   - EndDate (Date) - when the obligation period ends
+//   - StartDate (Date) - when the obligation period begins
+//   - Priority (Text) - obligation priority level
+//
+// Related Tables:
+//   - Obligations_to_Tasks (relationship class linking to task features)
+//
+// Returns: One of:
+//   "Completed", "Waived", "Superseded", "OVERDUE", "EXPIRED",
+//   "AT_RISK", "DUE_SOON", "PENDING_START", "ACTIVE",
+//   or the raw ObligationStatus value
+// =============================================================================
+
+// --- Current timestamp ---
+var now = Now()
+
+// --- Read feature attributes ---
+var status = $feature.ObligationStatus
+var obligationType = $feature.ObligationType
+var dueDate = $feature.DueDate
+var endDate = $feature.EndDate
+var startDate = $feature.StartDate
+var priority = $feature.Priority
+
+// --- Terminal states ---
+// If the obligation has reached a final state, return it as-is.
+// No further evaluation is needed for completed, waived, or superseded items.
+if (status == "Completed" || status == "Waived" || status == "Superseded") {
+    return status
+}
+
+// --- Overdue check ---
+// If a due date exists and has passed, the obligation is overdue.
+// This takes priority over most other statuses.
+if (!IsEmpty(dueDate) && dueDate < now) {
+    return "OVERDUE"
+}
+
+// --- Expired check ---
+// If the obligation has an end date and that date has passed,
+// the obligation period has expired.
+if (!IsEmpty(endDate) && endDate < now) {
+    return "EXPIRED"
+}
+
+// --- Continuous obligation: related task check ---
+// For continuous obligations, check whether any linked tasks are overdue.
+// An overdue task on a continuous obligation signals compliance risk.
+if (obligationType == "Continuous") {
+    // Attempt to retrieve related task features via relationship class.
+    // If the relationship or feature set is unavailable, we skip this check
+    // gracefully rather than failing the expression.
+    var relatedTasks = null
+    try {
+        relatedTasks = FeatureSetByRelationshipName($feature, "Obligations_to_Tasks")
+    } catch (err) {
+        // Relationship not available in this context; skip task check.
+        relatedTasks = null
+    }
+
+    if (!IsEmpty(relatedTasks)) {
+        // Iterate through linked tasks to see if any are overdue
+        for (var task in relatedTasks) {
+            var taskDueDate = task.DueDate
+            var taskStatus = task.TaskStatus
+            // A task is considered overdue if its due date has passed
+            // and it has not been completed or cancelled
+            if (!IsEmpty(taskDueDate) && taskDueDate < now &&
+                taskStatus != "Completed" && taskStatus != "Cancelled") {
+                return "AT_RISK"
+            }
+        }
+    }
+}
+
+// --- Due soon check ---
+// If the obligation is due within the next 30 days, flag it early
+// so stakeholders can take proactive action.
+if (!IsEmpty(dueDate)) {
+    var daysUntilDue = DateDiff(dueDate, now, 'days')
+    if (daysUntilDue >= 0 && daysUntilDue <= 30) {
+        return "DUE_SOON"
+    }
+}
+
+// --- Pending start check ---
+// If the obligation has not been started but the start date has passed,
+// it should have been initiated already.
+if (status == "NotStarted" && !IsEmpty(startDate) && startDate < now) {
+    return "PENDING_START"
+}
+
+// --- Default status ---
+// Return the existing obligation status if set, otherwise default to ACTIVE.
+if (!IsEmpty(status)) {
+    return status
+}
+
+return "ACTIVE"

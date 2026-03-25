@@ -444,6 +444,228 @@ def log_audit_entry(workspace, table_name, record_id, field_name,
 
 
 # ---------------------------------------------------------------------------
+# Driver Evaluation
+# ---------------------------------------------------------------------------
+
+def evaluate_driver(workspace, driver_attrs):
+    """Evaluate a regulatory driver's compliance status and risk score.
+
+    Considers the driver's own expiration/review dates, plus the status
+    of all linked obligations and their tasks.
+
+    Args:
+        workspace: Path to geodatabase.
+        driver_attrs: Dictionary of driver attributes.
+
+    Returns:
+        dict with keys: driver_id, status, risk_score, violations,
+        obligation_summary.
+    """
+    driver_id = driver_attrs.get("DriverID")
+    violations = []
+    obligation_summary = {"total": 0, "active": 0, "overdue": 0, "completed": 0}
+
+    # Check driver expiration / review dates (same logic as permits)
+    violation_count = 0
+    alert_count = get_open_alert_count(workspace, driver_id)
+
+    # Query obligations for this driver
+    obl_table = f"{workspace}/Obligations"
+    obl_fields = [
+        "ObligationID", "ObligationNumber", "ObligationStatus",
+        "DueDate", "Priority", "ObligationType",
+    ]
+    try:
+        with arcpy.da.SearchCursor(
+            obl_table, obl_fields,
+            where_clause=f"DriverID = '{driver_id}'"
+        ) as cursor:
+            for row in cursor:
+                obl = dict(zip(obl_fields, row))
+                obligation_summary["total"] += 1
+
+                obl_status = obl.get("ObligationStatus", "")
+                if obl_status == "Completed":
+                    obligation_summary["completed"] += 1
+                elif obl_status == "Active":
+                    obligation_summary["active"] += 1
+
+                # Check if obligation is overdue
+                due = obl.get("DueDate")
+                if due and isinstance(due, datetime) and due < datetime.utcnow():
+                    if obl_status not in ("Completed", "Waived", "Superseded"):
+                        obligation_summary["overdue"] += 1
+                        violations.append({
+                            "type": "obligation_overdue",
+                            "obligation_id": obl["ObligationID"],
+                            "number": obl.get("ObligationNumber", ""),
+                            "due_date": str(due),
+                        })
+                        violation_count += 1
+    except Exception as e:
+        logger.error("Error querying obligations for driver %s: %s", driver_id, e)
+
+    # Calculate risk using same mechanism as permits
+    risk = calculate_risk_score(driver_attrs, violation_count, alert_count)
+
+    # Determine status
+    if violation_count > 0 or obligation_summary["overdue"] > 0:
+        status = STATUS_NON_COMPLIANT if risk >= HIGH_RISK_THRESHOLD else STATUS_AT_RISK
+    elif risk > 0:
+        status = STATUS_AT_RISK
+    else:
+        status = STATUS_COMPLIANT
+
+    return {
+        "driver_id": driver_id,
+        "status": status,
+        "risk_score": risk,
+        "violations": violations,
+        "obligation_summary": obligation_summary,
+    }
+
+
+def evaluate_all_drivers(workspace, project_id=None, update=True):
+    """Evaluate all drivers, optionally filtered by project.
+
+    Args:
+        workspace: Path to geodatabase.
+        project_id: Optional project filter.
+        update: If True, writes results back to the Drivers table.
+
+    Returns:
+        List of evaluation result dicts.
+    """
+    table = f"{workspace}/Drivers"
+    fields = [
+        "DriverID", "DriverName", "DriverType", "DriverStatus",
+        "ComplianceStatus", "RiskScore", "ExpirationDate",
+        "NextReviewDate", "IssuingAgency", "ProjectID",
+    ]
+
+    where = "1=1"
+    if project_id:
+        where = f"ProjectID = '{project_id}'"
+
+    results = []
+    try:
+        with arcpy.da.SearchCursor(table, fields, where_clause=where) as cursor:
+            for row in cursor:
+                attrs = dict(zip(fields, row))
+                result = evaluate_driver(workspace, attrs)
+                results.append(result)
+    except Exception as e:
+        logger.error("Error evaluating drivers: %s", e)
+        return results
+
+    if update and results:
+        _update_driver_statuses(workspace, results)
+
+    logger.info("Evaluated %d drivers: %d compliant, %d non-compliant, %d at-risk",
+                len(results),
+                sum(1 for r in results if r["status"] == STATUS_COMPLIANT),
+                sum(1 for r in results if r["status"] == STATUS_NON_COMPLIANT),
+                sum(1 for r in results if r["status"] == STATUS_AT_RISK))
+
+    return results
+
+
+def _update_driver_statuses(workspace, results):
+    """Write evaluation results back to the Drivers table."""
+    table = f"{workspace}/Drivers"
+    update_fields = ["DriverID", "ComplianceStatus", "RiskScore"]
+    status_map = {r["driver_id"]: r for r in results}
+    try:
+        with arcpy.da.UpdateCursor(table, update_fields) as cursor:
+            for row in cursor:
+                did = row[0]
+                if did in status_map:
+                    row[1] = status_map[did]["status"]
+                    row[2] = status_map[did]["risk_score"]
+                    cursor.updateRow(row)
+        logger.info("Updated %d driver statuses.", len(status_map))
+    except Exception as e:
+        logger.error("Error updating driver statuses: %s", e)
+
+
+def generate_compliance_report(workspace, project_id=None, output_format="dict"):
+    """Generate a comprehensive compliance report covering drivers, obligations, and tasks.
+
+    Args:
+        workspace: Path to geodatabase.
+        project_id: Optional project filter.
+        output_format: "dict" for Python dict, "csv" for CSV string.
+
+    Returns:
+        Compliance report data.
+    """
+    report = {
+        "generated_at": datetime.utcnow().isoformat(),
+        "project_id": project_id,
+        "drivers": {"total": 0, "compliant": 0, "non_compliant": 0, "at_risk": 0},
+        "obligations": {"total": 0, "active": 0, "overdue": 0, "completed": 0},
+        "tasks": {"total": 0, "in_progress": 0, "overdue": 0, "completed": 0},
+        "details": [],
+    }
+
+    # Driver summary
+    driver_results = evaluate_all_drivers(workspace, project_id, update=False)
+    report["drivers"]["total"] = len(driver_results)
+    for r in driver_results:
+        if r["status"] == STATUS_COMPLIANT:
+            report["drivers"]["compliant"] += 1
+        elif r["status"] == STATUS_NON_COMPLIANT:
+            report["drivers"]["non_compliant"] += 1
+        else:
+            report["drivers"]["at_risk"] += 1
+        report["details"].append(r)
+
+    # Obligation summary
+    obl_table = f"{workspace}/Obligations"
+    obl_where = f"ProjectID = '{project_id}'" if project_id else "1=1"
+    try:
+        with arcpy.da.SearchCursor(
+            obl_table, ["ObligationStatus", "DueDate"], where_clause=obl_where
+        ) as cursor:
+            for row in cursor:
+                report["obligations"]["total"] += 1
+                status = row[0] or ""
+                if status == "Completed":
+                    report["obligations"]["completed"] += 1
+                elif status == "Active":
+                    report["obligations"]["active"] += 1
+                due = row[1]
+                if due and isinstance(due, datetime) and due < datetime.utcnow():
+                    if status not in ("Completed", "Waived", "Superseded"):
+                        report["obligations"]["overdue"] += 1
+    except Exception as e:
+        logger.error("Error querying obligations for report: %s", e)
+
+    # Task summary
+    task_table = f"{workspace}/Tasks"
+    task_where = f"ProjectID = '{project_id}'" if project_id else "1=1"
+    try:
+        with arcpy.da.SearchCursor(
+            task_table, ["TaskStatus", "DueDate"], where_clause=task_where
+        ) as cursor:
+            for row in cursor:
+                report["tasks"]["total"] += 1
+                status = row[0] or ""
+                if status == "Completed":
+                    report["tasks"]["completed"] += 1
+                elif status == "InProgress":
+                    report["tasks"]["in_progress"] += 1
+                due = row[1]
+                if due and isinstance(due, datetime) and due < datetime.utcnow():
+                    if status not in ("Completed", "Cancelled"):
+                        report["tasks"]["overdue"] += 1
+    except Exception as e:
+        logger.error("Error querying tasks for report: %s", e)
+
+    return report
+
+
+# ---------------------------------------------------------------------------
 # CLI Entry Point
 # ---------------------------------------------------------------------------
 
@@ -466,6 +688,18 @@ def main():
     parser.add_argument(
         "--permit-id",
         help="Evaluate a single permit by ID.",
+    )
+    parser.add_argument(
+        "--driver-id",
+        help="Evaluate a single driver by ID.",
+    )
+    parser.add_argument(
+        "--project-id",
+        help="Filter evaluation to a specific project.",
+    )
+    parser.add_argument(
+        "--report", action="store_true",
+        help="Generate a comprehensive compliance report.",
     )
 
     args = parser.parse_args()
@@ -493,7 +727,32 @@ def main():
 
     arcpy.env.workspace = workspace
 
-    if args.permit_id:
+    if args.report:
+        # Comprehensive compliance report
+        report = generate_compliance_report(
+            workspace, project_id=args.project_id
+        )
+        print(json.dumps(report, indent=2, default=str))
+    elif args.driver_id:
+        # Single driver evaluation
+        table = f"{workspace}/Drivers"
+        fields = [
+            "DriverID", "DriverName", "DriverType", "DriverStatus",
+            "ComplianceStatus", "RiskScore", "ExpirationDate",
+            "NextReviewDate", "IssuingAgency", "ProjectID",
+        ]
+        with arcpy.da.SearchCursor(
+            table, fields,
+            where_clause=f"DriverID = '{args.driver_id}'"
+        ) as cursor:
+            for row in cursor:
+                attrs = dict(zip(fields, row))
+                result = evaluate_driver(workspace, attrs)
+                print(json.dumps(result, indent=2, default=str))
+                return
+        logger.error("Driver not found: %s", args.driver_id)
+        sys.exit(1)
+    elif args.permit_id:
         # Single permit evaluation
         fc = f"{workspace}/EnvironmentalPermits"
         fields = [
@@ -509,16 +768,30 @@ def main():
                 result = evaluate_permit(workspace, attrs)
                 print(json.dumps(result, indent=2, default=str))
                 return
-
         logger.error("Permit not found: %s", args.permit_id)
         sys.exit(1)
     else:
-        results = evaluate_all_permits(workspace, update=not args.no_update)
+        # Evaluate all permits and drivers
+        permit_results = evaluate_all_permits(
+            workspace, update=not args.no_update
+        )
+        driver_results = evaluate_all_drivers(
+            workspace, project_id=args.project_id,
+            update=not args.no_update
+        )
         summary = {
-            "total": len(results),
-            "compliant": sum(1 for r in results if r["status"] == STATUS_COMPLIANT),
-            "non_compliant": sum(1 for r in results if r["status"] == STATUS_NON_COMPLIANT),
-            "at_risk": sum(1 for r in results if r["status"] == STATUS_AT_RISK),
+            "permits": {
+                "total": len(permit_results),
+                "compliant": sum(1 for r in permit_results if r["status"] == STATUS_COMPLIANT),
+                "non_compliant": sum(1 for r in permit_results if r["status"] == STATUS_NON_COMPLIANT),
+                "at_risk": sum(1 for r in permit_results if r["status"] == STATUS_AT_RISK),
+            },
+            "drivers": {
+                "total": len(driver_results),
+                "compliant": sum(1 for r in driver_results if r["status"] == STATUS_COMPLIANT),
+                "non_compliant": sum(1 for r in driver_results if r["status"] == STATUS_NON_COMPLIANT),
+                "at_risk": sum(1 for r in driver_results if r["status"] == STATUS_AT_RISK),
+            },
         }
         print(json.dumps(summary, indent=2))
 
