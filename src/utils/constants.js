@@ -224,15 +224,15 @@ export const Fields = Object.freeze({
 export const API = Object.freeze({
   /** Base URL of the ArcGIS Enterprise portal. Override via window.__ECMS_CONFIG. */
   get PORTAL_URL() {
-    return window.__ECMS_CONFIG?.portalUrl ?? "https://enterprise.example.com/portal";
+    return window.__ECMS_CONFIG?.portalUrl ?? "https://geomatics.worley.com/portal";
   },
   /** Base feature service URL. */
   get FEATURE_SERVICE_URL() {
-    return window.__ECMS_CONFIG?.featureServiceUrl ?? "https://enterprise.example.com/server/rest/services/ECMS/FeatureServer";
+    return window.__ECMS_CONFIG?.featureServiceUrl ?? "https://geomatics.worley.com/server/rest/services/ECMS/FeatureServer";
   },
   /** GP service for server-side compliance checks. */
   get GP_COMPLIANCE_URL() {
-    return window.__ECMS_CONFIG?.gpComplianceUrl ?? "https://enterprise.example.com/server/rest/services/ECMS/ComplianceCheck/GPServer/RunComplianceCheck";
+    return window.__ECMS_CONFIG?.gpComplianceUrl ?? "https://geomatics.worley.com/server/rest/services/ECMS/ComplianceCheck/GPServer/RunComplianceCheck";
   },
   /** Layer indices within the feature service. */
   LAYERS: Object.freeze({
