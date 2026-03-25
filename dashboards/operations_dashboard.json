@@ -1,0 +1,547 @@
+{
+  "version": 56,
+  "authoringApp": "ArcGIS Dashboards",
+  "authoringAppVersion": "11.3",
+  "theme": "dark",
+  "headerPanel": {
+    "type": "headerPanel",
+    "size": "small",
+    "title": "Environmental Compliance — Operations Center",
+    "subtitle": "Day-to-day monitoring and response",
+    "iconUrl": "",
+    "selectors": [
+      {
+        "type": "categorySelectorWidget",
+        "id": "ops_selector_facility",
+        "name": "Facility Filter",
+        "datasets": [
+          {
+            "type": "serviceDataset",
+            "dataSource": {
+              "type": "featureServiceDataSource",
+              "itemId": "{{PERMITS_WEBMAP_ITEM_ID}}",
+              "layerId": 0,
+              "name": "EnvironmentalPermits"
+            }
+          }
+        ],
+        "field": "FacilityName",
+        "label": "Facility",
+        "displayType": "dropdown",
+        "selectionMode": "multi",
+        "operator": "equal"
+      },
+      {
+        "type": "categorySelectorWidget",
+        "id": "ops_selector_priority",
+        "name": "Priority Filter",
+        "datasets": [
+          {
+            "type": "serviceDataset",
+            "dataSource": {
+              "type": "featureServiceDataSource",
+              "itemId": "{{ALERTS_ITEM_ID}}",
+              "layerId": 0,
+              "name": "ComplianceAlerts"
+            }
+          }
+        ],
+        "field": "Priority",
+        "label": "Alert Priority",
+        "displayType": "dropdown",
+        "selectionMode": "multi",
+        "operator": "equal"
+      }
+    ]
+  },
+  "leftPanel": null,
+  "widgets": [
+    {
+      "type": "indicatorWidget",
+      "id": "ops_kpi_unacknowledged_alerts",
+      "name": "Unacknowledged Alerts",
+      "row": 0,
+      "column": 0,
+      "width": 3,
+      "height": 1,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{ALERTS_ITEM_ID}}",
+            "layerId": 0,
+            "name": "ComplianceAlerts"
+          },
+          "filter": {
+            "type": "filterByField",
+            "field": "IsAcknowledged",
+            "operator": "equal",
+            "value": 0
+          }
+        }
+      ],
+      "valueType": "statistic",
+      "statisticType": "count",
+      "title": "Unacknowledged Alerts",
+      "valueFormat": { "digitSeparator": true, "decimals": 0 },
+      "iconType": "symbol",
+      "icon": "bell",
+      "iconColor": "#D83020",
+      "conditionalFormatting": [
+        { "operator": "greaterThan", "value": 10, "color": "#D83020" },
+        { "operator": "greaterThan", "value": 0, "color": "#FFAA00" },
+        { "operator": "equal", "value": 0, "color": "#338A2E" }
+      ],
+      "noDataText": "0"
+    },
+    {
+      "type": "indicatorWidget",
+      "id": "ops_kpi_inspections_today",
+      "name": "Inspections Scheduled Today",
+      "row": 0,
+      "column": 3,
+      "width": 3,
+      "height": 1,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{INSPECTIONS_ITEM_ID}}",
+            "layerId": 0,
+            "name": "Inspections"
+          },
+          "filter": {
+            "type": "filterByExpression",
+            "expression": "ScheduledDate >= CURRENT_DATE AND ScheduledDate < DATEADD(CURRENT_DATE, 1, 'day')"
+          }
+        }
+      ],
+      "valueType": "statistic",
+      "statisticType": "count",
+      "title": "Inspections Today",
+      "valueFormat": { "digitSeparator": true, "decimals": 0 },
+      "iconType": "symbol",
+      "icon": "clipboard-check",
+      "iconColor": "#0079C1",
+      "noDataText": "0"
+    },
+    {
+      "type": "indicatorWidget",
+      "id": "ops_kpi_stations_offline",
+      "name": "Stations Offline",
+      "row": 0,
+      "column": 6,
+      "width": 3,
+      "height": 1,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{MONITORING_STATIONS_ITEM_ID}}",
+            "layerId": 0,
+            "name": "MonitoringStations"
+          },
+          "filter": {
+            "type": "filterByField",
+            "field": "StationStatus",
+            "operator": "equal",
+            "value": "Offline"
+          }
+        }
+      ],
+      "valueType": "statistic",
+      "statisticType": "count",
+      "title": "Stations Offline",
+      "valueFormat": { "digitSeparator": true, "decimals": 0 },
+      "iconType": "symbol",
+      "icon": "exclamation-mark-circle",
+      "iconColor": "#D83020",
+      "conditionalFormatting": [
+        { "operator": "greaterThan", "value": 0, "color": "#D83020" },
+        { "operator": "equal", "value": 0, "color": "#338A2E" }
+      ],
+      "noDataText": "0"
+    },
+    {
+      "type": "indicatorWidget",
+      "id": "ops_kpi_failed_checks",
+      "name": "Failed Checks (24h)",
+      "row": 0,
+      "column": 9,
+      "width": 3,
+      "height": 1,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{COMPLIANCE_CHECKS_ITEM_ID}}",
+            "layerId": 0,
+            "name": "ComplianceChecks"
+          },
+          "filter": {
+            "type": "filterByExpression",
+            "expression": "CheckResult = 'FAIL' AND CheckDate >= DATEADD(CURRENT_TIMESTAMP, -1, 'day')"
+          }
+        }
+      ],
+      "valueType": "statistic",
+      "statisticType": "count",
+      "title": "Failed Checks (24h)",
+      "valueFormat": { "digitSeparator": true, "decimals": 0 },
+      "iconType": "symbol",
+      "icon": "x-circle",
+      "iconColor": "#D83020",
+      "conditionalFormatting": [
+        { "operator": "greaterThan", "value": 0, "color": "#D83020" },
+        { "operator": "equal", "value": 0, "color": "#338A2E" }
+      ],
+      "noDataText": "0"
+    },
+
+    {
+      "type": "listWidget",
+      "id": "ops_alert_feed",
+      "name": "Real-Time Alert Feed",
+      "row": 1,
+      "column": 0,
+      "width": 6,
+      "height": 5,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{ALERTS_ITEM_ID}}",
+            "layerId": 0,
+            "name": "ComplianceAlerts"
+          },
+          "sortField": "AlertDate",
+          "sortOrder": "desc",
+          "maxFeatures": 50,
+          "filter": {
+            "type": "filterByField",
+            "field": "IsAcknowledged",
+            "operator": "equal",
+            "value": 0
+          }
+        }
+      ],
+      "title": "Active Alerts",
+      "lineItemTemplate": {
+        "title": "{AlertType}: {AlertMessage}",
+        "subtitle": "{PermitID} | {FacilityName} | {AlertDate}",
+        "icon": {
+          "type": "expression",
+          "expression": "IIf($datapoint.Priority == 'Critical', 'exclamation-mark-triangle', IIf($datapoint.Priority == 'High', 'exclamation-mark-circle', 'information'))"
+        },
+        "iconColor": {
+          "type": "expression",
+          "expression": "IIf($datapoint.Priority == 'Critical', '#D83020', IIf($datapoint.Priority == 'High', '#FF6600', IIf($datapoint.Priority == 'Medium', '#FFAA00', '#0079C1')))"
+        }
+      },
+      "showLastUpdate": true,
+      "autoRefresh": true,
+      "refreshInterval": 30,
+      "events": [
+        {
+          "type": "selectionChanged",
+          "actions": [
+            {
+              "type": "zoom",
+              "targetId": "ops_map_overview"
+            },
+            {
+              "type": "showDetails",
+              "targetId": "ops_map_overview"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "customAction",
+          "id": "acknowledge_alert",
+          "label": "Acknowledge Alert",
+          "icon": "check",
+          "tooltip": "Mark this alert as acknowledged",
+          "urlTemplate": "{{FEATURE_SERVICE_URL}}/2/applyEdits",
+          "method": "POST",
+          "body": {
+            "updates": [
+              {
+                "attributes": {
+                  "ObjectID": "{ObjectID}",
+                  "IsAcknowledged": 1,
+                  "AcknowledgedDate": "{$now}",
+                  "AcknowledgedBy": "{$user}"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "mapWidget",
+      "id": "ops_map_overview",
+      "name": "Operations Map",
+      "row": 1,
+      "column": 6,
+      "width": 6,
+      "height": 5,
+      "webmap": {
+        "itemId": "{{OPS_WEBMAP_ITEM_ID}}",
+        "type": "webmap"
+      },
+      "mapTools": [
+        "legend",
+        "zoom",
+        "search",
+        "compass",
+        "fullExtent"
+      ],
+      "enablePopups": true,
+      "enableNavigation": true,
+      "enableSearch": true,
+      "enableLegend": true,
+      "flashActionEnabled": true,
+      "zoomActionEnabled": true,
+      "events": [
+        {
+          "type": "selectionChanged",
+          "actions": [
+            {
+              "type": "filter",
+              "targetId": "ops_alert_feed"
+            },
+            {
+              "type": "filter",
+              "targetId": "ops_station_status"
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "type": "listWidget",
+      "id": "ops_upcoming_inspections",
+      "name": "Upcoming Inspections",
+      "row": 2,
+      "column": 0,
+      "width": 4,
+      "height": 5,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{INSPECTIONS_ITEM_ID}}",
+            "layerId": 0,
+            "name": "Inspections"
+          },
+          "sortField": "ScheduledDate",
+          "sortOrder": "asc",
+          "maxFeatures": 30,
+          "filter": {
+            "type": "filterByExpression",
+            "expression": "ScheduledDate >= CURRENT_DATE AND InspectionStatus = 'Scheduled'"
+          }
+        }
+      ],
+      "title": "Upcoming Inspections (Next 30 Days)",
+      "lineItemTemplate": {
+        "title": "{InspectionType}: {PermitID}",
+        "subtitle": "{FacilityName} | Scheduled: {ScheduledDate}",
+        "icon": {
+          "type": "static",
+          "value": "calendar"
+        },
+        "iconColor": "#0079C1"
+      },
+      "showLastUpdate": true,
+      "events": [
+        {
+          "type": "selectionChanged",
+          "actions": [
+            {
+              "type": "zoom",
+              "targetId": "ops_map_overview"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "customAction",
+          "id": "schedule_inspection",
+          "label": "Reschedule",
+          "icon": "calendar",
+          "tooltip": "Reschedule this inspection",
+          "urlTemplate": "{{PORTAL_URL}}/apps/formviewer?itemId={{INSPECTION_FORM_ID}}&objectId={ObjectID}"
+        }
+      ]
+    },
+    {
+      "type": "listWidget",
+      "id": "ops_station_status",
+      "name": "Monitoring Station Status",
+      "row": 2,
+      "column": 4,
+      "width": 4,
+      "height": 5,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{MONITORING_STATIONS_ITEM_ID}}",
+            "layerId": 0,
+            "name": "MonitoringStations"
+          },
+          "sortField": "LastReportTime",
+          "sortOrder": "desc",
+          "maxFeatures": 50
+        }
+      ],
+      "title": "Monitoring Station Status",
+      "lineItemTemplate": {
+        "title": "{StationName} ({StationID})",
+        "subtitle": "Status: {StationStatus} | Last report: {LastReportTime}",
+        "icon": {
+          "type": "expression",
+          "expression": "IIf($datapoint.StationStatus == 'Online', 'check-circle', IIf($datapoint.StationStatus == 'Warning', 'exclamation-mark-circle', 'x-circle'))"
+        },
+        "iconColor": {
+          "type": "expression",
+          "expression": "IIf($datapoint.StationStatus == 'Online', '#338A2E', IIf($datapoint.StationStatus == 'Warning', '#FFAA00', '#D83020'))"
+        }
+      },
+      "showLastUpdate": true,
+      "autoRefresh": true,
+      "refreshInterval": 60,
+      "events": [
+        {
+          "type": "selectionChanged",
+          "actions": [
+            {
+              "type": "zoom",
+              "targetId": "ops_map_overview"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "listWidget",
+      "id": "ops_recent_checks",
+      "name": "Recent Compliance Checks",
+      "row": 2,
+      "column": 8,
+      "width": 4,
+      "height": 5,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{COMPLIANCE_CHECKS_ITEM_ID}}",
+            "layerId": 0,
+            "name": "ComplianceChecks"
+          },
+          "sortField": "CheckDate",
+          "sortOrder": "desc",
+          "maxFeatures": 25,
+          "filter": {
+            "type": "filterByExpression",
+            "expression": "CheckDate >= DATEADD(CURRENT_TIMESTAMP, -7, 'day')"
+          }
+        }
+      ],
+      "title": "Recent Compliance Checks (7 Days)",
+      "lineItemTemplate": {
+        "title": "{ParameterName}: {CheckResult}",
+        "subtitle": "{PermitID} | {FacilityName} | {CheckDate}",
+        "icon": {
+          "type": "expression",
+          "expression": "IIf($datapoint.CheckResult == 'PASS', 'check-circle', IIf($datapoint.CheckResult == 'WARNING', 'exclamation-mark-circle', 'x-circle'))"
+        },
+        "iconColor": {
+          "type": "expression",
+          "expression": "IIf($datapoint.CheckResult == 'PASS', '#338A2E', IIf($datapoint.CheckResult == 'WARNING', '#FFAA00', '#D83020'))"
+        }
+      },
+      "showLastUpdate": true,
+      "events": [
+        {
+          "type": "selectionChanged",
+          "actions": [
+            {
+              "type": "zoom",
+              "targetId": "ops_map_overview"
+            },
+            {
+              "type": "filter",
+              "targetId": "ops_alert_feed"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "layout": {
+      "type": "grid",
+      "columns": 12,
+      "rowHeight": 70,
+      "gap": 6
+    },
+    "refreshInterval": 60,
+    "maxPaginationRecords": 5000,
+    "theme": {
+      "name": "dark",
+      "primaryColor": "#0079C1",
+      "secondaryColor": "#338A2E",
+      "warningColor": "#FFAA00",
+      "dangerColor": "#D83020",
+      "backgroundColor": "#1E1E1E",
+      "textColor": "#F0F0F0"
+    }
+  },
+  "dataSources": {
+    "permits": {
+      "itemId": "{{PERMITS_WEBMAP_ITEM_ID}}",
+      "layerId": 0,
+      "name": "EnvironmentalPermits",
+      "url": "{{FEATURE_SERVICE_URL}}/0"
+    },
+    "alerts": {
+      "itemId": "{{ALERTS_ITEM_ID}}",
+      "layerId": 0,
+      "name": "ComplianceAlerts",
+      "url": "{{FEATURE_SERVICE_URL}}/2"
+    },
+    "inspections": {
+      "itemId": "{{INSPECTIONS_ITEM_ID}}",
+      "layerId": 0,
+      "name": "Inspections",
+      "url": "{{FEATURE_SERVICE_URL}}/4"
+    },
+    "monitoringStations": {
+      "itemId": "{{MONITORING_STATIONS_ITEM_ID}}",
+      "layerId": 0,
+      "name": "MonitoringStations",
+      "url": "{{FEATURE_SERVICE_URL}}/5"
+    },
+    "complianceChecks": {
+      "itemId": "{{COMPLIANCE_CHECKS_ITEM_ID}}",
+      "layerId": 0,
+      "name": "ComplianceChecks",
+      "url": "{{FEATURE_SERVICE_URL}}/6"
+    }
+  }
+}

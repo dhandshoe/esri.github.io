@@ -75,7 +75,7 @@ var daysUntilExpiration = IIf(
     null
 )
 
-var expiringsoon = IIf(
+var expiringSoon = IIf(
     !IsEmpty(daysUntilExpiration) && daysUntilExpiration <= 30,
     true,
     false
@@ -89,7 +89,7 @@ var reviewSoon = IIf(
 
 // If the risk score is in the medium band OR the permit is near
 // expiration/review, flag as AT_RISK
-if (riskScore > 40 || expiringsSoon || reviewSoon) {
+if (riskScore > 40 || expiringSoon || reviewSoon) {
     return "AT_RISK"
 }
 

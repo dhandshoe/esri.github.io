@@ -1,0 +1,670 @@
+{
+  "version": 56,
+  "authoringApp": "ArcGIS Dashboards",
+  "authoringAppVersion": "11.3",
+  "theme": "light",
+  "headerPanel": {
+    "type": "headerPanel",
+    "size": "medium",
+    "title": "Environmental Compliance Dashboard",
+    "subtitle": "Real-time permit and compliance monitoring",
+    "iconUrl": "",
+    "selectors": [
+      {
+        "type": "categorySelectorWidget",
+        "id": "selector_permit_type",
+        "name": "Permit Type Filter",
+        "datasets": [
+          {
+            "type": "serviceDataset",
+            "dataSource": {
+              "type": "featureServiceDataSource",
+              "itemId": "{{PERMITS_WEBMAP_ITEM_ID}}",
+              "layerId": 0,
+              "name": "EnvironmentalPermits"
+            }
+          }
+        ],
+        "field": "PermitType",
+        "label": "Permit Type",
+        "displayType": "dropdown",
+        "selectionMode": "multi",
+        "operator": "equal"
+      },
+      {
+        "type": "categorySelectorWidget",
+        "id": "selector_issuing_agency",
+        "name": "Issuing Agency Filter",
+        "datasets": [
+          {
+            "type": "serviceDataset",
+            "dataSource": {
+              "type": "featureServiceDataSource",
+              "itemId": "{{PERMITS_WEBMAP_ITEM_ID}}",
+              "layerId": 0,
+              "name": "EnvironmentalPermits"
+            }
+          }
+        ],
+        "field": "IssuingAgency",
+        "label": "Issuing Agency",
+        "displayType": "dropdown",
+        "selectionMode": "multi",
+        "operator": "equal"
+      },
+      {
+        "type": "categorySelectorWidget",
+        "id": "selector_status",
+        "name": "Status Filter",
+        "datasets": [
+          {
+            "type": "serviceDataset",
+            "dataSource": {
+              "type": "featureServiceDataSource",
+              "itemId": "{{PERMITS_WEBMAP_ITEM_ID}}",
+              "layerId": 0,
+              "name": "EnvironmentalPermits"
+            }
+          }
+        ],
+        "field": "Status",
+        "label": "Status",
+        "displayType": "dropdown",
+        "selectionMode": "multi",
+        "operator": "equal"
+      }
+    ]
+  },
+  "leftPanel": null,
+  "widgets": [
+    {
+      "type": "indicatorWidget",
+      "id": "kpi_total_active_permits",
+      "name": "Total Active Permits",
+      "row": 0,
+      "column": 0,
+      "width": 2,
+      "height": 1,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{PERMITS_WEBMAP_ITEM_ID}}",
+            "layerId": 0,
+            "name": "EnvironmentalPermits"
+          },
+          "filter": {
+            "type": "filterByField",
+            "field": "Status",
+            "operator": "not equal",
+            "value": "Closed"
+          }
+        }
+      ],
+      "valueType": "statistic",
+      "statisticType": "count",
+      "title": "Total Active Permits",
+      "description": "Currently active environmental permits",
+      "valueFormat": {
+        "digitSeparator": true,
+        "decimals": 0
+      },
+      "iconType": "symbol",
+      "icon": "clipboard-check",
+      "iconColor": "#0079C1",
+      "noDataText": "N/A",
+      "events": [
+        {
+          "type": "selectionChanged",
+          "actions": [
+            {
+              "type": "filter",
+              "targetId": "map_permits"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "indicatorWidget",
+      "id": "kpi_compliant_pct",
+      "name": "Compliance Rate",
+      "row": 0,
+      "column": 2,
+      "width": 2,
+      "height": 1,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{PERMITS_WEBMAP_ITEM_ID}}",
+            "layerId": 0,
+            "name": "EnvironmentalPermits"
+          }
+        }
+      ],
+      "valueType": "expression",
+      "expressionInfo": {
+        "expression": "var fs = $datapoint; var total = Count(fs); var compliant = Count(Filter(fs, 'RiskScore <= 40 AND Status <> \\'Expired\\'')); return IIf(total > 0, Round((compliant / total) * 100, 1), 0);",
+        "returnType": "number",
+        "title": "Compliance Percentage"
+      },
+      "title": "% Compliant",
+      "description": "Permits meeting all compliance requirements",
+      "valueFormat": {
+        "digitSeparator": true,
+        "decimals": 1,
+        "suffix": "%"
+      },
+      "iconType": "symbol",
+      "icon": "check-circle",
+      "iconColor": "#338A2E",
+      "gaugeOptions": {
+        "type": "meter",
+        "min": 0,
+        "max": 100,
+        "thresholds": [
+          { "value": 70, "color": "#D83020" },
+          { "value": 85, "color": "#FFAA00" },
+          { "value": 100, "color": "#338A2E" }
+        ]
+      },
+      "noDataText": "N/A"
+    },
+    {
+      "type": "indicatorWidget",
+      "id": "kpi_active_violations",
+      "name": "Active Violations",
+      "row": 0,
+      "column": 4,
+      "width": 2,
+      "height": 1,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{VIOLATIONS_ITEM_ID}}",
+            "layerId": 0,
+            "name": "ComplianceViolations"
+          },
+          "filter": {
+            "type": "filterByField",
+            "field": "ViolationStatus",
+            "operator": "equal",
+            "value": "Open"
+          }
+        }
+      ],
+      "valueType": "statistic",
+      "statisticType": "count",
+      "title": "Active Violations",
+      "description": "Open compliance violations requiring action",
+      "valueFormat": {
+        "digitSeparator": true,
+        "decimals": 0
+      },
+      "iconType": "symbol",
+      "icon": "exclamation-mark-triangle",
+      "iconColor": "#D83020",
+      "conditionalFormatting": [
+        { "operator": "greaterThan", "value": 0, "color": "#D83020" },
+        { "operator": "equal", "value": 0, "color": "#338A2E" }
+      ],
+      "noDataText": "0"
+    },
+    {
+      "type": "indicatorWidget",
+      "id": "kpi_open_alerts",
+      "name": "Open Alerts",
+      "row": 0,
+      "column": 6,
+      "width": 2,
+      "height": 1,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{ALERTS_ITEM_ID}}",
+            "layerId": 0,
+            "name": "ComplianceAlerts"
+          },
+          "filter": {
+            "type": "filterByField",
+            "field": "IsAcknowledged",
+            "operator": "equal",
+            "value": 0
+          }
+        }
+      ],
+      "valueType": "statistic",
+      "statisticType": "count",
+      "title": "Open Alerts",
+      "description": "Unacknowledged compliance alerts",
+      "valueFormat": {
+        "digitSeparator": true,
+        "decimals": 0
+      },
+      "iconType": "symbol",
+      "icon": "bell",
+      "iconColor": "#FFAA00",
+      "noDataText": "0"
+    },
+    {
+      "type": "indicatorWidget",
+      "id": "kpi_avg_risk_score",
+      "name": "Avg Risk Score",
+      "row": 0,
+      "column": 8,
+      "width": 2,
+      "height": 1,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{PERMITS_WEBMAP_ITEM_ID}}",
+            "layerId": 0,
+            "name": "EnvironmentalPermits"
+          }
+        }
+      ],
+      "valueType": "statistic",
+      "statisticType": "avg",
+      "statisticField": "RiskScore",
+      "title": "Avg Risk Score",
+      "description": "Average risk score across all active permits",
+      "valueFormat": {
+        "digitSeparator": true,
+        "decimals": 1
+      },
+      "iconType": "symbol",
+      "icon": "gauge",
+      "iconColor": "#FFAA00",
+      "conditionalFormatting": [
+        { "operator": "greaterThan", "value": 60, "color": "#D83020" },
+        { "operator": "greaterThan", "value": 40, "color": "#FFAA00" },
+        { "operator": "lessThanOrEqual", "value": 40, "color": "#338A2E" }
+      ],
+      "noDataText": "N/A"
+    },
+    {
+      "type": "indicatorWidget",
+      "id": "kpi_expiring_30days",
+      "name": "Permits Expiring (30 Days)",
+      "row": 0,
+      "column": 10,
+      "width": 2,
+      "height": 1,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{PERMITS_WEBMAP_ITEM_ID}}",
+            "layerId": 0,
+            "name": "EnvironmentalPermits"
+          },
+          "filter": {
+            "type": "filterByExpression",
+            "expression": "ExpirationDate >= CURRENT_TIMESTAMP AND ExpirationDate <= DATEADD(CURRENT_TIMESTAMP, 30, 'day')"
+          }
+        }
+      ],
+      "valueType": "statistic",
+      "statisticType": "count",
+      "title": "Expiring in 30 Days",
+      "description": "Permits expiring within the next 30 days",
+      "valueFormat": {
+        "digitSeparator": true,
+        "decimals": 0
+      },
+      "iconType": "symbol",
+      "icon": "clock",
+      "iconColor": "#FFAA00",
+      "conditionalFormatting": [
+        { "operator": "greaterThan", "value": 5, "color": "#D83020" },
+        { "operator": "greaterThan", "value": 0, "color": "#FFAA00" },
+        { "operator": "equal", "value": 0, "color": "#338A2E" }
+      ],
+      "noDataText": "0"
+    },
+
+    {
+      "type": "mapWidget",
+      "id": "map_permits",
+      "name": "Permit Locations",
+      "row": 1,
+      "column": 0,
+      "width": 7,
+      "height": 4,
+      "webmap": {
+        "itemId": "{{PERMITS_WEBMAP_ITEM_ID}}",
+        "type": "webmap"
+      },
+      "mapTools": [
+        "legend",
+        "zoom",
+        "search",
+        "basemapGallery",
+        "compass",
+        "fullExtent",
+        "measure",
+        "bookmarks"
+      ],
+      "enablePopups": true,
+      "enableNavigation": true,
+      "enableSearch": true,
+      "enableLegend": true,
+      "flashActionEnabled": true,
+      "zoomActionEnabled": true,
+      "events": [
+        {
+          "type": "selectionChanged",
+          "actions": [
+            {
+              "type": "filter",
+              "targetId": "pie_status_distribution"
+            },
+            {
+              "type": "filter",
+              "targetId": "chart_violations_by_type"
+            },
+            {
+              "type": "showDetails",
+              "targetId": "list_high_risk"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "pieChartWidget",
+      "id": "pie_status_distribution",
+      "name": "Compliance Status Distribution",
+      "row": 1,
+      "column": 7,
+      "width": 5,
+      "height": 4,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{PERMITS_WEBMAP_ITEM_ID}}",
+            "layerId": 0,
+            "name": "EnvironmentalPermits"
+          }
+        }
+      ],
+      "categoryField": "ComplianceStatus",
+      "valueType": "count",
+      "title": "Compliance Status Distribution",
+      "sliceColors": [
+        { "value": "COMPLIANT", "color": "#338A2E" },
+        { "value": "AT_RISK", "color": "#FFAA00" },
+        { "value": "HIGH_RISK", "color": "#FF6600" },
+        { "value": "CRITICAL_RISK", "color": "#D83020" },
+        { "value": "EXPIRED", "color": "#730000" },
+        { "value": "OVERDUE_REVIEW", "color": "#A83800" }
+      ],
+      "showLabels": true,
+      "showPercentages": true,
+      "showLegend": true,
+      "innerRadius": 40,
+      "events": [
+        {
+          "type": "selectionChanged",
+          "actions": [
+            {
+              "type": "filter",
+              "targetId": "map_permits"
+            },
+            {
+              "type": "filter",
+              "targetId": "list_high_risk"
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "type": "serialChartWidget",
+      "id": "chart_violations_by_type",
+      "name": "Violations by Permit Type",
+      "row": 2,
+      "column": 0,
+      "width": 6,
+      "height": 4,
+      "chartType": "bar",
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{VIOLATIONS_ITEM_ID}}",
+            "layerId": 0,
+            "name": "ComplianceViolations"
+          }
+        }
+      ],
+      "categoryField": "PermitType",
+      "valueType": "count",
+      "title": "Violations by Permit Type",
+      "description": "Count of open violations grouped by permit type",
+      "orientation": "horizontal",
+      "showValues": true,
+      "showLegend": false,
+      "colors": ["#D83020"],
+      "sortOrder": "descending",
+      "sortByValue": true,
+      "maxCategories": 10,
+      "events": [
+        {
+          "type": "selectionChanged",
+          "actions": [
+            {
+              "type": "filter",
+              "targetId": "map_permits"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "serialChartWidget",
+      "id": "chart_compliance_timeline",
+      "name": "Compliance Events Timeline",
+      "row": 2,
+      "column": 6,
+      "width": 6,
+      "height": 4,
+      "chartType": "line",
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{COMPLIANCE_EVENTS_ITEM_ID}}",
+            "layerId": 0,
+            "name": "ComplianceEvents"
+          }
+        }
+      ],
+      "categoryField": "EventDate",
+      "categoryType": "date",
+      "dateGrouping": "week",
+      "valueType": "count",
+      "title": "Compliance Events Timeline",
+      "description": "Volume of compliance events over time",
+      "showLegend": false,
+      "showValues": false,
+      "lineSmoothing": true,
+      "colors": ["#0079C1"],
+      "dateRange": {
+        "type": "relative",
+        "unit": "month",
+        "value": 6
+      }
+    },
+
+    {
+      "type": "serialChartWidget",
+      "id": "chart_compliance_trend",
+      "name": "Compliance Trend (12 Months)",
+      "row": 3,
+      "column": 0,
+      "width": 7,
+      "height": 4,
+      "chartType": "line",
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{COMPLIANCE_EVENTS_ITEM_ID}}",
+            "layerId": 0,
+            "name": "ComplianceEvents"
+          }
+        }
+      ],
+      "series": [
+        {
+          "valueField": "CompliantCount",
+          "label": "Compliant",
+          "color": "#338A2E",
+          "lineStyle": "solid"
+        },
+        {
+          "valueField": "NonCompliantCount",
+          "label": "Non-Compliant",
+          "color": "#D83020",
+          "lineStyle": "solid"
+        },
+        {
+          "valueField": "AtRiskCount",
+          "label": "At Risk",
+          "color": "#FFAA00",
+          "lineStyle": "dashed"
+        }
+      ],
+      "categoryField": "ReportMonth",
+      "categoryType": "date",
+      "dateGrouping": "month",
+      "title": "Compliance Trend — Past 12 Months",
+      "showLegend": true,
+      "showValues": false,
+      "lineSmoothing": true,
+      "dateRange": {
+        "type": "relative",
+        "unit": "month",
+        "value": 12
+      }
+    },
+    {
+      "type": "listWidget",
+      "id": "list_high_risk",
+      "name": "Top 10 Highest Risk Permits",
+      "row": 3,
+      "column": 7,
+      "width": 5,
+      "height": 4,
+      "datasets": [
+        {
+          "type": "serviceDataset",
+          "dataSource": {
+            "type": "featureServiceDataSource",
+            "itemId": "{{PERMITS_WEBMAP_ITEM_ID}}",
+            "layerId": 0,
+            "name": "EnvironmentalPermits"
+          },
+          "sortField": "RiskScore",
+          "sortOrder": "desc",
+          "maxFeatures": 10
+        }
+      ],
+      "title": "Top 10 Highest Risk Permits",
+      "lineItemTemplate": {
+        "title": "{PermitID} — {PermitName}",
+        "subtitle": "Risk: {RiskScore} | Type: {PermitType}",
+        "icon": {
+          "type": "expression",
+          "expression": "IIf($datapoint.RiskScore > 80, 'exclamation-mark-triangle', IIf($datapoint.RiskScore > 60, 'exclamation-mark-circle', 'information'))"
+        },
+        "iconColor": {
+          "type": "expression",
+          "expression": "IIf($datapoint.RiskScore > 80, '#D83020', IIf($datapoint.RiskScore > 60, '#FF6600', '#FFAA00'))"
+        }
+      },
+      "showLastUpdate": true,
+      "events": [
+        {
+          "type": "selectionChanged",
+          "actions": [
+            {
+              "type": "zoom",
+              "targetId": "map_permits"
+            },
+            {
+              "type": "showDetails",
+              "targetId": "map_permits"
+            },
+            {
+              "type": "filter",
+              "targetId": "chart_violations_by_type"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "layout": {
+      "type": "grid",
+      "columns": 12,
+      "rowHeight": 80,
+      "gap": 8
+    },
+    "refreshInterval": 300,
+    "maxPaginationRecords": 5000,
+    "theme": {
+      "name": "light",
+      "primaryColor": "#0079C1",
+      "secondaryColor": "#338A2E",
+      "warningColor": "#FFAA00",
+      "dangerColor": "#D83020",
+      "backgroundColor": "#F8F8F8",
+      "textColor": "#333333"
+    }
+  },
+  "dataSources": {
+    "permits": {
+      "itemId": "{{PERMITS_WEBMAP_ITEM_ID}}",
+      "layerId": 0,
+      "name": "EnvironmentalPermits",
+      "url": "{{FEATURE_SERVICE_URL}}/0"
+    },
+    "violations": {
+      "itemId": "{{VIOLATIONS_ITEM_ID}}",
+      "layerId": 0,
+      "name": "ComplianceViolations",
+      "url": "{{FEATURE_SERVICE_URL}}/1"
+    },
+    "alerts": {
+      "itemId": "{{ALERTS_ITEM_ID}}",
+      "layerId": 0,
+      "name": "ComplianceAlerts",
+      "url": "{{FEATURE_SERVICE_URL}}/2"
+    },
+    "events": {
+      "itemId": "{{COMPLIANCE_EVENTS_ITEM_ID}}",
+      "layerId": 0,
+      "name": "ComplianceEvents",
+      "url": "{{FEATURE_SERVICE_URL}}/3"
+    }
+  }
+}

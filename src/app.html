@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Environmental Compliance Management System</title>
+
+    <!-- ArcGIS Maps SDK for JavaScript -->
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.29/"></script>
+
+    <!-- Calcite Design System -->
+    <script type="module" src="https://js.arcgis.com/calcite-components/2.10.1/calcite.esm.js"></script>
+    <link rel="stylesheet" href="https://js.arcgis.com/calcite-components/2.10.1/calcite.css" />
+
+    <!-- Application styles -->
+    <link rel="stylesheet" href="css/app.css" />
+  </head>
+  <body>
+    <calcite-shell id="app-shell">
+      <!-- Header / Navigation -->
+      <calcite-navigation slot="header">
+        <calcite-navigation-logo
+          slot="logo"
+          heading="ECMS"
+          description="Environmental Compliance Management System"
+          icon="environment-management"
+        ></calcite-navigation-logo>
+
+        <!-- Primary navigation -->
+        <calcite-navigation-item slot="primary" data-panel="compliance" active>
+          Compliance
+        </calcite-navigation-item>
+        <calcite-navigation-item slot="primary" data-panel="alerts">
+          Alerts
+        </calcite-navigation-item>
+        <calcite-navigation-item slot="primary" data-panel="dashboard">
+          Dashboard
+        </calcite-navigation-item>
+        <calcite-navigation-item slot="primary" data-panel="graph">
+          Relationships
+        </calcite-navigation-item>
+
+        <!-- Search -->
+        <div slot="content-end" style="display:flex; align-items:center; gap:8px;">
+          <calcite-input id="search-input" icon="search" placeholder="Search permits..."
+            scale="s" clearable style="width:240px;"
+          ></calcite-input>
+          <calcite-action id="refresh-btn" icon="refresh" text="Refresh" scale="s"></calcite-action>
+        </div>
+
+        <!-- User menu -->
+        <calcite-navigation-user slot="user" id="user-menu" user-id="" full-name="User">
+        </calcite-navigation-user>
+      </calcite-navigation>
+
+      <!-- Left Panel: Compliance list & filters -->
+      <calcite-shell-panel slot="panel-start" width-scale="m" resizable>
+        <calcite-panel heading="Permits">
+          <div id="filter-container"></div>
+          <div id="left-panel"></div>
+        </calcite-panel>
+      </calcite-shell-panel>
+
+      <!-- Map -->
+      <div id="map-container" class="ecms-map-container"></div>
+
+      <!-- Right Panel: Alerts & details -->
+      <calcite-shell-panel slot="panel-end" width-scale="m" resizable collapsed>
+        <calcite-panel heading="Details">
+          <div id="right-panel"></div>
+          <div id="form-container" hidden></div>
+        </calcite-panel>
+      </calcite-shell-panel>
+
+      <!-- Bottom Panel: Dashboard charts -->
+      <calcite-shell-panel slot="panel-bottom" height-scale="m" layout="horizontal" resizable collapsed>
+        <calcite-panel heading="Dashboard">
+          <div id="bottom-panel"></div>
+        </calcite-panel>
+      </calcite-shell-panel>
+
+      <!-- Footer / Status Bar -->
+      <calcite-navigation slot="footer">
+        <span slot="content-start" id="status-bar" class="ecms-status-bar">
+          Ready
+        </span>
+      </calcite-navigation>
+    </calcite-shell>
+
+    <!-- Application entry point -->
+    <script type="module">
+      import { initialize } from "./components/app-shell.js";
+
+      // Configuration can be overridden via query params or global config
+      const params = new URLSearchParams(window.location.search);
+      const config = {};
+      if (params.get("portal")) config.portalUrl = params.get("portal");
+      if (params.get("service")) config.featureServiceUrl = params.get("service");
+
+      initialize(config);
+    </script>
+  </body>
+</html>
