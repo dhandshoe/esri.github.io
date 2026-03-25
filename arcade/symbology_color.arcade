@@ -1,0 +1,71 @@
+// =============================================================================
+// symbology_color.arcade
+// Environmental Compliance Management System
+// Color Ramp Expression for Risk Score Symbology
+//
+// Purpose: Maps a RiskScore (0-100) to a continuous color gradient for use
+//          in an Arcade-driven color visual variable or CIM symbol layer.
+//
+// Color Stops:
+//   0   → Green       [56, 168, 0, 255]
+//   40  → Yellow      [255, 255, 0, 255]
+//   60  → Orange      [255, 165, 0, 255]
+//   80  → Red         [230, 0, 0, 255]
+//   100 → Dark Red    [115, 0, 0, 255]
+//
+// Returns: An array [R, G, B, A] representing the interpolated color.
+// =============================================================================
+
+// ---- Helper: linearly interpolate between two values ----
+function Lerp(a, b, t) {
+    return Round(a + (b - a) * t, 0)
+}
+
+// ---- Helper: interpolate between two RGBA color arrays ----
+function LerpColor(color1, color2, t) {
+    return [
+        Lerp(color1[0], color2[0], t),
+        Lerp(color1[1], color2[1], t),
+        Lerp(color1[2], color2[2], t),
+        Lerp(color1[3], color2[3], t)
+    ]
+}
+
+// ---- Color stop definitions ----
+var green    = [56, 168, 0, 255]    // Low risk (0)
+var yellow   = [255, 255, 0, 255]   // Moderate (40)
+var orange   = [255, 165, 0, 255]   // High (60)
+var red      = [230, 0, 0, 255]     // Very high (80)
+var darkRed  = [115, 0, 0, 255]     // Critical (100)
+
+// ---- Clamp score to 0-100 ----
+var score = DefaultValue($feature.RiskScore, 0)
+score = Max(0, Min(100, score))
+
+// ---- Determine which segment of the gradient we are in ----
+// Segment 1: 0-40   (Green → Yellow)
+// Segment 2: 40-60  (Yellow → Orange)
+// Segment 3: 60-80  (Orange → Red)
+// Segment 4: 80-100 (Red → Dark Red)
+
+if (score <= 40) {
+    // Green to Yellow
+    var t = score / 40
+    return LerpColor(green, yellow, t)
+}
+
+if (score <= 60) {
+    // Yellow to Orange
+    var t = (score - 40) / 20
+    return LerpColor(yellow, orange, t)
+}
+
+if (score <= 80) {
+    // Orange to Red
+    var t = (score - 60) / 20
+    return LerpColor(orange, red, t)
+}
+
+// 80 to 100: Red to Dark Red
+var t = (score - 80) / 20
+return LerpColor(red, darkRed, t)

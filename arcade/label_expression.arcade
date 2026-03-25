@@ -1,0 +1,62 @@
+// =============================================================================
+// label_expression.arcade
+// Environmental Compliance Management System
+// Smart Label Expression
+//
+// Purpose: Generates concise, informative labels for permit features on the
+//          map. Appends warning and clock symbols when the permit is
+//          non-compliant, at risk, or nearing expiration.
+//
+// Expected Fields:
+//   - PermitID (Text)
+//   - ExpirationDate (Date)
+//   - RiskScore (Number, 0-100)
+//   - NonCompliant (Number/Boolean, 1 = non-compliant)
+//   - Status (Text)
+//
+// Output Examples:
+//   "ENV-2024-0042"              — compliant, no issues
+//   "ENV-2024-0042 ⚠"          — non-compliant or at risk
+//   "ENV-2024-0042 ⏳"          — expiring within 30 days
+//   "ENV-2024-0042 ⚠⏳"        — both issues present
+// =============================================================================
+
+var label = DefaultValue($feature.PermitID, "N/A")
+var suffix = ""
+var now = Now()
+
+// ---- Warning symbol: non-compliant or at-risk ----
+// A feature is flagged if it is explicitly marked NonCompliant,
+// has a Status of "NonCompliant" or "AtRisk", or has a RiskScore above 60.
+var isNonCompliant = (
+    DefaultValue($feature.NonCompliant, 0) == 1 ||
+    Lower(DefaultValue($feature.Status, "")) == "noncompliant" ||
+    Lower(DefaultValue($feature.Status, "")) == "atrisk" ||
+    DefaultValue($feature.RiskScore, 0) > 60
+)
+
+if (isNonCompliant) {
+    // Unicode warning sign U+26A0
+    suffix += " ⚠"
+}
+
+// ---- Clock symbol: expiring within 30 days ----
+var expirationDate = $feature.ExpirationDate
+if (!IsEmpty(expirationDate)) {
+    var daysLeft = DateDiff(expirationDate, now, 'days')
+    // Show clock if expiring within 30 days (but not yet expired —
+    // expired permits get the warning symbol above via status/risk)
+    if (daysLeft >= 0 && daysLeft <= 30) {
+        // Unicode hourglass U+231B
+        suffix += " ⏳"
+    }
+    // Also flag already-expired permits that might not have NonCompliant set
+    if (daysLeft < 0) {
+        // Ensure the warning symbol is present
+        if (Find("⚠", suffix) == -1) {
+            suffix += " ⚠"
+        }
+    }
+}
+
+return label + suffix

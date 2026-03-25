@@ -1,0 +1,244 @@
+// =============================================================================
+// trigger_evaluation.arcade
+// Environmental Compliance Management System
+// Trigger / Threshold Evaluation Expression
+//
+// Purpose: Evaluates whether monitoring data for a permit condition meets,
+//          exceeds, or is near its defined threshold. Reads the threshold
+//          definition from the related PermitConditions table and compares
+//          it against the most recent value from the MonitoringData table.
+//
+// Expected Fields on $feature (Permit feature):
+//   - ObjectID / GlobalID
+//
+// Related Tables (via FeatureSetByRelationshipName):
+//   - PermitConditions
+//       Fields: ConditionID, ParameterName, Operator, ThresholdValue,
+//               ThresholdUpperValue (for Between), WarningPercent,
+//               IsActive (1/0)
+//   - MonitoringData
+//       Fields: ParameterName, MeasuredValue, SampleDate
+//
+// Returns: One of "PASS", "FAIL", "WARNING", "NO_DATA"
+//
+// Note: When used in a popup list or indicator, this expression can be
+//       parameterized by setting a global variable for ParameterName.
+//       By default it evaluates ALL active conditions and returns the
+//       worst-case result.
+// =============================================================================
+
+// ---- Helper: evaluate a single condition against a measured value ----
+// Operators: "LessThan", "GreaterThan", "LessThanOrEqual",
+//            "GreaterThanOrEqual", "Equal", "NotEqual", "Between"
+//
+// Returns: { result: "PASS"|"FAIL"|"WARNING", detail: text }
+function EvaluateCondition(operator, threshold, upperThreshold, warningPct, measuredValue) {
+    // Default warning percentage is 90% of the threshold distance
+    var warnPct = DefaultValue(warningPct, 90) / 100
+
+    // --- LessThan ---
+    if (operator == "LessThan") {
+        if (measuredValue >= threshold) {
+            return { result: "FAIL", detail: measuredValue + " >= " + threshold }
+        }
+        // Warning if value is within warningPct of the threshold
+        // e.g., threshold=100, warnPct=0.9 => warn when value >= 90
+        var warnLevel = threshold * warnPct
+        if (measuredValue >= warnLevel) {
+            return { result: "WARNING", detail: measuredValue + " approaching " + threshold }
+        }
+        return { result: "PASS", detail: measuredValue + " < " + threshold }
+    }
+
+    // --- GreaterThan ---
+    if (operator == "GreaterThan") {
+        if (measuredValue <= threshold) {
+            return { result: "FAIL", detail: measuredValue + " <= " + threshold }
+        }
+        var warnLevel = threshold * (1 + (1 - warnPct))
+        if (measuredValue <= warnLevel) {
+            return { result: "WARNING", detail: measuredValue + " approaching " + threshold }
+        }
+        return { result: "PASS", detail: measuredValue + " > " + threshold }
+    }
+
+    // --- LessThanOrEqual ---
+    if (operator == "LessThanOrEqual") {
+        if (measuredValue > threshold) {
+            return { result: "FAIL", detail: measuredValue + " > " + threshold }
+        }
+        var warnLevel = threshold * warnPct
+        if (measuredValue >= warnLevel) {
+            return { result: "WARNING", detail: measuredValue + " near " + threshold }
+        }
+        return { result: "PASS", detail: measuredValue + " <= " + threshold }
+    }
+
+    // --- GreaterThanOrEqual ---
+    if (operator == "GreaterThanOrEqual") {
+        if (measuredValue < threshold) {
+            return { result: "FAIL", detail: measuredValue + " < " + threshold }
+        }
+        var warnLevel = threshold * (1 + (1 - warnPct))
+        if (measuredValue <= warnLevel) {
+            return { result: "WARNING", detail: measuredValue + " near " + threshold }
+        }
+        return { result: "PASS", detail: measuredValue + " >= " + threshold }
+    }
+
+    // --- Equal ---
+    if (operator == "Equal") {
+        if (measuredValue != threshold) {
+            return { result: "FAIL", detail: measuredValue + " != " + threshold }
+        }
+        return { result: "PASS", detail: measuredValue + " == " + threshold }
+    }
+
+    // --- NotEqual ---
+    if (operator == "NotEqual") {
+        if (measuredValue == threshold) {
+            return { result: "FAIL", detail: measuredValue + " == " + threshold }
+        }
+        return { result: "PASS", detail: measuredValue + " != " + threshold }
+    }
+
+    // --- Between ---
+    // Value must be between threshold (lower) and upperThreshold (upper)
+    if (operator == "Between") {
+        var lower = threshold
+        var upper = DefaultValue(upperThreshold, threshold)
+
+        if (measuredValue < lower || measuredValue > upper) {
+            return { result: "FAIL", detail: measuredValue + " outside [" + lower + ", " + upper + "]" }
+        }
+
+        // Warning if within warningPct distance of either boundary
+        var range = upper - lower
+        var margin = range * (1 - warnPct)
+        if (measuredValue < lower + margin || measuredValue > upper - margin) {
+            return { result: "WARNING", detail: measuredValue + " near boundary of [" + lower + ", " + upper + "]" }
+        }
+
+        return { result: "PASS", detail: measuredValue + " within [" + lower + ", " + upper + "]" }
+    }
+
+    // Unknown operator — treat as no data
+    return { result: "NO_DATA", detail: "Unknown operator: " + operator }
+}
+
+// ---- Helper: rank results for worst-case comparison ----
+function ResultRank(result) {
+    if (result == "FAIL") return 3
+    if (result == "WARNING") return 2
+    if (result == "PASS") return 1
+    return 0  // NO_DATA
+}
+
+// =============================================================================
+// MAIN LOGIC
+// =============================================================================
+
+// Retrieve active permit conditions
+var conditions = FeatureSetByRelationshipName(
+    $feature,
+    "PermitConditions",
+    ["ConditionID", "ParameterName", "Operator", "ThresholdValue",
+     "ThresholdUpperValue", "WarningPercent", "IsActive"],
+    false
+)
+
+if (IsEmpty(conditions) || Count(conditions) == 0) {
+    return "NO_DATA"
+}
+
+// Retrieve all monitoring data ordered by date descending
+var monitoringData = FeatureSetByRelationshipName(
+    $feature,
+    "MonitoringData",
+    ["ParameterName", "MeasuredValue", "SampleDate"],
+    false
+)
+
+if (IsEmpty(monitoringData) || Count(monitoringData) == 0) {
+    return "NO_DATA"
+}
+
+// Build a dictionary of the most recent measured value per parameter.
+// Arcade does not have native dictionary support, so we iterate and track
+// the latest date per parameter using parallel arrays.
+var paramNames = []
+var paramValues = []
+var paramDates = []
+
+for (var m in monitoringData) {
+    var pName = m.ParameterName
+    var found = false
+    for (var k = 0; k < Count(paramNames); k++) {
+        if (paramNames[k] == pName) {
+            found = true
+            if (m.SampleDate > paramDates[k]) {
+                paramValues[k] = m.MeasuredValue
+                paramDates[k] = m.SampleDate
+            }
+            break
+        }
+    }
+    if (!found) {
+        Push(paramNames, pName)
+        Push(paramValues, m.MeasuredValue)
+        Push(paramDates, m.SampleDate)
+    }
+}
+
+// Evaluate each active condition against the latest monitoring value
+var worstRank = 0
+var worstResult = "NO_DATA"
+
+for (var c in conditions) {
+    // Skip inactive conditions
+    if (DefaultValue(c.IsActive, 1) != 1) {
+        continue
+    }
+
+    var paramName = c.ParameterName
+
+    // Find the latest measured value for this parameter
+    var measuredValue = null
+    for (var p = 0; p < Count(paramNames); p++) {
+        if (paramNames[p] == paramName) {
+            measuredValue = paramValues[p]
+            break
+        }
+    }
+
+    // If no monitoring data exists for this parameter, skip
+    if (IsEmpty(measuredValue)) {
+        // NO_DATA does not override a FAIL or WARNING
+        if (worstRank == 0) {
+            worstResult = "NO_DATA"
+        }
+        continue
+    }
+
+    // Evaluate the condition
+    var evalResult = EvaluateCondition(
+        c.Operator,
+        c.ThresholdValue,
+        c.ThresholdUpperValue,
+        c.WarningPercent,
+        measuredValue
+    )
+
+    var rank = ResultRank(evalResult.result)
+    if (rank > worstRank) {
+        worstRank = rank
+        worstResult = evalResult.result
+    }
+
+    // Short-circuit: if we already have a FAIL, no need to check further
+    if (worstResult == "FAIL") {
+        return "FAIL"
+    }
+}
+
+return worstResult

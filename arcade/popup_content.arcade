@@ -1,0 +1,180 @@
+// =============================================================================
+// popup_content.arcade
+// Environmental Compliance Management System
+// Rich Popup Content Expression
+//
+// Purpose: Generates formatted text content for feature popups, including
+//          permit details, compliance status with visual indicators, risk
+//          score bar, and related record summaries.
+//
+// Expected Fields:
+//   - PermitID, PermitName, PermitType, IssuingAgency
+//   - ExpirationDate, IssueDate, NextReviewDate
+//   - Status, RiskScore
+//   - LastInspectionDate, LastInspectionResult
+//   - NonCompliant (Number/Boolean, 1 = non-compliant)
+//
+// Related Tables (via FeatureSetByRelationshipName):
+//   - PermitConditions
+//   - LinkedAssets
+// =============================================================================
+
+var nl = TextFormatting.NewLine
+var bold = TextFormatting.Bold
+var now = Now()
+
+// ---- Helper: format a date or show "N/A" ----
+function FormatDateSafe(d) {
+    if (IsEmpty(d)) {
+        return "N/A"
+    }
+    return Text(d, 'MMM DD, YYYY')
+}
+
+// ---- Helper: build a risk score bar using Unicode block characters ----
+// Full block: \u2588, Light shade: \u2591
+function RiskBar(score) {
+    var filled = Round(score / 10, 0)   // 0-10 filled blocks
+    var empty  = 10 - filled
+    var bar = ""
+    for (var i = 0; i < filled; i++) {
+        bar += "█"
+    }
+    for (var j = 0; j < empty; j++) {
+        bar += "░"
+    }
+    return bar + "  " + score + " / 100"
+}
+
+// ---- Helper: determine status label and color hint ----
+function StatusInfo(feature) {
+    var expirationDate = feature.ExpirationDate
+    var nextReviewDate = feature.NextReviewDate
+    var riskScore = DefaultValue(feature.RiskScore, 0)
+
+    // Expired check
+    if (!IsEmpty(expirationDate) && expirationDate < now) {
+        return { label: "EXPIRED", color: "🔴" }
+    }
+
+    // Overdue review
+    if (!IsEmpty(nextReviewDate) && nextReviewDate < now) {
+        return { label: "OVERDUE REVIEW", color: "🟠" }
+    }
+
+    // Risk-based
+    if (riskScore > 80) {
+        return { label: "CRITICAL RISK", color: "🔴" }
+    }
+    if (riskScore > 60) {
+        return { label: "HIGH RISK", color: "🟠" }
+    }
+    if (riskScore > 40) {
+        return { label: "AT RISK", color: "🟡" }
+    }
+    return { label: "COMPLIANT", color: "🟢" }
+}
+
+// ---- Compute values ----
+var status = StatusInfo($feature)
+var riskScore = DefaultValue($feature.RiskScore, 0)
+
+// Days until expiration
+var daysUntilExp = IIf(
+    !IsEmpty($feature.ExpirationDate),
+    Round(DateDiff($feature.ExpirationDate, now, 'days'), 0),
+    null
+)
+var expText = IIf(
+    IsEmpty(daysUntilExp),
+    "N/A",
+    IIf(daysUntilExp < 0,
+        Abs(daysUntilExp) + " days ago (EXPIRED)",
+        daysUntilExp + " days remaining"
+    )
+)
+
+// Days until next review
+var daysUntilReview = IIf(
+    !IsEmpty($feature.NextReviewDate),
+    Round(DateDiff($feature.NextReviewDate, now, 'days'), 0),
+    null
+)
+var reviewText = IIf(
+    IsEmpty(daysUntilReview),
+    "N/A",
+    IIf(daysUntilReview < 0,
+        Abs(daysUntilReview) + " days overdue",
+        daysUntilReview + " days away"
+    )
+)
+
+// Related records: conditions count
+var conditionsCount = 0
+var conditionsFS = FeatureSetByRelationshipName($feature, "PermitConditions", ["ObjectID"], false)
+if (!IsEmpty(conditionsFS)) {
+    conditionsCount = Count(conditionsFS)
+}
+
+// Related records: linked assets count
+var assetsCount = 0
+var assetsFS = FeatureSetByRelationshipName($feature, "LinkedAssets", ["ObjectID"], false)
+if (!IsEmpty(assetsFS)) {
+    assetsCount = Count(assetsFS)
+}
+
+// ---- Build output ----
+var output = ""
+
+// Title
+output += "═══════════════════════════════════" + nl
+output += "  PERMIT DETAILS" + nl
+output += "═══════════════════════════════════" + nl + nl
+
+output += "Permit ID:        " + DefaultValue($feature.PermitID, "N/A") + nl
+output += "Permit Name:      " + DefaultValue($feature.PermitName, "N/A") + nl
+output += "Permit Type:      " + DefaultValue($feature.PermitType, "N/A") + nl
+output += "Issuing Agency:   " + DefaultValue($feature.IssuingAgency, "N/A") + nl + nl
+
+// Compliance status section
+output += "───────────────────────────────────" + nl
+output += "  COMPLIANCE STATUS" + nl
+output += "───────────────────────────────────" + nl + nl
+
+output += status.color + "  Status: " + status.label + nl + nl
+
+output += "Risk Score:       " + RiskBar(riskScore) + nl
+output += "Risk Level:       " + IIf(riskScore > 80, "Critical",
+    IIf(riskScore > 60, "High",
+    IIf(riskScore > 40, "Medium", "Low"))) + nl + nl
+
+// Dates section
+output += "───────────────────────────────────" + nl
+output += "  KEY DATES" + nl
+output += "───────────────────────────────────" + nl + nl
+
+output += "Issue Date:       " + FormatDateSafe($feature.IssueDate) + nl
+output += "Expiration Date:  " + FormatDateSafe($feature.ExpirationDate) + nl
+output += "Days to Expiry:   " + expText + nl
+output += "Next Review:      " + FormatDateSafe($feature.NextReviewDate) + nl
+output += "Review In:        " + reviewText + nl + nl
+
+// Inspection section
+output += "───────────────────────────────────" + nl
+output += "  LAST INSPECTION" + nl
+output += "───────────────────────────────────" + nl + nl
+
+output += "Inspection Date:  " + FormatDateSafe($feature.LastInspectionDate) + nl
+output += "Result:           " + DefaultValue($feature.LastInspectionResult, "N/A") + nl + nl
+
+// Related records section
+output += "───────────────────────────────────" + nl
+output += "  RELATED RECORDS" + nl
+output += "───────────────────────────────────" + nl + nl
+
+output += "Conditions:       " + conditionsCount + " condition(s) on file" + nl
+output += "Linked Assets:    " + assetsCount + " asset(s) associated" + nl
+
+output += nl + "═══════════════════════════════════"
+
+return output

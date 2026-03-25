@@ -1,0 +1,593 @@
+/* ==========================================================================
+   Environmental Compliance Management System – Custom Styles
+   Supplements Calcite Design System.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   CSS Custom Properties
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* Compliance status colors */
+  --status-compliant: #2d6a4f;
+  --status-compliant-bg: #d8f3dc;
+  --status-noncompliant: #d00000;
+  --status-noncompliant-bg: #ffd6d6;
+  --status-atrisk: #e09f3e;
+  --status-atrisk-bg: #fff3cd;
+  --status-unknown: #adb5bd;
+  --status-unknown-bg: #e9ecef;
+  --status-underreview: #0077b6;
+  --status-underreview-bg: #d0e8f5;
+
+  /* Alert severity */
+  --severity-critical: #d00000;
+  --severity-high: #e36414;
+  --severity-medium: #e09f3e;
+  --severity-low: #0077b6;
+  --severity-info: #adb5bd;
+
+  /* Graph node colors */
+  --node-permit: #2d6a4f;
+  --node-condition: #0077b6;
+  --node-trigger: #e09f3e;
+  --node-alert: #d00000;
+  --node-asset: #6c757d;
+  --node-contact: #7b2d8e;
+
+  /* Layout */
+  --left-panel-width: 320px;
+  --right-panel-width: 360px;
+  --bottom-panel-height: 220px;
+  --nav-height: 56px;
+
+  /* Misc */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --radius: 6px;
+  --transition-speed: 0.25s;
+}
+
+/* ---------------------------------------------------------------------------
+   Global Reset / Base
+   --------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  overflow: hidden;
+  background: var(--calcite-color-background, #f8f9fa);
+}
+
+/* ---------------------------------------------------------------------------
+   Calcite Shell Overrides
+   --------------------------------------------------------------------------- */
+
+calcite-shell {
+  height: 100vh;
+  width: 100vw;
+}
+
+calcite-navigation {
+  --calcite-navigation-background: #1b4332;
+}
+
+calcite-navigation-logo {
+  --calcite-color-text-1: #fff;
+  --calcite-color-text-2: #d8f3dc;
+}
+
+calcite-shell-panel {
+  --calcite-shell-panel-width: var(--left-panel-width);
+}
+
+calcite-shell-panel[slot="panel-end"] {
+  --calcite-shell-panel-width: var(--right-panel-width);
+}
+
+calcite-shell-panel[slot="panel-bottom"] {
+  --calcite-shell-panel-height: var(--bottom-panel-height);
+}
+
+/* ---------------------------------------------------------------------------
+   Navigation Sections
+   --------------------------------------------------------------------------- */
+
+.nav-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-section calcite-action {
+  --calcite-action-indicator-color: var(--status-atrisk);
+}
+
+/* ---------------------------------------------------------------------------
+   Map Container
+   --------------------------------------------------------------------------- */
+
+#map-view-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.esri-view {
+  height: 100%;
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------------------
+   Dynamic Panels (swap in/out in main content)
+   --------------------------------------------------------------------------- */
+
+.ecms-panel {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.ecms-panel.active {
+  display: flex;
+}
+
+.panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--calcite-color-border-3, #e0e0e0);
+  background: var(--calcite-color-foreground-1, #fff);
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+   KPI Cards Row
+   --------------------------------------------------------------------------- */
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.kpi-card {
+  text-align: center;
+  padding: 16px 12px;
+}
+
+.kpi-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  color: var(--calcite-color-text-3, #6c757d);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kpi-value.compliant { color: var(--status-compliant); }
+.kpi-value.noncompliant { color: var(--status-noncompliant); }
+.kpi-value.atrisk { color: var(--status-atrisk); }
+
+/* ---------------------------------------------------------------------------
+   Chart Containers
+   --------------------------------------------------------------------------- */
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.chart-card {
+  min-height: 260px;
+}
+
+.chart-card canvas {
+  width: 100% !important;
+  height: 220px !important;
+}
+
+/* ---------------------------------------------------------------------------
+   Compliance Status Badges
+   --------------------------------------------------------------------------- */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.status-badge--compliant {
+  background: var(--status-compliant-bg);
+  color: var(--status-compliant);
+}
+
+.status-badge--noncompliant {
+  background: var(--status-noncompliant-bg);
+  color: var(--status-noncompliant);
+}
+
+.status-badge--atrisk {
+  background: var(--status-atrisk-bg);
+  color: var(--status-atrisk);
+}
+
+.status-badge--unknown {
+  background: var(--status-unknown-bg);
+  color: var(--status-unknown);
+}
+
+.status-badge--underreview {
+  background: var(--status-underreview-bg);
+  color: var(--status-underreview);
+}
+
+/* ---------------------------------------------------------------------------
+   Relationship Graph Canvas
+   --------------------------------------------------------------------------- */
+
+.graph-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  background: var(--calcite-color-foreground-1, #fff);
+  border: 1px solid var(--calcite-color-border-3, #e0e0e0);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.graph-container canvas {
+  display: block;
+  cursor: grab;
+}
+
+.graph-container canvas:active {
+  cursor: grabbing;
+}
+
+.graph-minimap {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 160px;
+  height: 100px;
+  border: 2px solid var(--calcite-color-border-1, #ccc);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.92);
+  pointer-events: none;
+}
+
+.graph-toolbar {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: 4px;
+  z-index: 2;
+}
+
+.graph-legend {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 8px;
+  border-radius: var(--radius);
+  font-size: 0.7rem;
+  z-index: 2;
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.graph-legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Audit Table
+   --------------------------------------------------------------------------- */
+
+.audit-table-wrap {
+  overflow-x: auto;
+}
+
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.audit-table th,
+.audit-table td {
+  padding: 6px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--calcite-color-border-3, #e0e0e0);
+}
+
+.audit-table th {
+  background: var(--calcite-color-foreground-2, #f0f0f0);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.audit-table tr:hover td {
+  background: var(--calcite-color-foreground-2, #f6f6f6);
+}
+
+.audit-old {
+  background: #ffd6d6;
+  text-decoration: line-through;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.audit-new {
+  background: #d8f3dc;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* ---------------------------------------------------------------------------
+   Timeline / Activity Feed (bottom panel)
+   --------------------------------------------------------------------------- */
+
+.activity-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.8rem;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--calcite-color-border-3, #eee);
+}
+
+.activity-time {
+  color: var(--calcite-color-text-3, #999);
+  white-space: nowrap;
+  min-width: 110px;
+}
+
+/* ---------------------------------------------------------------------------
+   Modals / Dialogs
+   --------------------------------------------------------------------------- */
+
+calcite-dialog .form-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+calcite-dialog .form-row > * {
+  flex: 1;
+}
+
+calcite-dialog .form-group {
+  margin-bottom: 12px;
+}
+
+/* ---------------------------------------------------------------------------
+   Alert Pulse Animation
+   --------------------------------------------------------------------------- */
+
+@keyframes pulse-alert {
+  0% { box-shadow: 0 0 0 0 rgba(208, 0, 0, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(208, 0, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(208, 0, 0, 0); }
+}
+
+.alert-pulse {
+  animation: pulse-alert 1.5s ease-in-out infinite;
+}
+
+@keyframes flash-noncompliant {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.flash-noncompliant {
+  animation: flash-noncompliant 0.8s ease-in-out 3;
+}
+
+/* ---------------------------------------------------------------------------
+   Notification Toast
+   --------------------------------------------------------------------------- */
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.toast-enter {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive Breakpoints
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  :root {
+    --left-panel-width: 260px;
+    --right-panel-width: 300px;
+    --bottom-panel-height: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --left-panel-width: 100%;
+    --right-panel-width: 100%;
+    --bottom-panel-height: 150px;
+  }
+
+  .kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .kpi-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Print Styles
+   --------------------------------------------------------------------------- */
+
+@media print {
+  calcite-shell-panel,
+  calcite-navigation,
+  .graph-toolbar,
+  .graph-minimap,
+  calcite-action-bar,
+  calcite-fab {
+    display: none !important;
+  }
+
+  #map-view-container {
+    height: 600px !important;
+    page-break-inside: avoid;
+  }
+
+  .chart-card {
+    page-break-inside: avoid;
+  }
+
+  body {
+    overflow: visible;
+  }
+
+  .ecms-panel {
+    display: flex !important;
+    page-break-before: always;
+  }
+
+  .audit-table th {
+    position: static;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Scrollbar Styling (Webkit)
+   --------------------------------------------------------------------------- */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--calcite-color-border-2, #ccc);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--calcite-color-border-1, #999);
+}
+
+/* ---------------------------------------------------------------------------
+   Utility Classes
+   --------------------------------------------------------------------------- */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gap-sm { gap: 4px; }
+.gap-md { gap: 8px; }
+.gap-lg { gap: 16px; }
+
+.mt-sm { margin-top: 4px; }
+.mt-md { margin-top: 8px; }
+.mt-lg { margin-top: 16px; }
+
+.mb-sm { margin-bottom: 4px; }
+.mb-md { margin-bottom: 8px; }
+.mb-lg { margin-bottom: 16px; }
+
+.text-muted { color: var(--calcite-color-text-3, #6c757d); }
+.text-sm { font-size: 0.8rem; }
+
+.w-full { width: 100%; }
+.h-full { height: 100%; }

@@ -1,0 +1,529 @@
+{
+    "portal": {
+        "url": "https://your-portal.domain.com/portal",
+        "username": "",
+        "password": "",
+        "profile": "ECMS_Admin"
+    },
+    "geodatabase": {
+        "workspace": "C:\\ArcGIS\\EnvCompliance\\EnvCompliance.sde",
+        "spatial_reference": {
+            "wkid": 4326,
+            "latest_wkid": 4326,
+            "name": "GCS_WGS_1984",
+            "description": "Geographic Coordinate System - WGS 1984"
+        },
+        "projected_reference": {
+            "wkid": 3857,
+            "latest_wkid": 3857,
+            "name": "WGS_1984_Web_Mercator_Auxiliary_Sphere",
+            "description": "Projected Coordinate System - Web Mercator for web display"
+        },
+        "dataset_prefix": "ECMS",
+        "feature_dataset": "EnvironmentalCompliance"
+    },
+    "service": {
+        "name": "EnvironmentalCompliance",
+        "folder": "EnvCompliance",
+        "service_definition": "EnvironmentalCompliance.sd",
+        "capabilities": "Query,Create,Update,Delete,Editing,Sync",
+        "max_record_count": 2000,
+        "enable_change_tracking": true,
+        "enable_editor_tracking": true,
+        "enable_attachments": true,
+        "enable_z_defaults": false,
+        "tags": [
+            "Environmental",
+            "Compliance",
+            "Permits",
+            "Monitoring",
+            "ECMS"
+        ],
+        "description": "Environmental Compliance Management System feature service providing spatial and tabular data for permit tracking, monitoring, inspections, and compliance management."
+    },
+    "layer_indices": {
+        "EnvironmentalPermits": 0,
+        "MonitoringStations": 1,
+        "ComplianceBoundaries": 2,
+        "EnvironmentalAssets_Point": 3,
+        "EnvironmentalAssets_Line": 4,
+        "EnvironmentalAssets_Polygon": 5,
+        "InspectionLocations": 6
+    },
+    "table_indices": {
+        "PermitConditions": 0,
+        "ComplianceTriggers": 1,
+        "MonitoringData": 2,
+        "ContactList": 3,
+        "AlertLog": 4,
+        "AuditTrail": 5,
+        "PermitDocuments": 6,
+        "SpatialLinks": 7,
+        "PermitContactJunction": 8
+    },
+    "coded_domains": {
+        "PermitType": {
+            "description": "Types of environmental permits",
+            "field_type": "TEXT",
+            "values": {
+                "Air": "Air Quality Permit",
+                "Water": "Water Discharge Permit",
+                "Waste": "Waste Management Permit",
+                "Wetland": "Wetland Permit",
+                "Stormwater": "Stormwater Permit",
+                "Noise": "Noise Permit",
+                "Species": "Endangered Species Permit",
+                "Land_Use": "Land Use Permit",
+                "Other": "Other Permit Type"
+            }
+        },
+        "PermitStatus": {
+            "description": "Current status of a permit",
+            "field_type": "TEXT",
+            "values": {
+                "Active": "Active",
+                "Expired": "Expired",
+                "Suspended": "Suspended",
+                "Pending": "Pending Approval",
+                "Revoked": "Revoked"
+            }
+        },
+        "ComplianceStatus": {
+            "description": "Current compliance status",
+            "field_type": "TEXT",
+            "values": {
+                "Compliant": "Compliant",
+                "NonCompliant": "Non-Compliant",
+                "AtRisk": "At Risk",
+                "Unknown": "Unknown",
+                "UnderReview": "Under Review"
+            }
+        },
+        "StationType": {
+            "description": "Type of monitoring station",
+            "field_type": "TEXT",
+            "values": {
+                "Air_Quality": "Air Quality Monitor",
+                "Water_Quality": "Water Quality Monitor",
+                "Noise": "Noise Monitor",
+                "Groundwater": "Groundwater Monitor",
+                "Surface_Water": "Surface Water Monitor",
+                "Soil": "Soil Monitor",
+                "Weather": "Weather Station",
+                "Biological": "Biological Monitor"
+            }
+        },
+        "BoundaryType": {
+            "description": "Type of compliance boundary",
+            "field_type": "TEXT",
+            "values": {
+                "Buffer_Zone": "Buffer Zone",
+                "Exclusion_Zone": "Exclusion Zone",
+                "Monitoring_Zone": "Monitoring Zone",
+                "Impact_Zone": "Impact Zone",
+                "Setback": "Setback Area"
+            }
+        },
+        "InspectionResult": {
+            "description": "Result of an inspection",
+            "field_type": "TEXT",
+            "values": {
+                "Pass": "Pass",
+                "Fail": "Fail",
+                "Conditional": "Conditional Pass",
+                "Pending": "Pending Review"
+            }
+        },
+        "ConditionType": {
+            "description": "Type of permit condition",
+            "field_type": "TEXT",
+            "values": {
+                "Emission_Limit": "Emission Limit",
+                "Discharge_Limit": "Discharge Limit",
+                "Monitoring_Requirement": "Monitoring Requirement",
+                "Reporting_Requirement": "Reporting Requirement",
+                "Operational_Restriction": "Operational Restriction",
+                "Mitigation_Measure": "Mitigation Measure",
+                "BMP_Requirement": "Best Management Practice Requirement"
+            }
+        },
+        "ThresholdOperator": {
+            "description": "Operator for threshold comparison",
+            "field_type": "TEXT",
+            "values": {
+                "LessThan": "Less Than (<)",
+                "LessThanOrEqual": "Less Than or Equal (<=)",
+                "GreaterThan": "Greater Than (>)",
+                "GreaterThanOrEqual": "Greater Than or Equal (>=)",
+                "Equal": "Equal (=)",
+                "Between": "Between (range)",
+                "NotEqual": "Not Equal (!=)"
+            }
+        },
+        "Priority": {
+            "description": "Priority level",
+            "field_type": "TEXT",
+            "values": {
+                "Critical": "Critical",
+                "High": "High",
+                "Medium": "Medium",
+                "Low": "Low"
+            }
+        },
+        "TriggerType": {
+            "description": "Type of compliance trigger",
+            "field_type": "TEXT",
+            "values": {
+                "Threshold_Exceedance": "Threshold Exceedance",
+                "Schedule_Violation": "Schedule Violation",
+                "Inspection_Failure": "Inspection Failure",
+                "Complaint": "Complaint Received",
+                "Incident": "Environmental Incident",
+                "Missing_Report": "Missing Report"
+            }
+        },
+        "AlertType": {
+            "description": "Type of compliance alert",
+            "field_type": "TEXT",
+            "values": {
+                "Warning": "Warning",
+                "Violation": "Violation",
+                "Critical": "Critical Alert",
+                "Information": "Informational"
+            }
+        },
+        "AlertStatus": {
+            "description": "Current status of an alert",
+            "field_type": "TEXT",
+            "values": {
+                "Sent": "Sent",
+                "Acknowledged": "Acknowledged",
+                "Resolved": "Resolved",
+                "Escalated": "Escalated"
+            }
+        },
+        "NotificationPreference": {
+            "description": "Preferred notification method",
+            "field_type": "TEXT",
+            "values": {
+                "Email": "Email",
+                "SMS": "SMS Text",
+                "Both": "Email and SMS",
+                "Dashboard_Only": "Dashboard Only"
+            }
+        },
+        "ChangeType": {
+            "description": "Type of audit trail change",
+            "field_type": "TEXT",
+            "values": {
+                "Insert": "Insert",
+                "Update": "Update",
+                "Delete": "Delete"
+            }
+        },
+        "SpatialLinkType": {
+            "description": "Type of spatial relationship link",
+            "field_type": "TEXT",
+            "values": {
+                "Intersects": "Intersects",
+                "Contains": "Contains",
+                "Within": "Within",
+                "Buffer": "Within Buffer Distance"
+            }
+        },
+        "QAStatus": {
+            "description": "Quality assurance status of monitoring data",
+            "field_type": "TEXT",
+            "values": {
+                "Raw": "Raw Data",
+                "Preliminary": "Preliminary",
+                "Validated": "Validated",
+                "Rejected": "Rejected",
+                "Final": "Final"
+            }
+        }
+    },
+    "field_mappings": {
+        "EnvironmentalPermits": [
+            {"name": "PermitID", "type": "TEXT", "length": 50, "alias": "Permit ID", "nullable": false},
+            {"name": "PermitName", "type": "TEXT", "length": 255, "alias": "Permit Name", "nullable": false},
+            {"name": "PermitType", "type": "TEXT", "length": 50, "alias": "Permit Type", "domain": "PermitType"},
+            {"name": "IssuingAgency", "type": "TEXT", "length": 255, "alias": "Issuing Agency"},
+            {"name": "IssueDate", "type": "DATE", "alias": "Issue Date"},
+            {"name": "ExpirationDate", "type": "DATE", "alias": "Expiration Date"},
+            {"name": "Status", "type": "TEXT", "length": 50, "alias": "Permit Status", "domain": "PermitStatus"},
+            {"name": "ResponsibleParty", "type": "TEXT", "length": 255, "alias": "Responsible Party"},
+            {"name": "Description", "type": "TEXT", "length": 2000, "alias": "Description"},
+            {"name": "RegulatoryFramework", "type": "TEXT", "length": 255, "alias": "Regulatory Framework"},
+            {"name": "ComplianceStatus", "type": "TEXT", "length": 50, "alias": "Compliance Status", "domain": "ComplianceStatus"},
+            {"name": "LastReviewDate", "type": "DATE", "alias": "Last Review Date"},
+            {"name": "NextReviewDate", "type": "DATE", "alias": "Next Review Date"},
+            {"name": "RiskScore", "type": "FLOAT", "alias": "Risk Score"}
+        ],
+        "MonitoringStations": [
+            {"name": "MonitoringID", "type": "TEXT", "length": 50, "alias": "Monitoring Station ID", "nullable": false},
+            {"name": "StationName", "type": "TEXT", "length": 255, "alias": "Station Name", "nullable": false},
+            {"name": "StationType", "type": "TEXT", "length": 50, "alias": "Station Type", "domain": "StationType"},
+            {"name": "AssociatedPermitID", "type": "TEXT", "length": 50, "alias": "Associated Permit ID"},
+            {"name": "InstallDate", "type": "DATE", "alias": "Installation Date"},
+            {"name": "LastCalibrationDate", "type": "DATE", "alias": "Last Calibration Date"},
+            {"name": "Status", "type": "TEXT", "length": 50, "alias": "Station Status", "domain": "PermitStatus"},
+            {"name": "SamplingFrequency", "type": "TEXT", "length": 100, "alias": "Sampling Frequency"}
+        ],
+        "ComplianceBoundaries": [
+            {"name": "BoundaryID", "type": "TEXT", "length": 50, "alias": "Boundary ID", "nullable": false},
+            {"name": "BoundaryName", "type": "TEXT", "length": 255, "alias": "Boundary Name"},
+            {"name": "BoundaryType", "type": "TEXT", "length": 50, "alias": "Boundary Type", "domain": "BoundaryType"},
+            {"name": "AssociatedPermitID", "type": "TEXT", "length": 50, "alias": "Associated Permit ID"},
+            {"name": "BufferDistance", "type": "DOUBLE", "alias": "Buffer Distance (meters)"}
+        ],
+        "EnvironmentalAssets": [
+            {"name": "AssetID", "type": "TEXT", "length": 50, "alias": "Asset ID", "nullable": false},
+            {"name": "AssetName", "type": "TEXT", "length": 255, "alias": "Asset Name"},
+            {"name": "AssetType", "type": "TEXT", "length": 100, "alias": "Asset Type"},
+            {"name": "AssetCategory", "type": "TEXT", "length": 100, "alias": "Asset Category"},
+            {"name": "OwnerOperator", "type": "TEXT", "length": 255, "alias": "Owner/Operator"},
+            {"name": "InstallDate", "type": "DATE", "alias": "Installation Date"},
+            {"name": "ComplianceStatus", "type": "TEXT", "length": 50, "alias": "Compliance Status", "domain": "ComplianceStatus"}
+        ],
+        "InspectionLocations": [
+            {"name": "InspectionID", "type": "TEXT", "length": 50, "alias": "Inspection ID", "nullable": false},
+            {"name": "InspectorName", "type": "TEXT", "length": 255, "alias": "Inspector Name"},
+            {"name": "InspectionDate", "type": "DATE", "alias": "Inspection Date"},
+            {"name": "InspectionType", "type": "TEXT", "length": 100, "alias": "Inspection Type"},
+            {"name": "Result", "type": "TEXT", "length": 50, "alias": "Inspection Result", "domain": "InspectionResult"},
+            {"name": "Findings", "type": "TEXT", "length": 4000, "alias": "Findings"},
+            {"name": "CorrectiveAction", "type": "TEXT", "length": 4000, "alias": "Corrective Action Required"},
+            {"name": "DueDate", "type": "DATE", "alias": "Corrective Action Due Date"}
+        ]
+    },
+    "table_field_mappings": {
+        "PermitConditions": [
+            {"name": "ConditionID", "type": "TEXT", "length": 50, "alias": "Condition ID", "nullable": false},
+            {"name": "PermitID", "type": "TEXT", "length": 50, "alias": "Permit ID", "nullable": false},
+            {"name": "ConditionType", "type": "TEXT", "length": 50, "alias": "Condition Type", "domain": "ConditionType"},
+            {"name": "ConditionText", "type": "TEXT", "length": 4000, "alias": "Condition Text"},
+            {"name": "ThresholdValue", "type": "DOUBLE", "alias": "Threshold Value"},
+            {"name": "ThresholdUnit", "type": "TEXT", "length": 50, "alias": "Threshold Unit"},
+            {"name": "ThresholdOperator", "type": "TEXT", "length": 50, "alias": "Threshold Operator", "domain": "ThresholdOperator"},
+            {"name": "UpperThreshold", "type": "DOUBLE", "alias": "Upper Threshold (for Between)"},
+            {"name": "Frequency", "type": "TEXT", "length": 100, "alias": "Monitoring/Reporting Frequency"},
+            {"name": "IsActive", "type": "SHORT", "alias": "Is Active (1=Yes, 0=No)"},
+            {"name": "Priority", "type": "TEXT", "length": 50, "alias": "Priority", "domain": "Priority"}
+        ],
+        "ComplianceTriggers": [
+            {"name": "TriggerID", "type": "TEXT", "length": 50, "alias": "Trigger ID", "nullable": false},
+            {"name": "ConditionID", "type": "TEXT", "length": 50, "alias": "Condition ID", "nullable": false},
+            {"name": "TriggerType", "type": "TEXT", "length": 50, "alias": "Trigger Type", "domain": "TriggerType"},
+            {"name": "TriggerExpression", "type": "TEXT", "length": 4000, "alias": "Trigger Expression (JSON)"},
+            {"name": "EvaluationFrequency", "type": "TEXT", "length": 100, "alias": "Evaluation Frequency"},
+            {"name": "LastEvaluated", "type": "DATE", "alias": "Last Evaluated"},
+            {"name": "LastResult", "type": "TEXT", "length": 50, "alias": "Last Result"},
+            {"name": "ConsecutiveFailures", "type": "LONG", "alias": "Consecutive Failures"},
+            {"name": "EscalationLevel", "type": "SHORT", "alias": "Escalation Level (1-5)"}
+        ],
+        "MonitoringData": [
+            {"name": "DataID", "type": "TEXT", "length": 50, "alias": "Data Record ID", "nullable": false},
+            {"name": "MonitoringStationID", "type": "TEXT", "length": 50, "alias": "Monitoring Station ID", "nullable": false},
+            {"name": "ParameterName", "type": "TEXT", "length": 100, "alias": "Parameter Name"},
+            {"name": "ParameterValue", "type": "DOUBLE", "alias": "Parameter Value"},
+            {"name": "Unit", "type": "TEXT", "length": 50, "alias": "Unit of Measurement"},
+            {"name": "SampleDate", "type": "DATE", "alias": "Sample Date/Time"},
+            {"name": "SampleMethod", "type": "TEXT", "length": 255, "alias": "Sampling Method"},
+            {"name": "QAStatus", "type": "TEXT", "length": 50, "alias": "QA Status", "domain": "QAStatus"},
+            {"name": "ValidatedBy", "type": "TEXT", "length": 255, "alias": "Validated By"},
+            {"name": "ValidationDate", "type": "DATE", "alias": "Validation Date"}
+        ],
+        "ContactList": [
+            {"name": "ContactID", "type": "TEXT", "length": 50, "alias": "Contact ID", "nullable": false},
+            {"name": "ContactName", "type": "TEXT", "length": 255, "alias": "Contact Name", "nullable": false},
+            {"name": "ContactRole", "type": "TEXT", "length": 100, "alias": "Role"},
+            {"name": "Organization", "type": "TEXT", "length": 255, "alias": "Organization"},
+            {"name": "Email", "type": "TEXT", "length": 255, "alias": "Email Address"},
+            {"name": "Phone", "type": "TEXT", "length": 50, "alias": "Phone Number"},
+            {"name": "NotificationPreference", "type": "TEXT", "length": 50, "alias": "Notification Preference", "domain": "NotificationPreference"},
+            {"name": "EscalationLevel", "type": "SHORT", "alias": "Escalation Level (1-5)"},
+            {"name": "IsActive", "type": "SHORT", "alias": "Is Active (1=Yes, 0=No)"}
+        ],
+        "AlertLog": [
+            {"name": "AlertID", "type": "TEXT", "length": 50, "alias": "Alert ID", "nullable": false},
+            {"name": "TriggerID", "type": "TEXT", "length": 50, "alias": "Trigger ID"},
+            {"name": "AlertDate", "type": "DATE", "alias": "Alert Date/Time"},
+            {"name": "AlertType", "type": "TEXT", "length": 50, "alias": "Alert Type", "domain": "AlertType"},
+            {"name": "Severity", "type": "SHORT", "alias": "Severity (1-5)"},
+            {"name": "Recipients", "type": "TEXT", "length": 2000, "alias": "Recipients"},
+            {"name": "Message", "type": "TEXT", "length": 4000, "alias": "Alert Message"},
+            {"name": "Status", "type": "TEXT", "length": 50, "alias": "Alert Status", "domain": "AlertStatus"},
+            {"name": "AcknowledgedBy", "type": "TEXT", "length": 255, "alias": "Acknowledged By"},
+            {"name": "AcknowledgedDate", "type": "DATE", "alias": "Acknowledged Date"},
+            {"name": "ResolutionNotes", "type": "TEXT", "length": 4000, "alias": "Resolution Notes"},
+            {"name": "ResolutionDate", "type": "DATE", "alias": "Resolution Date"}
+        ],
+        "AuditTrail": [
+            {"name": "AuditID", "type": "TEXT", "length": 50, "alias": "Audit ID", "nullable": false},
+            {"name": "TableName", "type": "TEXT", "length": 255, "alias": "Table Name"},
+            {"name": "RecordID", "type": "TEXT", "length": 50, "alias": "Record ID"},
+            {"name": "FieldName", "type": "TEXT", "length": 255, "alias": "Field Name"},
+            {"name": "OldValue", "type": "TEXT", "length": 4000, "alias": "Old Value"},
+            {"name": "NewValue", "type": "TEXT", "length": 4000, "alias": "New Value"},
+            {"name": "ChangeType", "type": "TEXT", "length": 50, "alias": "Change Type", "domain": "ChangeType"},
+            {"name": "ChangedBy", "type": "TEXT", "length": 255, "alias": "Changed By"},
+            {"name": "ChangeDate", "type": "DATE", "alias": "Change Date/Time"},
+            {"name": "ChangeReason", "type": "TEXT", "length": 2000, "alias": "Change Reason"},
+            {"name": "SessionID", "type": "TEXT", "length": 100, "alias": "Session ID"}
+        ],
+        "PermitDocuments": [
+            {"name": "DocumentID", "type": "TEXT", "length": 50, "alias": "Document ID", "nullable": false},
+            {"name": "PermitID", "type": "TEXT", "length": 50, "alias": "Permit ID", "nullable": false},
+            {"name": "DocumentName", "type": "TEXT", "length": 255, "alias": "Document Name"},
+            {"name": "DocumentType", "type": "TEXT", "length": 100, "alias": "Document Type"},
+            {"name": "FilePath", "type": "TEXT", "length": 1000, "alias": "File Path"},
+            {"name": "UploadDate", "type": "DATE", "alias": "Upload Date"},
+            {"name": "UploadedBy", "type": "TEXT", "length": 255, "alias": "Uploaded By"},
+            {"name": "Version", "type": "SHORT", "alias": "Version Number"},
+            {"name": "IsActive", "type": "SHORT", "alias": "Is Active (1=Yes, 0=No)"}
+        ],
+        "SpatialLinks": [
+            {"name": "LinkID", "type": "TEXT", "length": 50, "alias": "Link ID", "nullable": false},
+            {"name": "PermitID", "type": "TEXT", "length": 50, "alias": "Permit ID"},
+            {"name": "FeatureClassName", "type": "TEXT", "length": 255, "alias": "Feature Class Name"},
+            {"name": "FeatureGlobalID", "type": "TEXT", "length": 50, "alias": "Feature GlobalID"},
+            {"name": "LinkType", "type": "TEXT", "length": 50, "alias": "Link Type", "domain": "SpatialLinkType"},
+            {"name": "LinkDistance", "type": "DOUBLE", "alias": "Link Distance (meters)"},
+            {"name": "AutoLinked", "type": "SHORT", "alias": "Auto-Linked (1=Yes, 0=No)"},
+            {"name": "LinkDate", "type": "DATE", "alias": "Link Date"},
+            {"name": "LinkedBy", "type": "TEXT", "length": 255, "alias": "Linked By"}
+        ],
+        "PermitContactJunction": [
+            {"name": "JunctionID", "type": "TEXT", "length": 50, "alias": "Junction ID", "nullable": false},
+            {"name": "PermitID", "type": "TEXT", "length": 50, "alias": "Permit ID", "nullable": false},
+            {"name": "ContactID", "type": "TEXT", "length": 50, "alias": "Contact ID", "nullable": false},
+            {"name": "Role", "type": "TEXT", "length": 100, "alias": "Contact Role for Permit"},
+            {"name": "AssignedDate", "type": "DATE", "alias": "Date Assigned"},
+            {"name": "IsActive", "type": "SHORT", "alias": "Is Active (1=Yes, 0=No)"}
+        ]
+    },
+    "relationship_classes": [
+        {
+            "name": "Permits_to_Conditions",
+            "origin": "EnvironmentalPermits",
+            "destination": "PermitConditions",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "PermitID",
+            "destination_key": "PermitID",
+            "forward_label": "Permit has Conditions",
+            "backward_label": "Condition belongs to Permit"
+        },
+        {
+            "name": "Conditions_to_Triggers",
+            "origin": "PermitConditions",
+            "destination": "ComplianceTriggers",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "ConditionID",
+            "destination_key": "ConditionID",
+            "forward_label": "Condition has Triggers",
+            "backward_label": "Trigger belongs to Condition"
+        },
+        {
+            "name": "Permits_to_MonitoringStations",
+            "origin": "EnvironmentalPermits",
+            "destination": "MonitoringStations",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "PermitID",
+            "destination_key": "AssociatedPermitID",
+            "forward_label": "Permit has Monitoring Stations",
+            "backward_label": "Monitoring Station belongs to Permit"
+        },
+        {
+            "name": "Permits_to_ComplianceBoundaries",
+            "origin": "EnvironmentalPermits",
+            "destination": "ComplianceBoundaries",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "PermitID",
+            "destination_key": "AssociatedPermitID",
+            "forward_label": "Permit has Compliance Boundaries",
+            "backward_label": "Compliance Boundary belongs to Permit"
+        },
+        {
+            "name": "Permits_to_Documents",
+            "origin": "EnvironmentalPermits",
+            "destination": "PermitDocuments",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "PermitID",
+            "destination_key": "PermitID",
+            "forward_label": "Permit has Documents",
+            "backward_label": "Document belongs to Permit"
+        },
+        {
+            "name": "Permits_to_SpatialLinks",
+            "origin": "EnvironmentalPermits",
+            "destination": "SpatialLinks",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "PermitID",
+            "destination_key": "PermitID",
+            "forward_label": "Permit has Spatial Links",
+            "backward_label": "Spatial Link belongs to Permit"
+        },
+        {
+            "name": "Triggers_to_AlertLog",
+            "origin": "ComplianceTriggers",
+            "destination": "AlertLog",
+            "cardinality": "ONE_TO_MANY",
+            "origin_key": "TriggerID",
+            "destination_key": "TriggerID",
+            "forward_label": "Trigger generates Alerts",
+            "backward_label": "Alert generated by Trigger"
+        },
+        {
+            "name": "Permits_to_Contacts",
+            "origin": "EnvironmentalPermits",
+            "destination": "ContactList",
+            "cardinality": "MANY_TO_MANY",
+            "origin_key": "PermitID",
+            "destination_key": "ContactID",
+            "junction_table": "PermitContactJunction",
+            "junction_origin_key": "PermitID",
+            "junction_destination_key": "ContactID",
+            "forward_label": "Permit has Contacts",
+            "backward_label": "Contact associated with Permits"
+        }
+    ],
+    "compliance_thresholds": {
+        "air_quality": {
+            "PM2.5": {"value": 35.0, "unit": "ug/m3", "period": "24-hour", "operator": "LessThanOrEqual"},
+            "PM10": {"value": 150.0, "unit": "ug/m3", "period": "24-hour", "operator": "LessThanOrEqual"},
+            "SO2": {"value": 75.0, "unit": "ppb", "period": "1-hour", "operator": "LessThanOrEqual"},
+            "NO2": {"value": 100.0, "unit": "ppb", "period": "1-hour", "operator": "LessThanOrEqual"},
+            "CO": {"value": 35.0, "unit": "ppm", "period": "1-hour", "operator": "LessThanOrEqual"},
+            "O3": {"value": 70.0, "unit": "ppb", "period": "8-hour", "operator": "LessThanOrEqual"}
+        },
+        "water_quality": {
+            "pH": {"lower": 6.5, "upper": 9.0, "unit": "pH units", "operator": "Between"},
+            "TSS": {"value": 30.0, "unit": "mg/L", "period": "daily_max", "operator": "LessThanOrEqual"},
+            "BOD": {"value": 30.0, "unit": "mg/L", "period": "daily_max", "operator": "LessThanOrEqual"},
+            "DO": {"value": 5.0, "unit": "mg/L", "operator": "GreaterThanOrEqual"},
+            "Temperature": {"value": 32.0, "unit": "Celsius", "operator": "LessThanOrEqual"},
+            "TotalColiform": {"value": 1000.0, "unit": "MPN/100mL", "operator": "LessThanOrEqual"}
+        },
+        "noise": {
+            "daytime_dBA": {"value": 65.0, "unit": "dBA", "period": "7am-10pm", "operator": "LessThanOrEqual"},
+            "nighttime_dBA": {"value": 55.0, "unit": "dBA", "period": "10pm-7am", "operator": "LessThanOrEqual"},
+            "peak_dBA": {"value": 80.0, "unit": "dBA", "period": "instantaneous", "operator": "LessThanOrEqual"}
+        },
+        "risk_score": {
+            "low": {"min": 0.0, "max": 25.0},
+            "medium": {"min": 25.1, "max": 50.0},
+            "high": {"min": 50.1, "max": 75.0},
+            "critical": {"min": 75.1, "max": 100.0}
+        },
+        "escalation_rules": {
+            "consecutive_failures_warning": 2,
+            "consecutive_failures_violation": 3,
+            "consecutive_failures_critical": 5,
+            "review_overdue_days_warning": 7,
+            "review_overdue_days_violation": 14,
+            "permit_expiry_warning_days": 90,
+            "calibration_overdue_days": 30
+        }
+    }
+}

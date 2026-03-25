@@ -1,0 +1,97 @@
+// =============================================================================
+// compliance_status.arcade
+// Environmental Compliance Management System
+// Dynamic Compliance Status Evaluation Expression
+//
+// Purpose: Evaluates the compliance status of a permit feature by examining
+//          expiration dates, review schedules, and risk scores. Returns a
+//          composite status string suitable for renderers, labels, and popups.
+//
+// Expected Fields:
+//   - ExpirationDate (Date)
+//   - NextReviewDate (Date)
+//   - RiskScore (Number, 0-100)
+//   - Status (Text) - current permit status field
+//   - LastInspectionResult (Text)
+//
+// Returns: One of:
+//   "EXPIRED", "OVERDUE_REVIEW", "CRITICAL_RISK", "HIGH_RISK",
+//   "AT_RISK", "COMPLIANT"
+// =============================================================================
+
+// --- Current timestamp ---
+var now = Now()
+
+// --- Permit expiration check ---
+var expirationDate = $feature.ExpirationDate
+var isExpired = IIf(!IsEmpty(expirationDate) && expirationDate < now, true, false)
+
+// If the permit is expired, that takes top priority
+if (isExpired) {
+    return "EXPIRED"
+}
+
+// --- Review schedule check ---
+var nextReviewDate = $feature.NextReviewDate
+var daysUntilReview = IIf(
+    !IsEmpty(nextReviewDate),
+    DateDiff(nextReviewDate, now, 'days'),
+    null
+)
+
+// A negative value means the review date has passed without completion
+var isOverdueReview = IIf(
+    !IsEmpty(daysUntilReview) && daysUntilReview < 0,
+    true,
+    false
+)
+
+if (isOverdueReview) {
+    return "OVERDUE_REVIEW"
+}
+
+// --- Risk score evaluation ---
+// Thresholds:
+//   > 80  => CRITICAL_RISK
+//   > 60  => HIGH_RISK
+//   > 40  => AT_RISK (medium)
+//   <= 40 => COMPLIANT (low risk)
+var riskScore = DefaultValue($feature.RiskScore, 0)
+
+if (riskScore > 80) {
+    return "CRITICAL_RISK"
+}
+
+if (riskScore > 60) {
+    return "HIGH_RISK"
+}
+
+// --- Additional at-risk heuristics ---
+// Check if expiration is within 30 days or review is within 7 days,
+// even if risk score alone is moderate
+var daysUntilExpiration = IIf(
+    !IsEmpty(expirationDate),
+    DateDiff(expirationDate, now, 'days'),
+    null
+)
+
+var expiringsoon = IIf(
+    !IsEmpty(daysUntilExpiration) && daysUntilExpiration <= 30,
+    true,
+    false
+)
+
+var reviewSoon = IIf(
+    !IsEmpty(daysUntilReview) && daysUntilReview <= 7,
+    true,
+    false
+)
+
+// If the risk score is in the medium band OR the permit is near
+// expiration/review, flag as AT_RISK
+if (riskScore > 40 || expiringsSoon || reviewSoon) {
+    return "AT_RISK"
+}
+
+// --- Default: fully compliant ---
+return "COMPLIANT"
