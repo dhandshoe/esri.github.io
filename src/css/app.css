@@ -1,6 +1,6 @@
 /* ==========================================================================
    Environmental Compliance Management System – Custom Styles
-   Supplements Calcite Design System.
+   Worley Branded | Supplements Calcite Design System
    ========================================================================== */
 
 /* ---------------------------------------------------------------------------
@@ -8,13 +8,24 @@
    --------------------------------------------------------------------------- */
 
 :root {
+  /* Worley Brand Colors */
+  --worley-orange: #E87722;
+  --worley-orange-light: #F5A623;
+  --worley-orange-bg: #FEF3E8;
+  --worley-charcoal: #2D2926;
+  --worley-charcoal-light: #4A4543;
+  --worley-gray: #6B6560;
+  --worley-gray-light: #B8B2AD;
+  --worley-cream: #F5F1ED;
+  --worley-white: #FFFFFF;
+
   /* Compliance status colors */
   --status-compliant: #2d6a4f;
   --status-compliant-bg: #d8f3dc;
   --status-noncompliant: #d00000;
   --status-noncompliant-bg: #ffd6d6;
-  --status-atrisk: #e09f3e;
-  --status-atrisk-bg: #fff3cd;
+  --status-atrisk: #E87722;
+  --status-atrisk-bg: #FEF3E8;
   --status-unknown: #adb5bd;
   --status-unknown-bg: #e9ecef;
   --status-underreview: #0077b6;
@@ -22,15 +33,15 @@
 
   /* Alert severity */
   --severity-critical: #d00000;
-  --severity-high: #e36414;
-  --severity-medium: #e09f3e;
+  --severity-high: #E87722;
+  --severity-medium: #F5A623;
   --severity-low: #0077b6;
   --severity-info: #adb5bd;
 
   /* Graph node colors */
   --node-permit: #2d6a4f;
   --node-condition: #0077b6;
-  --node-trigger: #e09f3e;
+  --node-trigger: #E87722;
   --node-alert: #d00000;
   --node-asset: #6c757d;
   --node-contact: #7b2d8e;
@@ -64,7 +75,7 @@ body {
   padding: 0;
   height: 100%;
   width: 100%;
-  font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Segoe UI", "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
   overflow: hidden;
   background: var(--calcite-color-background, #f8f9fa);
 }
