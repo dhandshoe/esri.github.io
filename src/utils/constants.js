@@ -261,18 +261,18 @@ export const OperatorLabels = Object.freeze({
 // ---------------------------------------------------------------------------
 
 export const StatusColors = Object.freeze({
-  [ComplianceStatus.COMPLIANT]: { fill: "#2d6a4f", outline: "#1b4332", rgba: [45, 106, 79, 0.6] },
-  [ComplianceStatus.NON_COMPLIANT]: { fill: "#d00000", outline: "#9d0208", rgba: [208, 0, 0, 0.6] },
-  [ComplianceStatus.AT_RISK]: { fill: "#e09f3e", outline: "#e36414", rgba: [224, 159, 62, 0.6] },
+  [ComplianceStatus.COMPLIANT]: { fill: "#81D10B", outline: "#5a9208", rgba: [129, 209, 11, 0.6] },
+  [ComplianceStatus.NON_COMPLIANT]: { fill: "#F43A4F", outline: "#c62839", rgba: [244, 58, 79, 0.6] },
+  [ComplianceStatus.AT_RISK]: { fill: "#e09f3e", outline: "#c07b1a", rgba: [224, 159, 62, 0.6] },
   [ComplianceStatus.UNKNOWN]: { fill: "#adb5bd", outline: "#6c757d", rgba: [173, 181, 189, 0.6] },
-  [ComplianceStatus.UNDER_REVIEW]: { fill: "#0077b6", outline: "#023e8a", rgba: [0, 119, 182, 0.6] },
+  [ComplianceStatus.UNDER_REVIEW]: { fill: "#29C8C1", outline: "#1a9e98", rgba: [41, 200, 193, 0.6] },
 });
 
 export const SeverityColors = Object.freeze({
-  [AlertSeverity.CRITICAL]: "#d00000",
-  [AlertSeverity.HIGH]: "#e36414",
+  [AlertSeverity.CRITICAL]: "#F43A4F",
+  [AlertSeverity.HIGH]: "#F66172",
   [AlertSeverity.MEDIUM]: "#e09f3e",
-  [AlertSeverity.LOW]: "#0077b6",
+  [AlertSeverity.LOW]: "#29C8C1",
   [AlertSeverity.INFO]: "#adb5bd",
 });
 
@@ -489,15 +489,15 @@ export const NodeType = Object.freeze({
 });
 
 export const NodeColors = Object.freeze({
-  [NodeType.PERMIT]: "#2d6a4f",
-  [NodeType.CONDITION]: "#0077b6",
+  [NodeType.PERMIT]: "#003645",
+  [NodeType.CONDITION]: "#29C8C1",
   [NodeType.TRIGGER]: "#e09f3e",
-  [NodeType.ALERT]: "#d00000",
+  [NodeType.ALERT]: "#F43A4F",
   [NodeType.ASSET]: "#6c757d",
   [NodeType.CONTACT]: "#7b2d8e",
-  [NodeType.DRIVER]: "#1b4332",
-  [NodeType.OBLIGATION]: "#e76f51",
-  [NodeType.TASK]: "#457b9d",
-  [NodeType.DOCUMENT]: "#6d6875",
-  [NodeType.STAKEHOLDER]: "#bc6c25",
+  [NodeType.DRIVER]: "#335E6A",
+  [NodeType.OBLIGATION]: "#F66172",
+  [NodeType.TASK]: "#54D3CD",
+  [NodeType.DOCUMENT]: "#66868F",
+  [NodeType.STAKEHOLDER]: "#9ADA3C",
 });

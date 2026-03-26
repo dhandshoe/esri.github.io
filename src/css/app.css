@@ -8,41 +8,51 @@
    --------------------------------------------------------------------------- */
 
 :root {
-  /* Worley Brand Colors */
-  --worley-orange: #E87722;
-  --worley-orange-light: #F5A623;
-  --worley-orange-bg: #FEF3E8;
-  --worley-charcoal: #2D2926;
-  --worley-charcoal-light: #4A4543;
-  --worley-gray: #6B6560;
-  --worley-gray-light: #B8B2AD;
-  --worley-cream: #F5F1ED;
+  /* Worley Brand Colors – Primary */
+  --worley-deep-sea: #003645;
+  --worley-deep-sea-80: #335E6A;
+  --worley-deep-sea-60: #66868F;
+  --worley-deep-sea-40: #9DADBA;
+  --worley-scorched-rose: #F43A4F;
+  --worley-scorched-rose-80: #F66172;
+  --worley-scorched-rose-60: #F88995;
+  --worley-scorched-rose-40: #FBB0B9;
+  --worley-sky-mist: #29C8C1;
+  --worley-sky-mist-80: #54D3CD;
+  --worley-sky-mist-60: #7FDEDA;
+  --worley-sky-mist-40: #A9E9E6;
+  --worley-lush-green: #81D10B;
+  --worley-lush-green-80: #9ADA3C;
+  --worley-lush-green-60: #B3E36D;
+  --worley-lush-green-40: #CDED9D;
+  /* Worley Brand Colors – Neutrals */
+  --worley-ivory: #FAF8EF;
   --worley-white: #FFFFFF;
 
-  /* Compliance status colors */
-  --status-compliant: #2d6a4f;
-  --status-compliant-bg: #d8f3dc;
-  --status-noncompliant: #d00000;
-  --status-noncompliant-bg: #ffd6d6;
-  --status-atrisk: #E87722;
-  --status-atrisk-bg: #FEF3E8;
+  /* Compliance status colors (mapped to Worley palette) */
+  --status-compliant: var(--worley-lush-green);
+  --status-compliant-bg: var(--worley-lush-green-40);
+  --status-noncompliant: var(--worley-scorched-rose);
+  --status-noncompliant-bg: var(--worley-scorched-rose-40);
+  --status-atrisk: #e09f3e;
+  --status-atrisk-bg: #fdf0d5;
   --status-unknown: #adb5bd;
   --status-unknown-bg: #e9ecef;
-  --status-underreview: #0077b6;
-  --status-underreview-bg: #d0e8f5;
+  --status-underreview: var(--worley-sky-mist);
+  --status-underreview-bg: var(--worley-sky-mist-40);
 
   /* Alert severity */
-  --severity-critical: #d00000;
-  --severity-high: #E87722;
-  --severity-medium: #F5A623;
-  --severity-low: #0077b6;
+  --severity-critical: var(--worley-scorched-rose);
+  --severity-high: var(--worley-scorched-rose-80);
+  --severity-medium: #e09f3e;
+  --severity-low: var(--worley-sky-mist);
   --severity-info: #adb5bd;
 
   /* Graph node colors */
-  --node-permit: #2d6a4f;
-  --node-condition: #0077b6;
-  --node-trigger: #E87722;
-  --node-alert: #d00000;
+  --node-permit: var(--worley-deep-sea);
+  --node-condition: var(--worley-sky-mist);
+  --node-trigger: #e09f3e;
+  --node-alert: var(--worley-scorched-rose);
   --node-asset: #6c757d;
   --node-contact: #7b2d8e;
 
@@ -90,12 +100,30 @@ calcite-shell {
 }
 
 calcite-navigation {
-  --calcite-navigation-background: #1b4332;
+  --calcite-navigation-background: var(--worley-deep-sea);
 }
 
 calcite-navigation-logo {
-  --calcite-color-text-1: #fff;
-  --calcite-color-text-2: #d8f3dc;
+  --calcite-color-text-1: var(--worley-white);
+  --calcite-color-text-2: var(--worley-sky-mist-40);
+}
+
+calcite-navigation-item {
+  --calcite-color-text-1: var(--worley-white);
+  --calcite-color-text-2: rgba(255, 255, 255, 0.75);
+}
+
+calcite-navigation-item[active] {
+  --calcite-color-text-1: var(--worley-sky-mist);
+  border-bottom: 2px solid var(--worley-sky-mist);
+}
+
+calcite-navigation-item:hover:not([active]) {
+  --calcite-color-text-1: var(--worley-sky-mist-60);
+}
+
+calcite-navigation-user {
+  --calcite-color-text-1: var(--worley-white);
 }
 
 calcite-shell-panel {
@@ -608,8 +636,8 @@ calcite-dialog .form-group {
    --------------------------------------------------------------------------- */
 
 .status-badge--active {
-  background: #d0e8f5;
-  color: #0077b6;
+  background: var(--worley-sky-mist-40);
+  color: var(--worley-deep-sea);
 }
 
 .status-badge--overdue {
@@ -629,8 +657,8 @@ calcite-dialog .form-group {
 }
 
 .status-badge--inprogress {
-  background: #d0e8f5;
-  color: #0077b6;
+  background: var(--worley-sky-mist-40);
+  color: var(--worley-deep-sea);
 }
 
 .status-badge--onhold {
@@ -685,15 +713,15 @@ calcite-dialog .form-group {
 }
 
 .moc-timeline-dot.active {
-  background: #0077b6;
+  background: var(--worley-sky-mist);
 }
 
 .moc-timeline-dot.completed {
-  background: var(--status-compliant);
+  background: var(--worley-lush-green);
 }
 
 .moc-timeline-dot.rejected {
-  background: var(--status-noncompliant);
+  background: var(--worley-scorched-rose);
 }
 
 .moc-timeline-label {
@@ -711,7 +739,7 @@ calcite-dialog .form-group {
 }
 
 .moc-timeline-connector.completed {
-  background: var(--status-compliant);
+  background: var(--worley-lush-green);
 }
 
 /* ---------------------------------------------------------------------------
@@ -755,10 +783,10 @@ calcite-dialog .form-group {
   z-index: 1;
 }
 
-.training-cell--completed { background: #d8f3dc; }
-.training-cell--overdue { background: #ffd6d6; }
+.training-cell--completed { background: var(--worley-lush-green-40); }
+.training-cell--overdue { background: var(--worley-scorched-rose-40); }
 .training-cell--expiring { background: #fff3cd; }
-.training-cell--required { background: #d0e8f5; }
+.training-cell--required { background: var(--worley-sky-mist-40); }
 .training-cell--exempt { background: #e9ecef; }
 
 /* ---------------------------------------------------------------------------
@@ -776,13 +804,13 @@ calcite-dialog .form-group {
 }
 
 .direction-badge--outgoing {
-  background: #d0e8f5;
-  color: #0077b6;
+  background: var(--worley-sky-mist-40);
+  color: var(--worley-deep-sea);
 }
 
 .direction-badge--incoming {
-  background: #d8f3dc;
-  color: #2d6a4f;
+  background: var(--worley-lush-green-40);
+  color: var(--worley-deep-sea);
 }
 
 /* ---------------------------------------------------------------------------
@@ -795,8 +823,8 @@ calcite-dialog .form-group {
   gap: 4px;
   padding: 2px 8px;
   border-radius: 10px;
-  background: #ffd6d6;
-  color: #d00000;
+  background: var(--worley-scorched-rose-40);
+  color: var(--worley-scorched-rose);
   font-size: 0.7rem;
   font-weight: 600;
 }
@@ -806,7 +834,51 @@ calcite-dialog .form-group {
    --------------------------------------------------------------------------- */
 
 calcite-tabs {
-  --calcite-tabs-border-active: var(--status-compliant);
+  --calcite-tabs-border-active: var(--worley-deep-sea);
+}
+
+/* ---------------------------------------------------------------------------
+   Worley Branded Buttons & Accents
+   --------------------------------------------------------------------------- */
+
+calcite-button[appearance="solid"] {
+  --calcite-color-brand: var(--worley-deep-sea);
+  --calcite-color-brand-hover: var(--worley-deep-sea-80);
+  --calcite-color-brand-press: var(--worley-deep-sea);
+}
+
+calcite-button[kind="danger"] {
+  --calcite-color-brand: var(--worley-scorched-rose);
+  --calcite-color-brand-hover: var(--worley-scorched-rose-80);
+  --calcite-color-brand-press: var(--worley-scorched-rose);
+}
+
+calcite-action[active] {
+  --calcite-color-brand: var(--worley-deep-sea);
+}
+
+calcite-switch {
+  --calcite-color-brand: var(--worley-deep-sea);
+}
+
+calcite-chip[kind="brand"] {
+  --calcite-color-brand: var(--worley-deep-sea);
+}
+
+calcite-loader {
+  --calcite-color-brand: var(--worley-sky-mist);
+}
+
+calcite-notice[kind="success"] {
+  --calcite-color-status-success: var(--worley-lush-green);
+}
+
+calcite-notice[kind="danger"] {
+  --calcite-color-status-danger: var(--worley-scorched-rose);
+}
+
+calcite-notice[kind="info"] {
+  --calcite-color-status-info: var(--worley-sky-mist);
 }
 
 /* ---------------------------------------------------------------------------
@@ -860,4 +932,45 @@ calcite-tabs {
 .empty-state calcite-icon {
   margin-bottom: 12px;
   opacity: 0.4;
+}
+
+/* ---------------------------------------------------------------------------
+   Worley Footer Status Bar
+   --------------------------------------------------------------------------- */
+
+calcite-navigation[slot="footer"] {
+  --calcite-navigation-background: var(--worley-deep-sea);
+}
+
+.ecms-status-bar {
+  color: var(--worley-white);
+  font-size: 0.75rem;
+  padding: 0 8px;
+  opacity: 0.85;
+}
+
+/* ---------------------------------------------------------------------------
+   Worley Branded Map Container
+   --------------------------------------------------------------------------- */
+
+.ecms-map-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* ---------------------------------------------------------------------------
+   Worley Branded Selection / Focus
+   --------------------------------------------------------------------------- */
+
+calcite-list-item[selected] {
+  --calcite-color-brand: var(--worley-deep-sea);
+}
+
+calcite-input:focus-within {
+  --calcite-color-brand: var(--worley-deep-sea);
+}
+
+calcite-select:focus-within {
+  --calcite-color-brand: var(--worley-deep-sea);
 }

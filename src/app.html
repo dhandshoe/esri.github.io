@@ -25,6 +25,7 @@
           heading="ECMS"
           description="Environmental Compliance Management System"
           icon="environment-management"
+          thumbnail="https://www.worley.com/favicon.ico"
         ></calcite-navigation-logo>
 
         <!-- Primary navigation -->
@@ -112,17 +113,25 @@
       </calcite-navigation>
     </calcite-shell>
 
+    <!-- Application configuration -->
+    <script>
+      window.__ECMS_CONFIG = {
+        portalUrl: "https://geomatics.worley.com/portal",
+        featureServiceUrl: "https://geomatics.worley.com/server/rest/services/ECMS/FeatureServer",
+        gpComplianceUrl: "https://geomatics.worley.com/server/rest/services/ECMS/ComplianceCheck/GPServer/RunComplianceCheck"
+      };
+    </script>
+
     <!-- Application entry point -->
     <script type="module">
       import { initialize } from "./components/app-shell.js";
 
-      // Configuration can be overridden via query params or global config
+      // Allow query param overrides
       const params = new URLSearchParams(window.location.search);
-      const config = {};
-      if (params.get("portal")) config.portalUrl = params.get("portal");
-      if (params.get("service")) config.featureServiceUrl = params.get("service");
+      if (params.get("portal")) window.__ECMS_CONFIG.portalUrl = params.get("portal");
+      if (params.get("service")) window.__ECMS_CONFIG.featureServiceUrl = params.get("service");
 
-      initialize(config);
+      initialize(window.__ECMS_CONFIG);
     </script>
   </body>
 </html>
