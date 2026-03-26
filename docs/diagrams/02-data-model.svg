@@ -1,0 +1,336 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1050" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <linearGradient id="deepSeaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#003645;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#335E6A;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="106%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#003645" flood-opacity="0.15"/>
+    </filter>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#66868F"/>
+    </marker>
+    <marker id="arrowRose" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#F43A4F"/>
+    </marker>
+    <marker id="diamond" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <polygon points="5 0, 10 5, 5 10, 0 5" fill="#003645"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1400" height="1050" fill="#FAF8EF"/>
+
+  <!-- Title -->
+  <rect width="1400" height="70" fill="url(#deepSeaGrad)"/>
+  <text x="40" y="32" fill="#FFFFFF" font-size="11" font-weight="400" letter-spacing="2">WORLEY | ALASKA LNG</text>
+  <text x="40" y="52" fill="#FFFFFF" font-size="20" font-weight="700">ECMS Data Model — Entity Relationship Diagram</text>
+  <text x="1360" y="45" fill="#A9E9E6" font-size="12" font-weight="400" text-anchor="end">Feature Dataset: ECMS</text>
+
+  <!-- ============ FEATURE CLASSES (Spatial) ============ -->
+  <text x="40" y="105" fill="#003645" font-size="13" font-weight="700" letter-spacing="1">FEATURE CLASSES (Spatial Geometry)</text>
+  <line x1="40" y1="112" x2="380" y2="112" stroke="#29C8C1" stroke-width="2"/>
+
+  <!-- FC: Permits -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="125" width="185" height="165" rx="6" fill="#FFFFFF" stroke="#003645" stroke-width="2"/>
+    <rect x="40" y="125" width="185" height="28" rx="6" fill="#003645"/>
+    <rect x="40" y="145" width="185" height="8" fill="#003645"/>
+    <circle cx="55" cy="139" r="6" fill="#29C8C1"/>
+    <text x="68" y="143" fill="#FFFFFF" font-size="11" font-weight="700">Permits</text>
+    <text x="50" y="168" fill="#003645" font-size="9" font-weight="600">PermitID</text><text x="150" y="168" fill="#66868F" font-size="8">PK, Text</text>
+    <text x="50" y="182" fill="#335E6A" font-size="9">PermitName</text><text x="150" y="182" fill="#66868F" font-size="8">Text</text>
+    <text x="50" y="196" fill="#335E6A" font-size="9">IssuingAgency</text><text x="150" y="196" fill="#66868F" font-size="8">Text</text>
+    <text x="50" y="210" fill="#335E6A" font-size="9">PermitNumber</text><text x="150" y="210" fill="#66868F" font-size="8">Text</text>
+    <text x="50" y="224" fill="#335E6A" font-size="9">IssueDate / ExpDate</text><text x="165" y="224" fill="#66868F" font-size="8">Date</text>
+    <text x="50" y="238" fill="#335E6A" font-size="9">ComplianceStatus</text><text x="150" y="238" fill="#66868F" font-size="8">Domain</text>
+    <text x="50" y="252" fill="#335E6A" font-size="9">ProjectComponent</text><text x="150" y="252" fill="#66868F" font-size="8">Domain</text>
+    <line x1="50" y1="258" x2="215" y2="258" stroke="#e0e0e0" stroke-width="0.5"/>
+    <text x="50" y="280" fill="#66868F" font-size="8" font-style="italic">Point / Polygon geometry</text>
+  </g>
+
+  <!-- FC: Conditions -->
+  <g filter="url(#shadow)">
+    <rect x="250" y="125" width="185" height="165" rx="6" fill="#FFFFFF" stroke="#003645" stroke-width="2"/>
+    <rect x="250" y="125" width="185" height="28" rx="6" fill="#003645"/>
+    <rect x="250" y="145" width="185" height="8" fill="#003645"/>
+    <circle cx="265" cy="139" r="6" fill="#29C8C1"/>
+    <text x="278" y="143" fill="#FFFFFF" font-size="11" font-weight="700">Conditions</text>
+    <text x="260" y="168" fill="#003645" font-size="9" font-weight="600">ConditionID</text><text x="370" y="168" fill="#66868F" font-size="8">PK</text>
+    <text x="260" y="182" fill="#F43A4F" font-size="9">PermitID</text><text x="370" y="182" fill="#66868F" font-size="8">FK</text>
+    <text x="260" y="196" fill="#335E6A" font-size="9">ConditionText</text><text x="370" y="196" fill="#66868F" font-size="8">Text</text>
+    <text x="260" y="210" fill="#335E6A" font-size="9">ComplianceStatus</text><text x="370" y="210" fill="#66868F" font-size="8">Domain</text>
+    <text x="260" y="224" fill="#335E6A" font-size="9">DueDate</text><text x="370" y="224" fill="#66868F" font-size="8">Date</text>
+    <text x="260" y="238" fill="#335E6A" font-size="9">Category</text><text x="370" y="238" fill="#66868F" font-size="8">Domain</text>
+    <line x1="260" y1="258" x2="425" y2="258" stroke="#e0e0e0" stroke-width="0.5"/>
+    <text x="260" y="280" fill="#66868F" font-size="8" font-style="italic">Point geometry</text>
+  </g>
+
+  <!-- FC: Triggers -->
+  <g filter="url(#shadow)">
+    <rect x="460" y="125" width="185" height="130" rx="6" fill="#FFFFFF" stroke="#003645" stroke-width="2"/>
+    <rect x="460" y="125" width="185" height="28" rx="6" fill="#003645"/>
+    <rect x="460" y="145" width="185" height="8" fill="#003645"/>
+    <circle cx="475" cy="139" r="6" fill="#29C8C1"/>
+    <text x="488" y="143" fill="#FFFFFF" font-size="11" font-weight="700">Triggers</text>
+    <text x="470" y="168" fill="#003645" font-size="9" font-weight="600">TriggerID</text><text x="580" y="168" fill="#66868F" font-size="8">PK</text>
+    <text x="470" y="182" fill="#F43A4F" font-size="9">ConditionID</text><text x="580" y="182" fill="#66868F" font-size="8">FK</text>
+    <text x="470" y="196" fill="#335E6A" font-size="9">TriggerType</text><text x="580" y="196" fill="#66868F" font-size="8">Domain</text>
+    <text x="470" y="210" fill="#335E6A" font-size="9">Threshold / Value</text><text x="580" y="210" fill="#66868F" font-size="8">Double</text>
+    <text x="470" y="224" fill="#335E6A" font-size="9">MonitoringFreq</text><text x="580" y="224" fill="#66868F" font-size="8">Domain</text>
+  </g>
+
+  <!-- More FCs -->
+  <g filter="url(#shadow)">
+    <rect x="460" y="270" width="185" height="80" rx="6" fill="#FFFFFF" stroke="#003645" stroke-width="2"/>
+    <rect x="460" y="270" width="185" height="28" rx="6" fill="#003645"/>
+    <rect x="460" y="290" width="185" height="8" fill="#003645"/>
+    <circle cx="475" cy="284" r="6" fill="#29C8C1"/>
+    <text x="488" y="288" fill="#FFFFFF" font-size="11" font-weight="700">Alerts</text>
+    <text x="470" y="316" fill="#003645" font-size="9" font-weight="600">AlertID</text><text x="580" y="316" fill="#66868F" font-size="8">PK</text>
+    <text x="470" y="330" fill="#335E6A" font-size="9">Severity / Message</text><text x="580" y="330" fill="#66868F" font-size="8">Domain/Text</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="40" y="305" width="185" height="80" rx="6" fill="#FFFFFF" stroke="#003645" stroke-width="2"/>
+    <rect x="40" y="305" width="185" height="28" rx="6" fill="#003645"/>
+    <rect x="40" y="325" width="185" height="8" fill="#003645"/>
+    <circle cx="55" cy="319" r="6" fill="#29C8C1"/>
+    <text x="68" y="323" fill="#FFFFFF" font-size="11" font-weight="700">Assets</text>
+    <text x="50" y="350" fill="#003645" font-size="9" font-weight="600">AssetID</text><text x="150" y="350" fill="#66868F" font-size="8">PK</text>
+    <text x="50" y="364" fill="#335E6A" font-size="9">AssetType / Name</text><text x="150" y="364" fill="#66868F" font-size="8">Domain/Text</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="250" y="305" width="185" height="80" rx="6" fill="#FFFFFF" stroke="#003645" stroke-width="2"/>
+    <rect x="250" y="305" width="185" height="28" rx="6" fill="#003645"/>
+    <rect x="250" y="325" width="185" height="8" fill="#003645"/>
+    <circle cx="265" cy="319" r="6" fill="#29C8C1"/>
+    <text x="278" y="323" fill="#FFFFFF" font-size="11" font-weight="700">MonitoringPoints</text>
+    <text x="260" y="350" fill="#003645" font-size="9" font-weight="600">PointID</text><text x="370" y="350" fill="#66868F" font-size="8">PK</text>
+    <text x="260" y="364" fill="#335E6A" font-size="9">PointType / Status</text><text x="370" y="364" fill="#66868F" font-size="8">Domain</text>
+  </g>
+
+  <!-- Relationship lines between FCs -->
+  <line x1="225" y1="182" x2="250" y2="182" stroke="#003645" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="228" y="177" fill="#F43A4F" font-size="7" font-weight="600">1:M</text>
+
+  <line x1="435" y1="182" x2="460" y2="182" stroke="#003645" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="438" y="177" fill="#F43A4F" font-size="7" font-weight="600">1:M</text>
+
+  <!-- ============ RELATED TABLES ============ -->
+  <text x="40" y="430" fill="#003645" font-size="13" font-weight="700" letter-spacing="1">RELATED TABLES (Non-Spatial) — 26 Tables</text>
+  <line x1="40" y1="437" x2="380" y2="437" stroke="#F43A4F" stroke-width="2"/>
+
+  <!-- Row 1: Core regulatory -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="450" width="160" height="130" rx="6" fill="#FFFFFF" stroke="#F43A4F" stroke-width="1.5"/>
+    <rect x="40" y="450" width="160" height="24" rx="6" fill="#F43A4F"/>
+    <rect x="40" y="466" width="160" height="8" fill="#F43A4F"/>
+    <text x="120" y="467" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">RegulatoryDrivers</text>
+    <text x="50" y="490" fill="#003645" font-size="8" font-weight="600">DriverID (PK)</text>
+    <text x="50" y="503" fill="#335E6A" font-size="8">ProjectID (FK)</text>
+    <text x="50" y="516" fill="#335E6A" font-size="8">DriverType [Domain]</text>
+    <text x="50" y="529" fill="#335E6A" font-size="8">IssuingAgency</text>
+    <text x="50" y="542" fill="#335E6A" font-size="8">PermitNumber</text>
+    <text x="50" y="555" fill="#335E6A" font-size="8">IssueDate / ExpDate</text>
+    <text x="50" y="568" fill="#335E6A" font-size="8">ComplianceStatus</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="220" y="450" width="160" height="130" rx="6" fill="#FFFFFF" stroke="#F43A4F" stroke-width="1.5"/>
+    <rect x="220" y="450" width="160" height="24" rx="6" fill="#F43A4F"/>
+    <rect x="220" y="466" width="160" height="8" fill="#F43A4F"/>
+    <text x="300" y="467" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">Obligations</text>
+    <text x="230" y="490" fill="#003645" font-size="8" font-weight="600">ObligationID (PK)</text>
+    <text x="230" y="503" fill="#335E6A" font-size="8">DriverID (FK)</text>
+    <text x="230" y="516" fill="#335E6A" font-size="8">ObligationType [Domain]</text>
+    <text x="230" y="529" fill="#335E6A" font-size="8">ObligationStatus [Domain]</text>
+    <text x="230" y="542" fill="#335E6A" font-size="8">GISReference</text>
+    <text x="230" y="555" fill="#335E6A" font-size="8">TrainingRequired</text>
+    <text x="230" y="568" fill="#335E6A" font-size="8">Controls / Type</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="400" y="450" width="160" height="130" rx="6" fill="#FFFFFF" stroke="#F43A4F" stroke-width="1.5"/>
+    <rect x="400" y="450" width="160" height="24" rx="6" fill="#F43A4F"/>
+    <rect x="400" y="466" width="160" height="8" fill="#F43A4F"/>
+    <text x="480" y="467" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">Tasks</text>
+    <text x="410" y="490" fill="#003645" font-size="8" font-weight="600">TaskID (PK)</text>
+    <text x="410" y="503" fill="#335E6A" font-size="8">TaskType [Domain]</text>
+    <text x="410" y="516" fill="#335E6A" font-size="8">TaskStatus [Domain]</text>
+    <text x="410" y="529" fill="#335E6A" font-size="8">DueDate</text>
+    <text x="410" y="542" fill="#335E6A" font-size="8">AutoRenew / Interval</text>
+    <text x="410" y="555" fill="#335E6A" font-size="8">AssignedTo</text>
+    <text x="410" y="568" fill="#335E6A" font-size="8">CompletedDate</text>
+  </g>
+
+  <!-- M:M junction -->
+  <g filter="url(#shadow)">
+    <rect x="310" y="595" width="140" height="50" rx="6" fill="#A9E9E6" stroke="#29C8C1" stroke-width="1.5"/>
+    <text x="380" y="616" fill="#003645" font-size="9" font-weight="700" text-anchor="middle">ObligationTasks</text>
+    <text x="380" y="632" fill="#335E6A" font-size="8" text-anchor="middle">M:M Junction Table</text>
+  </g>
+
+  <!-- Arrows: Driver->Obligation->Task -->
+  <line x1="200" y1="515" x2="220" y2="515" stroke="#F43A4F" stroke-width="1.5" marker-end="url(#arrowRose)"/>
+  <text x="204" y="510" fill="#F43A4F" font-size="7" font-weight="600">1:M</text>
+
+  <line x1="300" y1="580" x2="310" y2="610" stroke="#29C8C1" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="480" y1="580" x2="450" y2="610" stroke="#29C8C1" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="270" y="600" fill="#29C8C1" font-size="7" font-weight="600">M:M</text>
+
+  <!-- Row 2: Supporting tables -->
+  <g filter="url(#shadow)">
+    <rect x="580" y="450" width="155" height="115" rx="6" fill="#FFFFFF" stroke="#F66172" stroke-width="1.5"/>
+    <rect x="580" y="450" width="155" height="24" rx="6" fill="#F66172"/>
+    <rect x="580" y="466" width="155" height="8" fill="#F66172"/>
+    <text x="657" y="467" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">Documents</text>
+    <text x="590" y="490" fill="#003645" font-size="8" font-weight="600">DocumentID (PK)</text>
+    <text x="590" y="503" fill="#335E6A" font-size="8">DCN (unique)</text>
+    <text x="590" y="516" fill="#335E6A" font-size="8">Revision / Status</text>
+    <text x="590" y="529" fill="#335E6A" font-size="8">NativeFilePath</text>
+    <text x="590" y="542" fill="#335E6A" font-size="8">FinalFilePath</text>
+    <text x="590" y="555" fill="#335E6A" font-size="8">SubmissionStatus</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="755" y="450" width="155" height="115" rx="6" fill="#FFFFFF" stroke="#F66172" stroke-width="1.5"/>
+    <rect x="755" y="450" width="155" height="24" rx="6" fill="#F66172"/>
+    <rect x="755" y="466" width="155" height="8" fill="#F66172"/>
+    <text x="832" y="467" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">TrainingReqs</text>
+    <text x="765" y="490" fill="#003645" font-size="8" font-weight="600">TrainingID (PK)</text>
+    <text x="765" y="503" fill="#335E6A" font-size="8">ObligationID (FK)</text>
+    <text x="765" y="516" fill="#335E6A" font-size="8">RequirementName</text>
+    <text x="765" y="529" fill="#335E6A" font-size="8">RenewalInterval</text>
+    <text x="765" y="542" fill="#335E6A" font-size="8">Frequency</text>
+    <text x="765" y="555" fill="#335E6A" font-size="8">TrainingType</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="930" y="450" width="155" height="100" rx="6" fill="#FFFFFF" stroke="#F88995" stroke-width="1.5"/>
+    <rect x="930" y="450" width="155" height="24" rx="6" fill="#F88995"/>
+    <rect x="930" y="466" width="155" height="8" fill="#F88995"/>
+    <text x="1007" y="467" fill="#003645" font-size="10" font-weight="700" text-anchor="middle">TrainingCompletions</text>
+    <text x="940" y="490" fill="#003645" font-size="8" font-weight="600">CompletionID (PK)</text>
+    <text x="940" y="503" fill="#335E6A" font-size="8">TrainingID (FK)</text>
+    <text x="940" y="516" fill="#335E6A" font-size="8">PersonName</text>
+    <text x="940" y="529" fill="#335E6A" font-size="8">CompletionDate / Exp</text>
+    <text x="940" y="542" fill="#335E6A" font-size="8">CertificateRef</text>
+  </g>
+
+  <!-- Arrow Training->Completions -->
+  <line x1="910" y1="500" x2="930" y2="500" stroke="#F88995" stroke-width="1.5" marker-end="url(#arrowRose)"/>
+  <text x="912" y="495" fill="#F43A4F" font-size="7" font-weight="600">1:M</text>
+
+  <!-- Row 3: Workflow & Stakeholders -->
+  <g filter="url(#shadow)">
+    <rect x="580" y="585" width="155" height="110" rx="6" fill="#FFFFFF" stroke="#29C8C1" stroke-width="1.5"/>
+    <rect x="580" y="585" width="155" height="24" rx="6" fill="#29C8C1"/>
+    <rect x="580" y="601" width="155" height="8" fill="#29C8C1"/>
+    <text x="657" y="602" fill="#003645" font-size="10" font-weight="700" text-anchor="middle">MOCRequests</text>
+    <text x="590" y="625" fill="#003645" font-size="8" font-weight="600">MOCID (PK)</text>
+    <text x="590" y="638" fill="#335E6A" font-size="8">DriverID (FK)</text>
+    <text x="590" y="651" fill="#335E6A" font-size="8">Status: Initiated→</text>
+    <text x="590" y="664" fill="#335E6A" font-size="8">  Reviewed→Approved→</text>
+    <text x="590" y="677" fill="#335E6A" font-size="8">  Implemented→Closed</text>
+    <text x="590" y="688" fill="#66868F" font-size="7" font-style="italic">or Initiated→Rejected</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="755" y="585" width="155" height="100" rx="6" fill="#FFFFFF" stroke="#29C8C1" stroke-width="1.5"/>
+    <rect x="755" y="585" width="155" height="24" rx="6" fill="#29C8C1"/>
+    <rect x="755" y="601" width="155" height="8" fill="#29C8C1"/>
+    <text x="832" y="602" fill="#003645" font-size="10" font-weight="700" text-anchor="middle">Transmittals</text>
+    <text x="765" y="625" fill="#003645" font-size="8" font-weight="600">TransmittalID (PK)</text>
+    <text x="765" y="638" fill="#335E6A" font-size="8">Direction [In/Out]</text>
+    <text x="765" y="651" fill="#335E6A" font-size="8">Recipient / Agency</text>
+    <text x="765" y="664" fill="#335E6A" font-size="8">SentDate / DueDate</text>
+    <text x="765" y="677" fill="#335E6A" font-size="8">Status / Documents</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="930" y="585" width="155" height="100" rx="6" fill="#FFFFFF" stroke="#29C8C1" stroke-width="1.5"/>
+    <rect x="930" y="585" width="155" height="24" rx="6" fill="#29C8C1"/>
+    <rect x="930" y="601" width="155" height="8" fill="#29C8C1"/>
+    <text x="1007" y="602" fill="#003645" font-size="10" font-weight="700" text-anchor="middle">Stakeholders</text>
+    <text x="940" y="625" fill="#003645" font-size="8" font-weight="600">StakeholderID (PK)</text>
+    <text x="940" y="638" fill="#335E6A" font-size="8">StakeholderType [Domain]</text>
+    <text x="940" y="651" fill="#335E6A" font-size="8">Organization / Contact</text>
+    <text x="940" y="664" fill="#335E6A" font-size="8">LandManager (Y/N)</text>
+    <text x="940" y="677" fill="#335E6A" font-size="8">FERC Complaint Flag</text>
+  </g>
+
+  <!-- Row 4: Supporting -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="665" width="140" height="85" rx="6" fill="#FFFFFF" stroke="#66868F" stroke-width="1.5"/>
+    <rect x="40" y="665" width="140" height="24" rx="6" fill="#66868F"/>
+    <rect x="40" y="681" width="140" height="8" fill="#66868F"/>
+    <text x="110" y="682" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">Projects</text>
+    <text x="50" y="705" fill="#003645" font-size="8" font-weight="600">ProjectID (PK)</text>
+    <text x="50" y="718" fill="#335E6A" font-size="8">ProjectName</text>
+    <text x="50" y="731" fill="#335E6A" font-size="8">ProjectType [Domain]</text>
+    <text x="50" y="744" fill="#335E6A" font-size="8">Component / Status</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="200" y="665" width="140" height="85" rx="6" fill="#FFFFFF" stroke="#66868F" stroke-width="1.5"/>
+    <rect x="200" y="665" width="140" height="24" rx="6" fill="#66868F"/>
+    <rect x="200" y="681" width="140" height="8" fill="#66868F"/>
+    <text x="270" y="682" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">DriverAmendments</text>
+    <text x="210" y="705" fill="#003645" font-size="8" font-weight="600">AmendmentID (PK)</text>
+    <text x="210" y="718" fill="#335E6A" font-size="8">DriverID (FK)</text>
+    <text x="210" y="731" fill="#335E6A" font-size="8">AmendmentDate</text>
+    <text x="210" y="744" fill="#335E6A" font-size="8">Description / Type</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="360" y="665" width="140" height="85" rx="6" fill="#FFFFFF" stroke="#66868F" stroke-width="1.5"/>
+    <rect x="360" y="665" width="140" height="24" rx="6" fill="#66868F"/>
+    <rect x="360" y="681" width="140" height="8" fill="#66868F"/>
+    <text x="430" y="682" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">DesignatedPOCs</text>
+    <text x="370" y="705" fill="#003645" font-size="8" font-weight="600">POCID (PK)</text>
+    <text x="370" y="718" fill="#335E6A" font-size="8">DriverID (FK)</text>
+    <text x="370" y="731" fill="#335E6A" font-size="8">PersonName / Role</text>
+    <text x="370" y="744" fill="#335E6A" font-size="8">Phone / Email</text>
+  </g>
+
+  <!-- Additional tables summary -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="770" width="460" height="70" rx="6" fill="#FAF8EF" stroke="#66868F" stroke-width="1"/>
+    <text x="50" y="792" fill="#003645" font-size="9" font-weight="700">Additional Related Tables (13 more):</text>
+    <text x="50" y="808" fill="#335E6A" font-size="8">DriverRenewals, TaskEvidence, DocumentRevisions, TransmittalDocuments,</text>
+    <text x="50" y="822" fill="#335E6A" font-size="8">StakeholderComplaints, ProjectAccess, Contacts, AuditLog, ComplianceHistory,</text>
+    <text x="50" y="836" fill="#335E6A" font-size="8">MonitoringData, InspectionRecords, CulturalResources, NotificationLog</text>
+  </g>
+
+  <!-- ============ RELATIONSHIP SUMMARY ============ -->
+  <text x="580" y="720" fill="#003645" font-size="13" font-weight="700" letter-spacing="1">RELATIONSHIP CLASSES (25)</text>
+  <line x1="580" y1="727" x2="840" y2="727" stroke="#81D10B" stroke-width="2"/>
+
+  <g filter="url(#shadow)">
+    <rect x="580" y="740" width="500" height="145" rx="6" fill="#FFFFFF" stroke="#81D10B" stroke-width="1.5"/>
+    <text x="590" y="762" fill="#003645" font-size="9" font-weight="600">Composite (1:M) — Cascade deletes</text>
+    <text x="590" y="778" fill="#335E6A" font-size="8">Permit → Conditions → Triggers → Alerts</text>
+    <text x="590" y="791" fill="#335E6A" font-size="8">Driver → Obligations, Amendments, POCs, Documents, MOC</text>
+    <text x="590" y="804" fill="#335E6A" font-size="8">Obligation → Tasks (via junction), Training, Documents</text>
+    <text x="590" y="817" fill="#335E6A" font-size="8">Task → Evidence, Documents</text>
+    <text x="590" y="830" fill="#335E6A" font-size="8">Training → Completions</text>
+
+    <line x1="590" y1="840" x2="1070" y2="840" stroke="#e0e0e0" stroke-width="0.5"/>
+    <text x="590" y="856" fill="#003645" font-size="9" font-weight="600">Simple (M:M) — Junction tables</text>
+    <text x="590" y="872" fill="#335E6A" font-size="8">ObligationTasks (Obligation ↔ Task), TransmittalDocuments (Transmittal ↔ Document)</text>
+  </g>
+
+  <!-- Domains summary -->
+  <g filter="url(#shadow)">
+    <rect x="580" y="900" width="500" height="60" rx="6" fill="#FFFFFF" stroke="#81D10B" stroke-width="1.5"/>
+    <text x="590" y="922" fill="#003645" font-size="9" font-weight="600">41 Coded Domains:</text>
+    <text x="590" y="938" fill="#335E6A" font-size="8">ComplianceStatus, AlertSeverity, ProjectType, DriverType, ObligationType, TaskStatus, TaskType,</text>
+    <text x="590" y="951" fill="#335E6A" font-size="8">MOCStatus, TransmittalDirection, StakeholderType, ProjectComponent, MonitoringFrequency, +29 more</text>
+  </g>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="985" width="1400" height="35" rx="0" fill="#003645"/>
+  <text x="700" y="1007" fill="#A9E9E6" font-size="10" font-weight="400" text-anchor="middle">ECMS Data Model — Enterprise Geodatabase Schema | 7 Feature Classes | 26 Related Tables | 25 Relationship Classes | 41 Coded Domains</text>
+</svg>

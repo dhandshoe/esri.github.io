@@ -1,0 +1,344 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <linearGradient id="deepSeaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#003645;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#335E6A;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-1%" y="-1%" width="102%" height="104%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#003645" flood-opacity="0.12"/>
+    </filter>
+    <filter id="shadowLg" x="-1%" y="-1%" width="102%" height="104%">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#003645" flood-opacity="0.18"/>
+    </filter>
+    <pattern id="mapPattern" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="#d5e8d4"/>
+      <path d="M0 40 L40 0" stroke="#c2dbc0" stroke-width="0.5"/>
+      <path d="M20 40 L40 20" stroke="#c2dbc0" stroke-width="0.3"/>
+      <path d="M0 20 L20 0" stroke="#c2dbc0" stroke-width="0.3"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1400" height="900" fill="#FAF8EF"/>
+
+  <!-- Title -->
+  <rect width="1400" height="70" fill="url(#deepSeaGrad)"/>
+  <text x="40" y="32" fill="#FFFFFF" font-size="11" font-weight="400" letter-spacing="2">WORLEY | ALASKA LNG</text>
+  <text x="40" y="52" fill="#FFFFFF" font-size="20" font-weight="700">ECMS Web Application — User Interface Layout</text>
+  <text x="1360" y="45" fill="#A9E9E6" font-size="12" font-weight="400" text-anchor="end">Calcite Design System</text>
+
+  <!-- ============ BROWSER MOCKUP ============ -->
+  <g filter="url(#shadowLg)">
+    <!-- Browser chrome -->
+    <rect x="40" y="95" width="880" height="30" rx="8" fill="#e0e0e0"/>
+    <circle cx="60" cy="110" r="5" fill="#F43A4F"/>
+    <circle cx="78" cy="110" r="5" fill="#e09f3e"/>
+    <circle cx="96" cy="110" r="5" fill="#81D10B"/>
+    <rect x="120" y="102" width="400" height="16" rx="8" fill="#fff"/>
+    <text x="130" y="114" fill="#66868F" font-size="9">https://geomatics.worley.com/portal/apps/ecms/</text>
+
+    <!-- App frame -->
+    <rect x="40" y="125" width="880" height="600" fill="#fff" stroke="#d0d0d0" stroke-width="1"/>
+
+    <!-- Navigation Bar -->
+    <rect x="40" y="125" width="880" height="48" fill="#003645"/>
+    <!-- Logo area -->
+    <rect x="52" y="133" width="28" height="28" rx="4" fill="#29C8C1"/>
+    <text x="66" y="151" fill="#003645" font-size="14" font-weight="800" text-anchor="middle">W</text>
+    <text x="88" y="145" fill="#FFFFFF" font-size="12" font-weight="700">ECMS</text>
+    <text x="88" y="159" fill="#A9E9E6" font-size="8">Environmental Compliance</text>
+
+    <!-- Nav items -->
+    <text x="230" y="153" fill="#FFFFFF" font-size="9" font-weight="600">Map</text>
+    <text x="280" y="153" fill="rgba(255,255,255,0.7)" font-size="9">Drivers</text>
+    <text x="340" y="153" fill="rgba(255,255,255,0.7)" font-size="9">Obligations</text>
+    <text x="420" y="153" fill="rgba(255,255,255,0.7)" font-size="9">Tasks</text>
+    <text x="470" y="153" fill="rgba(255,255,255,0.7)" font-size="9">Docs</text>
+    <text x="515" y="153" fill="rgba(255,255,255,0.7)" font-size="9">Training</text>
+    <text x="575" y="153" fill="rgba(255,255,255,0.7)" font-size="9">MOC</text>
+    <text x="615" y="153" fill="rgba(255,255,255,0.7)" font-size="9">Transmittals</text>
+    <text x="700" y="153" fill="rgba(255,255,255,0.7)" font-size="9">Stakeholders</text>
+    <!-- Active indicator -->
+    <rect x="222" y="168" width="35" height="3" rx="1.5" fill="#29C8C1"/>
+
+    <!-- Search bar in nav -->
+    <rect x="800" y="136" width="108" height="24" rx="12" fill="rgba(255,255,255,0.15)"/>
+    <text x="814" y="152" fill="rgba(255,255,255,0.5)" font-size="9">Search...</text>
+
+    <!-- Left Sidebar (Action Bar) -->
+    <rect x="40" y="173" width="45" height="502" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="0.5"/>
+    <!-- Action icons -->
+    <rect x="49" y="183" width="28" height="28" rx="4" fill="#003645"/>
+    <text x="63" y="201" fill="#FFF" font-size="10" text-anchor="middle" font-weight="700">&#x1D5E0;</text>
+    <rect x="49" y="220" width="28" height="28" rx="4" fill="transparent"/>
+    <text x="63" y="238" fill="#66868F" font-size="10" text-anchor="middle">D</text>
+    <rect x="49" y="257" width="28" height="28" rx="4" fill="transparent"/>
+    <text x="63" y="275" fill="#66868F" font-size="10" text-anchor="middle">O</text>
+    <rect x="49" y="294" width="28" height="28" rx="4" fill="transparent"/>
+    <text x="63" y="312" fill="#66868F" font-size="10" text-anchor="middle">T</text>
+    <rect x="49" y="331" width="28" height="28" rx="4" fill="transparent"/>
+    <text x="63" y="349" fill="#66868F" font-size="10" text-anchor="middle">&#x1D5D7;</text>
+    <rect x="49" y="378" width="28" height="28" rx="4" fill="transparent"/>
+    <text x="63" y="396" fill="#66868F" font-size="10" text-anchor="middle">Tr</text>
+    <!-- Separator -->
+    <line x1="52" y1="420" x2="74" y2="420" stroke="#d0d0d0" stroke-width="0.5"/>
+    <rect x="49" y="432" width="28" height="28" rx="4" fill="transparent"/>
+    <text x="63" y="450" fill="#66868F" font-size="8" text-anchor="middle">MOC</text>
+    <rect x="49" y="469" width="28" height="28" rx="4" fill="transparent"/>
+    <text x="63" y="487" fill="#66868F" font-size="8" text-anchor="middle">Tx</text>
+    <rect x="49" y="506" width="28" height="28" rx="4" fill="transparent"/>
+    <text x="63" y="524" fill="#66868F" font-size="8" text-anchor="middle">Sh</text>
+    <!-- Graph icon at bottom -->
+    <line x1="52" y1="560" x2="74" y2="560" stroke="#d0d0d0" stroke-width="0.5"/>
+    <rect x="49" y="570" width="28" height="28" rx="4" fill="transparent"/>
+    <text x="63" y="588" fill="#66868F" font-size="8" text-anchor="middle">&#x25C8;</text>
+
+    <!-- Left Panel (details) -->
+    <rect x="85" y="173" width="235" height="502" fill="#FFFFFF" stroke="#e0e0e0" stroke-width="0.5"/>
+    <rect x="85" y="173" width="235" height="30" fill="#fafafa" stroke="#e0e0e0" stroke-width="0.5"/>
+    <text x="95" y="193" fill="#003645" font-size="10" font-weight="700">Compliance Overview</text>
+
+    <!-- KPI cards in panel -->
+    <rect x="95" y="213" width="100" height="50" rx="4" fill="#FFFFFF" stroke="#e0e0e0" stroke-width="0.5"/>
+    <text x="145" y="237" fill="#81D10B" font-size="18" font-weight="700" text-anchor="middle">47</text>
+    <text x="145" y="254" fill="#66868F" font-size="7" text-anchor="middle">COMPLIANT</text>
+
+    <rect x="205" y="213" width="100" height="50" rx="4" fill="#FFFFFF" stroke="#e0e0e0" stroke-width="0.5"/>
+    <text x="255" y="237" fill="#F43A4F" font-size="18" font-weight="700" text-anchor="middle">3</text>
+    <text x="255" y="254" fill="#66868F" font-size="7" text-anchor="middle">NON-COMPLIANT</text>
+
+    <rect x="95" y="270" width="100" height="50" rx="4" fill="#FFFFFF" stroke="#e0e0e0" stroke-width="0.5"/>
+    <text x="145" y="294" fill="#e09f3e" font-size="18" font-weight="700" text-anchor="middle">8</text>
+    <text x="145" y="311" fill="#66868F" font-size="7" text-anchor="middle">AT RISK</text>
+
+    <rect x="205" y="270" width="100" height="50" rx="4" fill="#FFFFFF" stroke="#e0e0e0" stroke-width="0.5"/>
+    <text x="255" y="294" fill="#29C8C1" font-size="18" font-weight="700" text-anchor="middle">12</text>
+    <text x="255" y="311" fill="#66868F" font-size="7" text-anchor="middle">UNDER REVIEW</text>
+
+    <!-- List items -->
+    <text x="95" y="345" fill="#003645" font-size="9" font-weight="600">Recent Alerts</text>
+    <rect x="95" y="352" width="215" height="30" rx="3" fill="#FBB0B9"/>
+    <text x="105" y="371" fill="#003645" font-size="8" font-weight="600">USACE-404 Permit Expiring</text>
+    <rect x="95" y="387" width="215" height="30" rx="3" fill="#FBB0B9"/>
+    <text x="105" y="406" fill="#003645" font-size="8" font-weight="600">ADEC Water Quality — Overdue</text>
+    <rect x="95" y="422" width="215" height="30" rx="3" fill="#A9E9E6"/>
+    <text x="105" y="441" fill="#003645" font-size="8" font-weight="600">BLM ROW Renewal Submitted</text>
+    <rect x="95" y="457" width="215" height="30" rx="3" fill="#CDED9D"/>
+    <text x="105" y="476" fill="#003645" font-size="8" font-weight="600">Pipeline Crossing — Compliant</text>
+    <rect x="95" y="492" width="215" height="30" rx="3" fill="#CDED9D"/>
+    <text x="105" y="511" fill="#003645" font-size="8" font-weight="600">FERC Condition 12 — Met</text>
+
+    <!-- Filters -->
+    <rect x="95" y="540" width="215" height="25" rx="4" fill="#fafafa" stroke="#e0e0e0" stroke-width="0.5"/>
+    <text x="105" y="557" fill="#66868F" font-size="8">Filter by project component...</text>
+
+    <!-- Map Area -->
+    <rect x="320" y="173" width="355" height="375" fill="url(#mapPattern)"/>
+    <!-- Map features - Alaska outline suggestion -->
+    <path d="M380 250 Q420 220 480 240 Q520 250 540 280 Q560 320 550 360 Q530 400 490 420 Q450 440 410 430 Q370 410 360 370 Q350 330 370 290 Z" fill="rgba(0,54,69,0.08)" stroke="#003645" stroke-width="1"/>
+    <!-- Pipeline line -->
+    <line x1="390" y1="300" x2="550" y2="400" stroke="#003645" stroke-width="2" stroke-dasharray="8,4"/>
+    <!-- Permit points -->
+    <circle cx="410" cy="310" r="7" fill="#81D10B" stroke="#003645" stroke-width="1.5"/>
+    <circle cx="450" cy="340" r="7" fill="#F43A4F" stroke="#003645" stroke-width="1.5"/>
+    <circle cx="490" cy="370" r="7" fill="#81D10B" stroke="#003645" stroke-width="1.5"/>
+    <circle cx="530" cy="390" r="7" fill="#e09f3e" stroke="#003645" stroke-width="1.5"/>
+    <circle cx="470" cy="280" r="7" fill="#29C8C1" stroke="#003645" stroke-width="1.5"/>
+    <circle cx="400" cy="370" r="7" fill="#81D10B" stroke="#003645" stroke-width="1.5"/>
+    <!-- Map popup -->
+    <g filter="url(#shadow)">
+      <rect x="440" y="240" width="155" height="80" rx="5" fill="#FFFFFF"/>
+      <rect x="440" y="240" width="155" height="22" rx="5" fill="#003645"/>
+      <rect x="440" y="254" width="155" height="8" fill="#003645"/>
+      <text x="450" y="256" fill="#FFF" font-size="8" font-weight="600">USACE-404 Wetlands Permit</text>
+      <text x="450" y="278" fill="#003645" font-size="8" font-weight="600">Status:</text>
+      <rect x="483" y="269" width="55" height="14" rx="7" fill="#CDED9D"/>
+      <text x="510" y="280" fill="#003645" font-size="7" font-weight="600" text-anchor="middle">Compliant</text>
+      <text x="450" y="296" fill="#335E6A" font-size="8">Exp: 2027-03-15</text>
+      <text x="450" y="309" fill="#335E6A" font-size="8">Obligations: 12 | Tasks: 34</text>
+      <!-- popup arrow -->
+      <polygon points="470,320 480,330 490,320" fill="#FFFFFF"/>
+    </g>
+    <!-- Zoom controls -->
+    <rect x="630" y="185" width="28" height="55" rx="4" fill="#fff" stroke="#d0d0d0" stroke-width="0.5"/>
+    <text x="644" y="205" fill="#003645" font-size="14" text-anchor="middle">+</text>
+    <line x1="636" y1="212" x2="652" y2="212" stroke="#d0d0d0" stroke-width="0.5"/>
+    <text x="644" y="232" fill="#003645" font-size="14" text-anchor="middle">−</text>
+
+    <!-- Right Panel -->
+    <rect x="675" y="173" width="245" height="502" fill="#FFFFFF" stroke="#e0e0e0" stroke-width="0.5"/>
+    <rect x="675" y="173" width="245" height="30" fill="#fafafa" stroke="#e0e0e0" stroke-width="0.5"/>
+    <text x="685" y="193" fill="#003645" font-size="10" font-weight="700">Permit Details</text>
+    <text x="870" y="193" fill="#66868F" font-size="8" text-anchor="end">USACE-404</text>
+
+    <!-- Tabs -->
+    <rect x="675" y="203" width="245" height="25" fill="#fafafa"/>
+    <text x="695" y="220" fill="#003645" font-size="8" font-weight="600">Info</text>
+    <rect x="685" y="223" width="25" height="2" fill="#29C8C1"/>
+    <text x="735" y="220" fill="#66868F" font-size="8">Conditions</text>
+    <text x="795" y="220" fill="#66868F" font-size="8">History</text>
+    <text x="845" y="220" fill="#66868F" font-size="8">Graph</text>
+
+    <!-- Detail fields -->
+    <text x="685" y="248" fill="#66868F" font-size="8">Issuing Agency</text>
+    <text x="685" y="262" fill="#003645" font-size="9" font-weight="600">US Army Corps of Engineers</text>
+    <text x="685" y="284" fill="#66868F" font-size="8">Permit Number</text>
+    <text x="685" y="298" fill="#003645" font-size="9" font-weight="600">POA-2024-00847</text>
+    <text x="685" y="320" fill="#66868F" font-size="8">Issue Date</text>
+    <text x="685" y="334" fill="#003645" font-size="9">2024-06-15</text>
+    <text x="800" y="320" fill="#66868F" font-size="8">Expiration</text>
+    <text x="800" y="334" fill="#003645" font-size="9">2027-03-15</text>
+    <text x="685" y="356" fill="#66868F" font-size="8">Compliance Status</text>
+    <rect x="685" y="362" width="65" height="16" rx="8" fill="#CDED9D"/>
+    <text x="717" y="374" fill="#003645" font-size="8" font-weight="600" text-anchor="middle">Compliant</text>
+
+    <text x="685" y="398" fill="#66868F" font-size="8">Project Component</text>
+    <text x="685" y="412" fill="#003645" font-size="9" font-weight="600">Pipeline</text>
+
+    <!-- Linked items -->
+    <line x1="685" y1="425" x2="910" y2="425" stroke="#e0e0e0" stroke-width="0.5"/>
+    <text x="685" y="445" fill="#003645" font-size="9" font-weight="600">Linked Obligations (12)</text>
+    <rect x="685" y="455" width="225" height="22" rx="3" fill="#fafafa" stroke="#e0e0e0" stroke-width="0.5"/>
+    <text x="695" y="470" fill="#003645" font-size="8">OBL-001: Wetland mitigation monitoring</text>
+    <rect x="685" y="481" width="225" height="22" rx="3" fill="#fafafa" stroke="#e0e0e0" stroke-width="0.5"/>
+    <text x="695" y="496" fill="#003645" font-size="8">OBL-002: Water quality sampling</text>
+    <rect x="685" y="507" width="225" height="22" rx="3" fill="#fafafa" stroke="#e0e0e0" stroke-width="0.5"/>
+    <text x="695" y="522" fill="#003645" font-size="8">OBL-003: Construction BMP maintenance</text>
+
+    <!-- Action button -->
+    <rect x="685" y="545" width="100" height="28" rx="4" fill="#003645"/>
+    <text x="735" y="563" fill="#FFF" font-size="9" font-weight="600" text-anchor="middle">Edit Permit</text>
+    <rect x="795" y="545" width="100" height="28" rx="4" fill="transparent" stroke="#003645" stroke-width="1"/>
+    <text x="845" y="563" fill="#003645" font-size="9" font-weight="600" text-anchor="middle">Export PDF</text>
+
+    <!-- Bottom Panel (Timeline) -->
+    <rect x="320" y="548" width="355" height="127" fill="#FFFFFF" stroke="#e0e0e0" stroke-width="0.5"/>
+    <rect x="320" y="548" width="355" height="25" fill="#fafafa" stroke="#e0e0e0" stroke-width="0.5"/>
+    <text x="330" y="565" fill="#003645" font-size="9" font-weight="700">Activity Timeline</text>
+    <text x="330" y="587" fill="#66868F" font-size="8">2026-03-26 09:15</text>
+    <text x="430" y="587" fill="#003645" font-size="8">Compliance check passed — 47/58 permits compliant</text>
+    <text x="330" y="603" fill="#66868F" font-size="8">2026-03-25 16:30</text>
+    <text x="430" y="603" fill="#003645" font-size="8">Task TSK-0234 completed by J. Anderson — evidence attached</text>
+    <text x="330" y="619" fill="#66868F" font-size="8">2026-03-25 10:00</text>
+    <text x="430" y="619" fill="#F43A4F" font-size="8" font-weight="600">ALERT: ADEC Water Quality monitoring overdue</text>
+    <text x="330" y="635" fill="#66868F" font-size="8">2026-03-24 14:22</text>
+    <text x="430" y="635" fill="#003645" font-size="8">MOC-012 approved — pipeline reroute segment 14B</text>
+    <text x="330" y="651" fill="#66868F" font-size="8">2026-03-24 08:45</text>
+    <text x="430" y="651" fill="#003645" font-size="8">Transmittal TX-089 sent to BLM — ROW renewal docs</text>
+    <text x="330" y="667" fill="#66868F" font-size="8">2026-03-23 11:30</text>
+    <text x="430" y="667" fill="#003645" font-size="8">Training completed: Spill Response (5 personnel)</text>
+
+    <!-- Footer bar -->
+    <rect x="40" y="675" width="880" height="24" fill="#003645"/>
+    <text x="55" y="691" fill="#A9E9E6" font-size="8">Alaska LNG — Gas Treatment | Pipeline | Export Terminal | Import Terminal</text>
+    <text x="900" y="691" fill="#66868F" font-size="8" text-anchor="end">Glenfarne / Worley</text>
+  </g>
+
+  <!-- ============ ANNOTATIONS ============ -->
+  <text x="960" y="105" fill="#003645" font-size="13" font-weight="700" letter-spacing="1">INTERFACE COMPONENTS</text>
+  <line x1="960" y1="112" x2="1200" y2="112" stroke="#29C8C1" stroke-width="2"/>
+
+  <!-- Annotation lines with labels -->
+  <!-- Nav bar -->
+  <line x1="920" y1="149" x2="975" y2="130" stroke="#003645" stroke-width="1" stroke-dasharray="3,2"/>
+  <g filter="url(#shadow)">
+    <rect x="975" y="120" width="200" height="40" rx="5" fill="#FFF" stroke="#003645" stroke-width="1"/>
+    <text x="985" y="137" fill="#003645" font-size="9" font-weight="700">Navigation Bar</text>
+    <text x="985" y="152" fill="#66868F" font-size="8">Deep Sea #003645 | 8 module tabs</text>
+  </g>
+
+  <!-- Action bar -->
+  <line x1="85" y1="370" x2="975" y2="175" stroke="#66868F" stroke-width="1" stroke-dasharray="3,2"/>
+  <g filter="url(#shadow)">
+    <rect x="975" y="165" width="200" height="40" rx="5" fill="#FFF" stroke="#66868F" stroke-width="1"/>
+    <text x="985" y="182" fill="#003645" font-size="9" font-weight="700">Action Bar (Left)</text>
+    <text x="985" y="197" fill="#66868F" font-size="8">Quick-switch icons for all panels</text>
+  </g>
+
+  <!-- Left panel -->
+  <line x1="320" y1="350" x2="975" y2="220" stroke="#29C8C1" stroke-width="1" stroke-dasharray="3,2"/>
+  <g filter="url(#shadow)">
+    <rect x="975" y="210" width="200" height="55" rx="5" fill="#FFF" stroke="#29C8C1" stroke-width="1"/>
+    <text x="985" y="227" fill="#003645" font-size="9" font-weight="700">Left Panel</text>
+    <text x="985" y="242" fill="#66868F" font-size="8">KPI cards (color-coded status)</text>
+    <text x="985" y="255" fill="#66868F" font-size="8">Alert list, filters, quick actions</text>
+  </g>
+
+  <!-- Map -->
+  <line x1="675" y1="330" x2="975" y2="280" stroke="#81D10B" stroke-width="1" stroke-dasharray="3,2"/>
+  <g filter="url(#shadow)">
+    <rect x="975" y="270" width="200" height="55" rx="5" fill="#FFF" stroke="#81D10B" stroke-width="1"/>
+    <text x="985" y="287" fill="#003645" font-size="9" font-weight="700">Map View</text>
+    <text x="985" y="302" fill="#66868F" font-size="8">ArcGIS MapView — Alaska LNG</text>
+    <text x="985" y="315" fill="#66868F" font-size="8">Color-coded permit points + popups</text>
+  </g>
+
+  <!-- Right panel -->
+  <line x1="920" y1="400" x2="975" y2="340" stroke="#F43A4F" stroke-width="1" stroke-dasharray="3,2"/>
+  <g filter="url(#shadow)">
+    <rect x="975" y="330" width="200" height="55" rx="5" fill="#FFF" stroke="#F43A4F" stroke-width="1"/>
+    <text x="985" y="347" fill="#003645" font-size="9" font-weight="700">Right Panel (Detail)</text>
+    <text x="985" y="362" fill="#66868F" font-size="8">Tabbed view: Info, Conditions, History</text>
+    <text x="985" y="375" fill="#66868F" font-size="8">Linked obligations, edit/export actions</text>
+  </g>
+
+  <!-- Bottom panel -->
+  <line x1="675" y1="600" x2="975" y2="400" stroke="#003645" stroke-width="1" stroke-dasharray="3,2"/>
+  <g filter="url(#shadow)">
+    <rect x="975" y="390" width="200" height="40" rx="5" fill="#FFF" stroke="#003645" stroke-width="1"/>
+    <text x="985" y="407" fill="#003645" font-size="9" font-weight="700">Bottom Panel (Timeline)</text>
+    <text x="985" y="422" fill="#66868F" font-size="8">Activity feed with timestamps</text>
+  </g>
+
+  <!-- Panel Modes -->
+  <text x="960" y="470" fill="#003645" font-size="13" font-weight="700" letter-spacing="1">PANEL MODES</text>
+  <line x1="960" y1="477" x2="1120" y2="477" stroke="#29C8C1" stroke-width="2"/>
+
+  <!-- Panel mode cards -->
+  <rect x="960" y="490" width="195" height="28" rx="4" fill="#003645"/>
+  <text x="970" y="508" fill="#FFF" font-size="9" font-weight="600">Drivers Panel</text>
+  <text x="1145" y="508" fill="#A9E9E6" font-size="8" text-anchor="end">Filters + KPIs + Detail tabs</text>
+
+  <rect x="960" y="525" width="195" height="28" rx="4" fill="#335E6A"/>
+  <text x="970" y="543" fill="#FFF" font-size="9" font-weight="600">Obligations Panel</text>
+  <text x="1145" y="543" fill="#A9E9E6" font-size="8" text-anchor="end">Linked tasks/docs/training</text>
+
+  <rect x="960" y="560" width="195" height="28" rx="4" fill="#335E6A"/>
+  <text x="970" y="578" fill="#FFF" font-size="9" font-weight="600">Tasks Panel</text>
+  <text x="1145" y="578" fill="#A9E9E6" font-size="8" text-anchor="end">Lifecycle + evidence upload</text>
+
+  <rect x="960" y="595" width="195" height="28" rx="4" fill="#335E6A"/>
+  <text x="970" y="613" fill="#FFF" font-size="9" font-weight="600">Documents Panel</text>
+  <text x="1145" y="613" fill="#A9E9E6" font-size="8" text-anchor="end">DCN + revision tracking</text>
+
+  <rect x="960" y="630" width="195" height="28" rx="4" fill="#29C8C1"/>
+  <text x="970" y="648" fill="#003645" font-size="9" font-weight="600">Training Matrix</text>
+  <text x="1145" y="648" fill="#003645" font-size="8" text-anchor="end">Users x Reqs color grid</text>
+
+  <rect x="960" y="665" width="195" height="28" rx="4" fill="#29C8C1"/>
+  <text x="970" y="683" fill="#003645" font-size="9" font-weight="600">MOC Workflow</text>
+  <text x="1145" y="683" fill="#003645" font-size="8" text-anchor="end">Visual timeline + actions</text>
+
+  <rect x="960" y="700" width="195" height="28" rx="4" fill="#29C8C1"/>
+  <text x="970" y="718" fill="#003645" font-size="9" font-weight="600">Transmittals</text>
+  <text x="1145" y="718" fill="#003645" font-size="8" text-anchor="end">In/Out direction tabs</text>
+
+  <rect x="960" y="735" width="195" height="28" rx="4" fill="#29C8C1"/>
+  <text x="970" y="753" fill="#003645" font-size="9" font-weight="600">Stakeholders</text>
+  <text x="1145" y="753" fill="#003645" font-size="8" text-anchor="end">FERC complaints + contacts</text>
+
+  <!-- Color Legend -->
+  <text x="960" y="805" fill="#003645" font-size="11" font-weight="700">Status Color Key</text>
+  <rect x="960" y="815" width="14" height="14" rx="3" fill="#81D10B"/>
+  <text x="982" y="826" fill="#335E6A" font-size="9">Compliant</text>
+  <rect x="1040" y="815" width="14" height="14" rx="3" fill="#F43A4F"/>
+  <text x="1062" y="826" fill="#335E6A" font-size="9">Non-Compliant</text>
+  <rect x="960" y="835" width="14" height="14" rx="3" fill="#e09f3e"/>
+  <text x="982" y="846" fill="#335E6A" font-size="9">At Risk</text>
+  <rect x="1040" y="835" width="14" height="14" rx="3" fill="#29C8C1"/>
+  <text x="1062" y="846" fill="#335E6A" font-size="9">Under Review</text>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="870" width="1400" height="30" fill="#003645"/>
+  <text x="700" y="889" fill="#A9E9E6" font-size="10" font-weight="400" text-anchor="middle">ECMS Web Application — Calcite Shell + ArcGIS Maps SDK for JavaScript v4.29 | Worley Branded</text>
+</svg>

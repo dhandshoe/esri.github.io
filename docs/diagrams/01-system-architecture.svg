@@ -1,0 +1,307 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <linearGradient id="deepSeaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#003645;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#335E6A;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="skyMistGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#29C8C1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#54D3CD;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="roseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#F43A4F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F66172;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#81D10B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9ADA3C;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#003645" flood-opacity="0.15"/>
+    </filter>
+    <filter id="shadowLg" x="-2%" y="-2%" width="104%" height="108%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#003645" flood-opacity="0.2"/>
+    </filter>
+    <marker id="arrowDeepSea" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#003645"/>
+    </marker>
+    <marker id="arrowSkyMist" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#29C8C1"/>
+    </marker>
+    <marker id="arrowRose" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#F43A4F"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#81D10B"/>
+    </marker>
+    <marker id="arrowGray" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#66868F"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1400" height="900" fill="#FAF8EF"/>
+
+  <!-- Title Bar -->
+  <rect width="1400" height="70" fill="url(#deepSeaGrad)"/>
+  <text x="40" y="32" fill="#FFFFFF" font-size="11" font-weight="400" letter-spacing="2" text-transform="uppercase">WORLEY | ALASKA LNG</text>
+  <text x="40" y="52" fill="#FFFFFF" font-size="20" font-weight="700">Environmental Compliance Management System — System Architecture</text>
+  <text x="1360" y="45" fill="#A9E9E6" font-size="12" font-weight="400" text-anchor="end">ECMS v1.0</text>
+
+  <!-- ============ TIER 1: Users ============ -->
+  <text x="40" y="105" fill="#003645" font-size="13" font-weight="700" letter-spacing="1">USERS</text>
+  <line x1="40" y1="112" x2="200" y2="112" stroke="#29C8C1" stroke-width="2"/>
+
+  <!-- User boxes -->
+  <g filter="url(#shadow)">
+    <rect x="40" y="125" width="170" height="65" rx="8" fill="#FFFFFF" stroke="#335E6A" stroke-width="1.5"/>
+    <rect x="40" y="125" width="170" height="22" rx="8" fill="#003645"/>
+    <rect x="40" y="139" width="170" height="8" fill="#003645"/>
+    <text x="125" y="141" fill="#FFFFFF" font-size="11" font-weight="600" text-anchor="middle">Compliance Managers</text>
+    <text x="125" y="165" fill="#335E6A" font-size="10" text-anchor="middle">Full CRUD access</text>
+    <text x="125" y="179" fill="#66868F" font-size="9" text-anchor="middle">Drivers, Obligations, MOC</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="230" y="125" width="170" height="65" rx="8" fill="#FFFFFF" stroke="#335E6A" stroke-width="1.5"/>
+    <rect x="230" y="125" width="170" height="22" rx="8" fill="#003645"/>
+    <rect x="230" y="139" width="170" height="8" fill="#003645"/>
+    <text x="315" y="141" fill="#FFFFFF" font-size="11" font-weight="600" text-anchor="middle">Field Inspectors</text>
+    <text x="315" y="165" fill="#335E6A" font-size="10" text-anchor="middle">Task completion + evidence</text>
+    <text x="315" y="179" fill="#66868F" font-size="9" text-anchor="middle">Tasks, Training, Documents</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="420" y="125" width="170" height="65" rx="8" fill="#FFFFFF" stroke="#335E6A" stroke-width="1.5"/>
+    <rect x="420" y="125" width="170" height="22" rx="8" fill="#003645"/>
+    <rect x="420" y="139" width="170" height="8" fill="#003645"/>
+    <text x="505" y="141" fill="#FFFFFF" font-size="11" font-weight="600" text-anchor="middle">Project Leadership</text>
+    <text x="505" y="165" fill="#335E6A" font-size="10" text-anchor="middle">Dashboard + reports</text>
+    <text x="505" y="179" fill="#66868F" font-size="9" text-anchor="middle">KPIs, Compliance Status</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="610" y="125" width="170" height="65" rx="8" fill="#FFFFFF" stroke="#335E6A" stroke-width="1.5"/>
+    <rect x="610" y="125" width="170" height="22" rx="8" fill="#003645"/>
+    <rect x="610" y="139" width="170" height="8" fill="#003645"/>
+    <text x="695" y="141" fill="#FFFFFF" font-size="11" font-weight="600" text-anchor="middle">Agency / Stakeholders</text>
+    <text x="695" y="165" fill="#335E6A" font-size="10" text-anchor="middle">Transmittal recipients</text>
+    <text x="695" y="179" fill="#66868F" font-size="9" text-anchor="middle">Read-only / Complaints</text>
+  </g>
+
+  <!-- Arrow from Users to Web App -->
+  <line x1="400" y1="195" x2="400" y2="230" stroke="#003645" stroke-width="2" marker-end="url(#arrowDeepSea)" stroke-dasharray="6,3"/>
+  <text x="410" y="218" fill="#66868F" font-size="9">HTTPS / Token Auth</text>
+
+  <!-- ============ TIER 2: Presentation Layer ============ -->
+  <text x="40" y="252" fill="#003645" font-size="13" font-weight="700" letter-spacing="1">PRESENTATION LAYER</text>
+  <line x1="40" y1="259" x2="290" y2="259" stroke="#29C8C1" stroke-width="2"/>
+
+  <g filter="url(#shadowLg)">
+    <rect x="40" y="270" width="750" height="130" rx="10" fill="#FFFFFF" stroke="#29C8C1" stroke-width="2"/>
+    <!-- Header stripe -->
+    <rect x="40" y="270" width="750" height="30" rx="10" fill="url(#skyMistGrad)"/>
+    <rect x="40" y="290" width="750" height="10" fill="url(#skyMistGrad)"/>
+    <text x="415" y="290" fill="#003645" font-size="13" font-weight="700" text-anchor="middle">Web Application — ArcGIS Maps SDK for JavaScript v4.29 + Calcite Design System</text>
+
+    <!-- Module boxes inside -->
+    <rect x="55" y="310" width="85" height="36" rx="5" fill="#003645"/>
+    <text x="97" y="332" fill="#FFF" font-size="9" font-weight="600" text-anchor="middle">Map View</text>
+
+    <rect x="150" y="310" width="85" height="36" rx="5" fill="#003645"/>
+    <text x="192" y="332" fill="#FFF" font-size="9" font-weight="600" text-anchor="middle">Drivers</text>
+
+    <rect x="245" y="310" width="85" height="36" rx="5" fill="#003645"/>
+    <text x="287" y="332" fill="#FFF" font-size="9" font-weight="600" text-anchor="middle">Obligations</text>
+
+    <rect x="340" y="310" width="85" height="36" rx="5" fill="#003645"/>
+    <text x="382" y="332" fill="#FFF" font-size="9" font-weight="600" text-anchor="middle">Tasks</text>
+
+    <rect x="435" y="310" width="85" height="36" rx="5" fill="#003645"/>
+    <text x="477" y="332" fill="#FFF" font-size="9" font-weight="600" text-anchor="middle">Documents</text>
+
+    <rect x="530" y="310" width="85" height="36" rx="5" fill="#003645"/>
+    <text x="572" y="332" fill="#FFF" font-size="9" font-weight="600" text-anchor="middle">Training</text>
+
+    <rect x="625" y="310" width="85" height="36" rx="5" fill="#29C8C1"/>
+    <text x="667" y="332" fill="#003645" font-size="9" font-weight="600" text-anchor="middle">MOC</text>
+
+    <rect x="55" y="355" width="85" height="36" rx="5" fill="#29C8C1"/>
+    <text x="97" y="377" fill="#003645" font-size="9" font-weight="600" text-anchor="middle">Transmittals</text>
+
+    <rect x="150" y="355" width="85" height="36" rx="5" fill="#29C8C1"/>
+    <text x="192" y="377" fill="#003645" font-size="9" font-weight="600" text-anchor="middle">Stakeholders</text>
+
+    <rect x="245" y="355" width="85" height="36" rx="5" fill="#29C8C1"/>
+    <text x="287" y="377" fill="#003645" font-size="9" font-weight="600" text-anchor="middle">Rel. Graph</text>
+
+    <rect x="340" y="355" width="85" height="36" rx="5" fill="#29C8C1"/>
+    <text x="382" y="377" fill="#003645" font-size="9" font-weight="600" text-anchor="middle">Dashboard</text>
+
+    <rect x="435" y="355" width="85" height="36" rx="5" fill="#29C8C1"/>
+    <text x="477" y="377" fill="#003645" font-size="9" font-weight="600" text-anchor="middle">Audit Trail</text>
+
+    <!-- IIS badge -->
+    <rect x="625" y="360" width="145" height="28" rx="14" fill="#FAF8EF" stroke="#66868F" stroke-width="1"/>
+    <text x="697" y="379" fill="#335E6A" font-size="10" font-weight="600" text-anchor="middle">Hosted on IIS</text>
+  </g>
+
+  <!-- ============ TIER 3: Service Layer ============ -->
+  <!-- Arrow down -->
+  <line x1="400" y1="405" x2="400" y2="440" stroke="#003645" stroke-width="2" marker-end="url(#arrowDeepSea)"/>
+  <text x="410" y="428" fill="#66868F" font-size="9">REST API</text>
+
+  <text x="40" y="460" fill="#003645" font-size="13" font-weight="700" letter-spacing="1">SERVICE LAYER</text>
+  <line x1="40" y1="467" x2="220" y2="467" stroke="#29C8C1" stroke-width="2"/>
+
+  <!-- ArcGIS Server box -->
+  <g filter="url(#shadowLg)">
+    <rect x="40" y="478" width="470" height="120" rx="10" fill="#FFFFFF" stroke="#003645" stroke-width="2"/>
+    <rect x="40" y="478" width="470" height="28" rx="10" fill="url(#deepSeaGrad)"/>
+    <rect x="40" y="498" width="470" height="8" fill="url(#deepSeaGrad)"/>
+    <text x="275" y="497" fill="#FFFFFF" font-size="12" font-weight="700" text-anchor="middle">ArcGIS Server — geomatics.worley.com/server</text>
+
+    <rect x="55" y="515" width="130" height="34" rx="6" fill="#335E6A"/>
+    <text x="120" y="536" fill="#FFF" font-size="10" font-weight="600" text-anchor="middle">Feature Service</text>
+
+    <rect x="195" y="515" width="130" height="34" rx="6" fill="#335E6A"/>
+    <text x="260" y="536" fill="#FFF" font-size="10" font-weight="600" text-anchor="middle">Map Service</text>
+
+    <rect x="335" y="515" width="160" height="34" rx="6" fill="#335E6A"/>
+    <text x="415" y="536" fill="#FFF" font-size="10" font-weight="600" text-anchor="middle">Geoprocessing (GP)</text>
+
+    <text x="275" y="580" fill="#66868F" font-size="10" text-anchor="middle">7 Feature Classes + 26 Related Tables | 25 Relationship Classes</text>
+  </g>
+
+  <!-- Portal box -->
+  <g filter="url(#shadowLg)">
+    <rect x="540" y="478" width="250" height="120" rx="10" fill="#FFFFFF" stroke="#003645" stroke-width="2"/>
+    <rect x="540" y="478" width="250" height="28" rx="10" fill="url(#deepSeaGrad)"/>
+    <rect x="540" y="498" width="250" height="8" fill="url(#deepSeaGrad)"/>
+    <text x="665" y="497" fill="#FFFFFF" font-size="12" font-weight="700" text-anchor="middle">ArcGIS Enterprise Portal</text>
+
+    <rect x="555" y="515" width="100" height="34" rx="6" fill="#335E6A"/>
+    <text x="605" y="536" fill="#FFF" font-size="10" font-weight="600" text-anchor="middle">Auth / Tokens</text>
+
+    <rect x="665" y="515" width="110" height="34" rx="6" fill="#335E6A"/>
+    <text x="720" y="536" fill="#FFF" font-size="10" font-weight="600" text-anchor="middle">Web App Items</text>
+
+    <text x="665" y="580" fill="#66868F" font-size="10" text-anchor="middle">geomatics.worley.com/portal</text>
+  </g>
+
+  <!-- Arrow from Server to DB -->
+  <line x1="275" y1="600" x2="275" y2="650" stroke="#003645" stroke-width="2" marker-end="url(#arrowDeepSea)"/>
+  <text x="285" y="630" fill="#66868F" font-size="9">SDE Connection</text>
+
+  <!-- ============ TIER 4: Data Layer ============ -->
+  <text x="40" y="672" fill="#003645" font-size="13" font-weight="700" letter-spacing="1">DATA LAYER</text>
+  <line x1="40" y1="679" x2="180" y2="679" stroke="#29C8C1" stroke-width="2"/>
+
+  <g filter="url(#shadowLg)">
+    <rect x="40" y="690" width="470" height="95" rx="10" fill="#FFFFFF" stroke="#81D10B" stroke-width="2"/>
+    <rect x="40" y="690" width="470" height="28" rx="10" fill="url(#greenGrad)"/>
+    <rect x="40" y="710" width="470" height="8" fill="url(#greenGrad)"/>
+    <text x="275" y="709" fill="#003645" font-size="12" font-weight="700" text-anchor="middle">Enterprise Geodatabase (SQL Server / PostgreSQL)</text>
+
+    <rect x="55" y="725" width="90" height="26" rx="5" fill="#CDED9D" stroke="#81D10B" stroke-width="1"/>
+    <text x="100" y="742" fill="#003645" font-size="9" font-weight="600" text-anchor="middle">Permits</text>
+
+    <rect x="153" y="725" width="90" height="26" rx="5" fill="#CDED9D" stroke="#81D10B" stroke-width="1"/>
+    <text x="198" y="742" fill="#003645" font-size="9" font-weight="600" text-anchor="middle">Conditions</text>
+
+    <rect x="251" y="725" width="90" height="26" rx="5" fill="#CDED9D" stroke="#81D10B" stroke-width="1"/>
+    <text x="296" y="742" fill="#003645" font-size="9" font-weight="600" text-anchor="middle">Obligations</text>
+
+    <rect x="349" y="725" width="70" height="26" rx="5" fill="#CDED9D" stroke="#81D10B" stroke-width="1"/>
+    <text x="384" y="742" fill="#003645" font-size="9" font-weight="600" text-anchor="middle">Tasks</text>
+
+    <rect x="427" y="725" width="70" height="26" rx="5" fill="#CDED9D" stroke="#81D10B" stroke-width="1"/>
+    <text x="462" y="742" fill="#003645" font-size="9" font-weight="600" text-anchor="middle">Docs</text>
+
+    <text x="275" y="775" fill="#66868F" font-size="10" text-anchor="middle">41 Coded Domains | Feature Dataset: ECMS</text>
+  </g>
+
+  <!-- ============ TIER 5: Automation ============ -->
+  <!-- Right side automation column -->
+  <text x="850" y="105" fill="#003645" font-size="13" font-weight="700" letter-spacing="1">AUTOMATION ENGINE</text>
+  <line x1="850" y1="112" x2="1080" y2="112" stroke="#F43A4F" stroke-width="2"/>
+
+  <g filter="url(#shadowLg)">
+    <rect x="850" y="125" width="510" height="540" rx="10" fill="#FFFFFF" stroke="#F43A4F" stroke-width="2"/>
+    <rect x="850" y="125" width="510" height="28" rx="10" fill="url(#roseGrad)"/>
+    <rect x="850" y="145" width="510" height="8" fill="url(#roseGrad)"/>
+    <text x="1105" y="144" fill="#FFFFFF" font-size="12" font-weight="700" text-anchor="middle">Python Backend — Scheduled via Windows Task Scheduler</text>
+
+    <!-- Engine modules -->
+    <rect x="870" y="170" width="220" height="55" rx="8" fill="#FBB0B9" stroke="#F43A4F" stroke-width="1"/>
+    <text x="980" y="192" fill="#003645" font-size="11" font-weight="700" text-anchor="middle">compliance/engine.py</text>
+    <text x="980" y="210" fill="#335E6A" font-size="9" text-anchor="middle">Compliance evaluation &amp; reporting</text>
+
+    <rect x="1110" y="170" width="230" height="55" rx="8" fill="#FBB0B9" stroke="#F43A4F" stroke-width="1"/>
+    <text x="1225" y="192" fill="#003645" font-size="11" font-weight="700" text-anchor="middle">obligations/obligation_manager.py</text>
+    <text x="1225" y="210" fill="#335E6A" font-size="9" text-anchor="middle">Obligation lifecycle &amp; status eval</text>
+
+    <rect x="870" y="240" width="220" height="55" rx="8" fill="#FBB0B9" stroke="#F43A4F" stroke-width="1"/>
+    <text x="980" y="262" fill="#003645" font-size="11" font-weight="700" text-anchor="middle">obligations/task_manager.py</text>
+    <text x="980" y="280" fill="#335E6A" font-size="9" text-anchor="middle">Task lifecycle &amp; auto-renewal</text>
+
+    <rect x="1110" y="240" width="230" height="55" rx="8" fill="#FBB0B9" stroke="#F43A4F" stroke-width="1"/>
+    <text x="1225" y="262" fill="#003645" font-size="11" font-weight="700" text-anchor="middle">documents/document_manager.py</text>
+    <text x="1225" y="280" fill="#335E6A" font-size="9" text-anchor="middle">DCN generation &amp; revision tracking</text>
+
+    <rect x="870" y="310" width="220" height="55" rx="8" fill="#FBB0B9" stroke="#F43A4F" stroke-width="1"/>
+    <text x="980" y="332" fill="#003645" font-size="11" font-weight="700" text-anchor="middle">training/training_manager.py</text>
+    <text x="980" y="350" fill="#335E6A" font-size="9" text-anchor="middle">Training requirements &amp; renewals</text>
+
+    <rect x="1110" y="310" width="230" height="55" rx="8" fill="#FBB0B9" stroke="#F43A4F" stroke-width="1"/>
+    <text x="1225" y="332" fill="#003645" font-size="11" font-weight="700" text-anchor="middle">moc/moc_manager.py</text>
+    <text x="1225" y="350" fill="#335E6A" font-size="9" text-anchor="middle">Management of Change workflow</text>
+
+    <rect x="870" y="380" width="220" height="55" rx="8" fill="#FBB0B9" stroke="#F43A4F" stroke-width="1"/>
+    <text x="980" y="402" fill="#003645" font-size="11" font-weight="700" text-anchor="middle">transmittals/transmittal_mgr.py</text>
+    <text x="980" y="420" fill="#335E6A" font-size="9" text-anchor="middle">Agency transmittal tracking</text>
+
+    <rect x="1110" y="380" width="230" height="55" rx="8" fill="#FBB0B9" stroke="#F43A4F" stroke-width="1"/>
+    <text x="1225" y="402" fill="#003645" font-size="11" font-weight="700" text-anchor="middle">stakeholders/stakeholder_mgr.py</text>
+    <text x="1225" y="420" fill="#335E6A" font-size="9" text-anchor="middle">Stakeholder DB &amp; FERC complaints</text>
+
+    <!-- Schema setup -->
+    <rect x="870" y="455" width="470" height="55" rx="8" fill="#A9E9E6" stroke="#29C8C1" stroke-width="1.5"/>
+    <text x="1105" y="477" fill="#003645" font-size="11" font-weight="700" text-anchor="middle">setup/geodatabase_schema.py — Idempotent Schema Builder</text>
+    <text x="1105" y="495" fill="#335E6A" font-size="9" text-anchor="middle">Creates domains, feature dataset, feature classes, tables, relationship classes via arcpy</text>
+
+    <!-- Config -->
+    <rect x="870" y="525" width="470" height="55" rx="8" fill="#FAF8EF" stroke="#66868F" stroke-width="1.5"/>
+    <text x="1105" y="547" fill="#003645" font-size="11" font-weight="700" text-anchor="middle">config/service_config.json — Data Model Definition (1,263 lines)</text>
+    <text x="1105" y="565" fill="#335E6A" font-size="9" text-anchor="middle">41 domains | 7 feature classes | 26 tables | 25 relationships | compliance thresholds</text>
+
+    <!-- Arcade -->
+    <rect x="870" y="595" width="470" height="50" rx="8" fill="#FAF8EF" stroke="#66868F" stroke-width="1.5"/>
+    <text x="1105" y="617" fill="#003645" font-size="11" font-weight="700" text-anchor="middle">ArcGIS Arcade Expressions</text>
+    <text x="1105" y="633" fill="#335E6A" font-size="9" text-anchor="middle">obligation_status.arcade | task_due_date.arcade | driver_display_name.arcade</text>
+  </g>
+
+  <!-- Connecting arrows between automation and service layer -->
+  <line x1="850" y1="540" x2="515" y2="540" stroke="#F43A4F" stroke-width="1.5" marker-end="url(#arrowRose)" stroke-dasharray="6,3"/>
+  <text x="620" y="533" fill="#F43A4F" font-size="9" font-weight="600">arcpy / REST API</text>
+
+  <!-- Legend -->
+  <g filter="url(#shadow)">
+    <rect x="540" y="700" width="250" height="85" rx="8" fill="#FFFFFF" stroke="#66868F" stroke-width="1"/>
+    <text x="555" y="720" fill="#003645" font-size="11" font-weight="700">Legend</text>
+    <rect x="555" y="730" width="12" height="12" rx="2" fill="#29C8C1"/>
+    <text x="575" y="740" fill="#335E6A" font-size="9">Presentation / UI</text>
+    <rect x="555" y="748" width="12" height="12" rx="2" fill="#003645"/>
+    <text x="575" y="758" fill="#335E6A" font-size="9">ArcGIS Enterprise Services</text>
+    <rect x="555" y="766" width="12" height="12" rx="2" fill="#F43A4F"/>
+    <text x="575" y="776" fill="#335E6A" font-size="9">Python Automation Engine</text>
+    <rect x="700" y="730" width="12" height="12" rx="2" fill="#81D10B"/>
+    <text x="720" y="740" fill="#335E6A" font-size="9">Enterprise Geodatabase</text>
+    <rect x="700" y="748" width="12" height="12" rx="2" fill="#FAF8EF" stroke="#66868F" stroke-width="1"/>
+    <text x="720" y="758" fill="#335E6A" font-size="9">Configuration / Static</text>
+  </g>
+
+  <!-- Ownership badge -->
+  <rect x="40" y="830" width="1320" height="35" rx="6" fill="#003645"/>
+  <text x="700" y="852" fill="#A9E9E6" font-size="11" font-weight="400" text-anchor="middle">Owner: Glenfarne | Operator: Worley | Platform: ArcGIS Enterprise on geomatics.worley.com | Project: Alaska LNG (Gas Treatment, Pipeline, Export Terminal, Import Terminal)</text>
+</svg>
