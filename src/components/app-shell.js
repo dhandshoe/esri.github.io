@@ -69,25 +69,14 @@ export async function initialize(options = {}) {
     updateStatus("Initializing...");
 
     // Initialize map
-    await mapManager.initialize(EL.mapContainer()?.id || "map-container");
+    await mapManager.initMap(EL.mapContainer()?.id || "map-container");
 
-    // Initialize panels
-    compliancePanel.initialize({
-      container: EL.leftPanel(),
-      onPermitSelect: handlePermitSelect,
-      onStatusFilter: handleStatusFilter,
-    });
+    // Initialize original panels (use init(container) signature)
+    compliancePanel.init(EL.leftPanel());
+    alertPanel.init(EL.rightPanel());
+    dashboardPanel.init(EL.bottomPanel());
 
-    alertPanel.initialize({
-      container: EL.rightPanel(),
-      onAlertSelect: handleAlertSelect,
-      onAlertAction: handleAlertAction,
-    });
-
-    dashboardPanel.initialize({
-      container: EL.bottomPanel(),
-    });
-
+    // Initialize expanded panels (use initialize({container}) signature)
     driverPanel.initialize({ container: EL.leftPanel() });
     obligationPanel.initialize({ container: EL.leftPanel() });
     taskPanel.initialize({ container: EL.leftPanel() });
@@ -209,8 +198,12 @@ async function performSearch(query) {
   try {
     const results = await mapManager.searchFeatures(query);
     if (results && results.length > 0) {
-      compliancePanel.displaySearchResults(results);
-      mapManager.highlightFeatures(results);
+      // Highlight and zoom to first result
+      const oids = results.map((f) => f.attributes?.OBJECTID).filter(Boolean);
+      mapManager.highlightFeatures("permits", oids);
+      if (results[0]?.geometry) {
+        mapManager.zoomToFeature(results[0]);
+      }
       updateStatus(`Found ${results.length} result(s)`);
     } else {
       updateStatus("No results found");
@@ -284,16 +277,14 @@ function handleAlertSelect(alert) {
   }
 }
 
-function handleAlertAction(action, alert) {
+function handleAlertAction(action, alertItem) {
   switch (action) {
-    case "acknowledge":
-      alertPanel.acknowledgeAlert(alert);
-      break;
-    case "resolve":
-      alertPanel.resolveAlert(alert);
-      break;
     case "zoom":
-      handleAlertSelect(alert);
+      handleAlertSelect(alertItem);
+      break;
+    default:
+      // Acknowledge/resolve handled internally by alert-panel
+      alertPanel.refresh();
       break;
   }
 }

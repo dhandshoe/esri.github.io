@@ -362,6 +362,90 @@ export function getSketchWidget() {
 }
 
 /**
+ * Refresh all layers.
+ */
+export function refreshLayers() {
+  for (const layer of Object.values(_layers)) {
+    layer.refresh();
+  }
+}
+
+/**
+ * Search features across the permits layer.
+ * @param {string} query
+ * @returns {Promise<__esri.Graphic[]>}
+ */
+export async function searchFeatures(query) {
+  const layer = _layers.permits;
+  if (!layer) return [];
+  const result = await layer.queryFeatures({
+    where: `${Fields.PERMIT_NAME} LIKE '%${query.replace(/'/g, "''")}%' OR ${Fields.PERMIT_ID} LIKE '%${query.replace(/'/g, "''")}%' OR ${Fields.ISSUING_AGENCY} LIKE '%${query.replace(/'/g, "''")}%'`,
+    outFields: ["*"],
+    returnGeometry: true,
+  });
+  return result.features || [];
+}
+
+/**
+ * Zoom to a specific feature and open its popup.
+ * @param {__esri.Graphic} feature
+ */
+export async function zoomToFeature(feature) {
+  if (!_view || !feature?.geometry) return;
+  await _view.goTo({ target: feature.geometry, zoom: 14 }, { duration: 800 });
+}
+
+/**
+ * Open the popup for a feature.
+ * @param {__esri.Graphic} feature
+ */
+export function openPopup(feature) {
+  if (!_view || !feature) return;
+  _view.popup.open({ features: [feature], location: feature.geometry });
+}
+
+/**
+ * Filter the permits layer by compliance status.
+ * @param {string|null} status - Status value or null to clear filter.
+ */
+export function filterByStatus(status) {
+  const layer = _layers.permits;
+  if (!layer) return;
+  layer.definitionExpression = status
+    ? `${Fields.COMPLIANCE_STATUS} = '${status}'`
+    : "";
+}
+
+/**
+ * Zoom to a permit by its ID.
+ * @param {string} permitId
+ */
+export async function zoomToPermit(permitId) {
+  const layer = _layers.permits;
+  if (!_view || !layer) return;
+  const result = await layer.queryFeatures({
+    where: `${Fields.PERMIT_ID} = '${permitId.replace(/'/g, "''")}'`,
+    outFields: ["*"],
+    returnGeometry: true,
+  });
+  if (result.features?.length > 0) {
+    await zoomToFeature(result.features[0]);
+    openPopup(result.features[0]);
+  }
+}
+
+/**
+ * Destroy the map view and release resources.
+ */
+export function destroy() {
+  if (_view) {
+    _view.destroy();
+    _view = null;
+  }
+  _map = null;
+}
+
+/**
  * Apply compliance symbology to all applicable layer views.
  */
 export async function applyAllSymbology() {
