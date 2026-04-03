@@ -415,11 +415,11 @@ export const API = Object.freeze({
   },
   /** Base feature service URL. */
   get FEATURE_SERVICE_URL() {
-    return window.__ECMS_CONFIG?.featureServiceUrl ?? "https://geomatics.worley.com/server/rest/services/ECMS/FeatureServer";
+    return window.__ECMS_CONFIG?.featureServiceUrl ?? "https://geomatics.worley.com/arcgisserver/rest/services/EnvironmentalCompliance/FeatureServer";
   },
   /** GP service for server-side compliance checks. */
   get GP_COMPLIANCE_URL() {
-    return window.__ECMS_CONFIG?.gpComplianceUrl ?? "https://geomatics.worley.com/server/rest/services/ECMS/ComplianceCheck/GPServer/RunComplianceCheck";
+    return window.__ECMS_CONFIG?.gpComplianceUrl ?? "https://geomatics.worley.com/arcgisserver/rest/services/EnvironmentalCompliance/ComplianceCheck/GPServer/RunComplianceCheck";
   },
   /** Layer indices within the feature service. */
   LAYERS: Object.freeze({
