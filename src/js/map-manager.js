@@ -91,16 +91,14 @@ export async function initMap(containerId, options = {}) {
     },
   });
 
-  // --- Add Feature Layers (gracefully handle failures) ---
+  // --- Add Feature Layers (spatial layers only — tables are accessed via API) ---
   const layerDefs = [
     { key: "permits", index: API.LAYERS.PERMITS, title: "Environmental Permits" },
-    { key: "conditions", index: API.LAYERS.CONDITIONS, title: "Permit Conditions", visible: false },
-    { key: "triggers", index: API.LAYERS.TRIGGERS, title: "Compliance Triggers", visible: false },
-    { key: "alerts", index: API.LAYERS.ALERTS, title: "Alerts", visible: false },
+    { key: "assetsLine", index: API.LAYERS.ENVIRONMENTAL_ASSETS_LINE, title: "Environmental Assets (Line)", visible: false },
+    { key: "assetsPoint", index: API.LAYERS.ENVIRONMENTAL_ASSETS_POINT, title: "Environmental Assets (Point)", visible: false },
     { key: "stations", index: API.LAYERS.MONITORING_STATIONS, title: "Monitoring Stations" },
-    { key: "boundaries", index: API.LAYERS.COMPLIANCE_BOUNDARIES, title: "Compliance Boundaries" },
-    { key: "contacts", index: API.LAYERS.CONTACTS, title: "Contacts", visible: false },
-    { key: "auditLog", index: API.LAYERS.AUDIT_LOG, title: "Audit Log", visible: false },
+    { key: "assetsPolygon", index: API.LAYERS.ENVIRONMENTAL_ASSETS_POLYGON, title: "Environmental Assets (Polygon)", visible: false },
+    { key: "inspections", index: API.LAYERS.INSPECTION_LOCATIONS, title: "Inspection Locations", visible: false },
   ];
 
   for (const def of layerDefs) {
@@ -123,21 +121,9 @@ export async function initMap(containerId, options = {}) {
     _layers.permits.popupTemplate = createPermitPopup();
   }
 
-  // Configure popups for stations
+  // Configure popups for stations (auto-generated from fields)
   if (_layers.stations) {
-    _layers.stations.popupTemplate = {
-      title: "{StationName} ({StationID})",
-      content: [
-        {
-          type: "fields",
-          fieldInfos: [
-            { fieldName: Fields.STATION_STATUS, label: "Status" },
-            { fieldName: Fields.LAST_READING, label: "Last Reading" },
-            { fieldName: Fields.LAST_READING_DATE, label: "Reading Date", format: { dateFormat: "short-date-short-time" } },
-          ],
-        },
-      ],
-    };
+    _layers.stations.popupTemplate = { title: "{StationName}", content: "auto" };
   }
 
   await _view.when();
