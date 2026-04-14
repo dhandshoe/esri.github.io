@@ -35,19 +35,28 @@ function applyFilters(data) {
   const project = document.getElementById("filterProject")?.value || "all";
   const contractor = document.getElementById("filterContractor")?.value || "all";
   const risk = document.getElementById("filterRisk")?.value || "all";
-  const days = document.getElementById("filterTimeRange")?.value || "30";
+  const days = document.getElementById("filterTimeRange")?.value || "all";
 
   return data.filter((d) => {
     if (project !== "all" && d.generalInfo.projectName !== project) return false;
     if (contractor !== "all" && d.generalInfo.contractor !== contractor) return false;
     if (risk !== "all" && d.overallAssessment.riskLevel !== risk) return false;
     if (days !== "all") {
-      const cutoff = new Date();
+      // Use the latest date in the dataset as "today" so the demo works on any machine
+      const latestDate = _datasetLatestDate || new Date();
+      const cutoff = new Date(latestDate);
       cutoff.setDate(cutoff.getDate() - parseInt(days));
-      if (new Date(d.generalInfo.inspectionDate) < cutoff) return false;
+      if (new Date(d.generalInfo.inspectionDate + "T00:00:00") < cutoff) return false;
     }
     return true;
   });
+}
+
+// Cached latest date in the dataset (computed once at init)
+let _datasetLatestDate = null;
+function computeDatasetLatestDate(data) {
+  const dates = data.map((d) => d.generalInfo.inspectionDate).sort();
+  _datasetLatestDate = dates.length > 0 ? new Date(dates[dates.length - 1] + "T23:59:59") : new Date();
 }
 
 function populateFilterDropdowns(data) {
@@ -1313,6 +1322,7 @@ function renderAll(data) {
 document.addEventListener("DOMContentLoaded", () => {
   customElements.whenDefined("calcite-select").then(() => {
     const allData = getInspectionData();
+    computeDatasetLatestDate(allData);
     populateFilterDropdowns(allData);
     filteredData = applyFilters(allData);
     initFilterListeners();
