@@ -622,6 +622,251 @@ function renderInspectionTable(data) {
 }
 
 // ============================================================
+// ARCGIS MAP WITH INSPECTION POINTS (Part B1)
+// ============================================================
+
+let mapView = null;
+let mapGraphicsLayer = null;
+
+function initInspectionMap() {
+  require([
+    "esri/Map",
+    "esri/views/MapView",
+    "esri/Graphic",
+    "esri/layers/GraphicsLayer",
+    "esri/widgets/Legend",
+  ], function (Map, MapView, Graphic, GraphicsLayer, Legend) {
+    // Store constructors globally for renderMapPoints
+    window._MapGraphic = Graphic;
+
+    mapGraphicsLayer = new GraphicsLayer({ title: "Inspections" });
+
+    const map = new Map({
+      basemap: "dark-gray-vector",
+      layers: [mapGraphicsLayer],
+    });
+
+    mapView = new MapView({
+      container: "inspectionMap",
+      map: map,
+      center: [-95.39, 29.76],
+      zoom: 11,
+      ui: { components: ["zoom"] },
+      popup: {
+        dockEnabled: true,
+        dockOptions: { buttonEnabled: false, breakpoint: false, position: "bottom-right" },
+      },
+    });
+
+    // Dark theme for the map view
+    mapView.when(() => {
+      renderMapPoints(filteredData);
+    });
+  });
+}
+
+function renderMapPoints(data) {
+  if (!mapGraphicsLayer || !window._MapGraphic) return;
+  mapGraphicsLayer.removeAll();
+
+  const riskColorMap = {
+    low: [53, 172, 70],
+    moderate: [237, 211, 23],
+    high: [240, 85, 69],
+    critical: [185, 28, 28],
+  };
+
+  const riskSizeMap = { low: 10, moderate: 12, high: 14, critical: 18 };
+
+  const withCoords = data.filter((d) => d.generalInfo.latitude && d.generalInfo.longitude);
+
+  withCoords.forEach((d) => {
+    const risk = d.overallAssessment.riskLevel || "moderate";
+    const compliance = getOverallCompliance([d]);
+    const dateStr = new Date(d.generalInfo.inspectionDate + "T00:00:00").toLocaleDateString("en-US", {
+      month: "short", day: "numeric", year: "numeric",
+    });
+    const typeLabel = INSPECTION_TYPE_LABELS[d.generalInfo.inspectionType] || d.generalInfo.inspectionType;
+
+    const point = {
+      type: "point",
+      longitude: parseFloat(d.generalInfo.longitude),
+      latitude: parseFloat(d.generalInfo.latitude),
+    };
+
+    const symbol = {
+      type: "simple-marker",
+      color: riskColorMap[risk] || [0, 121, 193],
+      outline: { color: [20, 24, 34, 200], width: 2 },
+      size: riskSizeMap[risk] || 12,
+    };
+
+    const attributes = {
+      inspector: d.generalInfo.inspectorName,
+      project: d.generalInfo.projectName,
+      contractor: d.generalInfo.contractor,
+      date: dateStr,
+      type: typeLabel,
+      risk: risk.charAt(0).toUpperCase() + risk.slice(1),
+      rating: d.overallAssessment.rating + " / 5",
+      compliance: compliance + "%",
+      workers: d.generalInfo.workerCount,
+      stopWork: d.overallAssessment.stopWorkIssued ? "YES" : "No",
+    };
+
+    const popupTemplate = {
+      title: "<span style='font-size:13px'>{project}</span>",
+      content: `
+        <table style="font-size:12px; width:100%; border-collapse:collapse;">
+          <tr><td style="padding:3px 8px; color:#888;">Date</td><td style="padding:3px 8px; font-weight:600;">{date}</td></tr>
+          <tr><td style="padding:3px 8px; color:#888;">Inspector</td><td style="padding:3px 8px;">{inspector}</td></tr>
+          <tr><td style="padding:3px 8px; color:#888;">Contractor</td><td style="padding:3px 8px;">{contractor}</td></tr>
+          <tr><td style="padding:3px 8px; color:#888;">Type</td><td style="padding:3px 8px;">{type}</td></tr>
+          <tr><td style="padding:3px 8px; color:#888;">Risk Level</td><td style="padding:3px 8px; font-weight:700;">{risk}</td></tr>
+          <tr><td style="padding:3px 8px; color:#888;">Rating</td><td style="padding:3px 8px;">{rating}</td></tr>
+          <tr><td style="padding:3px 8px; color:#888;">Compliance</td><td style="padding:3px 8px; font-weight:700;">{compliance}</td></tr>
+          <tr><td style="padding:3px 8px; color:#888;">Workers</td><td style="padding:3px 8px;">{workers}</td></tr>
+          <tr><td style="padding:3px 8px; color:#888;">Stop Work</td><td style="padding:3px 8px;">{stopWork}</td></tr>
+        </table>
+      `,
+    };
+
+    const graphic = new window._MapGraphic({
+      geometry: point,
+      symbol: symbol,
+      attributes: attributes,
+      popupTemplate: popupTemplate,
+    });
+
+    mapGraphicsLayer.add(graphic);
+  });
+
+  // Fit map extent to points if we have them
+  if (withCoords.length > 1 && mapView) {
+    mapView.goTo(mapGraphicsLayer.graphics.toArray(), { padding: 60, duration: 800 }).catch(() => {});
+  } else if (withCoords.length === 1 && mapView) {
+    mapView.goTo({ center: [parseFloat(withCoords[0].generalInfo.longitude), parseFloat(withCoords[0].generalInfo.latitude)], zoom: 13 }, { duration: 800 }).catch(() => {});
+  }
+
+  // Update count label
+  const mapCount = document.getElementById("mapPointCount");
+  if (mapCount) {
+    mapCount.textContent = `${withCoords.length} inspection${withCoords.length !== 1 ? "s" : ""} mapped`;
+  }
+}
+
+// ============================================================
+// INSPECTOR LEADERBOARD (Part B1)
+// ============================================================
+
+function getInspectorStats(data) {
+  const stats = {};
+  data.forEach((d) => {
+    const name = d.generalInfo.inspectorName;
+    if (!stats[name]) {
+      stats[name] = { name, count: 0, totalRating: 0, totalPass: 0, totalApplicable: 0, role: d.generalInfo.inspectorRole };
+    }
+    stats[name].count++;
+    stats[name].totalRating += parseFloat(d.overallAssessment.rating || 0);
+
+    // Count pass/fail across all sections for this inspection
+    Object.values(d.inspectionResults).forEach((section) => {
+      Object.values(section).forEach((v) => {
+        if (v === "pass") { stats[name].totalPass++; stats[name].totalApplicable++; }
+        else if (v === "fail") { stats[name].totalApplicable++; }
+      });
+    });
+  });
+  return Object.values(stats).map((s) => ({
+    ...s,
+    avgRating: (s.totalRating / s.count).toFixed(1),
+    compliance: s.totalApplicable > 0 ? ((s.totalPass / s.totalApplicable) * 100).toFixed(1) : "0.0",
+  }));
+}
+
+const ROLE_LABELS = {
+  safety_officer: "Safety Officer",
+  site_superintendent: "Superintendent",
+  foreman: "Foreman",
+  project_manager: "PM",
+  safety_engineer: "Safety Engineer",
+  quality_inspector: "QC Inspector",
+  craft_worker: "Craft Worker",
+  subcontractor_rep: "Sub Rep",
+  other: "Other",
+};
+
+function renderInspectorLeaderboard(data) {
+  const container = document.getElementById("inspectorLeaderboard");
+  container.innerHTML = "";
+
+  const inspectors = getInspectorStats(data).sort((a, b) => b.count - a.count);
+
+  if (inspectors.length === 0) {
+    container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">No inspectors found.</p>';
+    return;
+  }
+
+  // Medal colors for top 3
+  const medals = ["#f59e0b", "#94a3b8", "#b45309"];
+
+  inspectors.slice(0, 5).forEach((inspector, idx) => {
+    const compColor = parseFloat(inspector.compliance) >= 90 ? "#35ac46" : parseFloat(inspector.compliance) >= 75 ? "#edd317" : "#d83020";
+    const roleLabel = ROLE_LABELS[inspector.role] || inspector.role;
+
+    const row = document.createElement("div");
+    row.className = "flex items-center gap-3 py-2" + (idx < inspectors.length - 1 ? " border-b border-gray-800" : "");
+    row.innerHTML = `
+      <div class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
+           style="background:${idx < 3 ? medals[idx] + "22" : "rgba(255,255,255,0.04)"}; color:${idx < 3 ? medals[idx] : "#666"};">
+        ${idx + 1}
+      </div>
+      <div class="flex-grow min-w-0">
+        <div class="text-sm font-medium text-gray-200 truncate">${inspector.name}</div>
+        <div class="text-xs text-gray-500">${roleLabel}</div>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <div class="text-sm font-semibold" style="color:${compColor}">${inspector.compliance}%</div>
+        <div class="text-xs text-gray-500">${inspector.count} insp.</div>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+// ============================================================
+// TREND CHART TOGGLE (Part B1)
+// ============================================================
+
+function initTrendToggle() {
+  const toggle = document.getElementById("trendToggle");
+  if (!toggle) return;
+
+  toggle.addEventListener("calciteSegmentedControlChange", (e) => {
+    const chart = chartInstances.trend;
+    if (!chart) return;
+
+    const selected = toggle.querySelector("calcite-segmented-control-item[checked]");
+    const mode = selected ? selected.value : "count";
+
+    if (mode === "count") {
+      // Show inspections dataset, hide compliance
+      chart.data.datasets[0].hidden = false;
+      chart.data.datasets[1].hidden = true;
+      chart.options.scales.y.display = true;
+      chart.options.scales.y1.display = false;
+    } else {
+      // Show compliance dataset, hide inspections
+      chart.data.datasets[0].hidden = true;
+      chart.data.datasets[1].hidden = false;
+      chart.options.scales.y.display = false;
+      chart.options.scales.y1.display = true;
+    }
+    chart.update();
+  });
+}
+
+// ============================================================
 // FILTER EVENT HANDLERS
 // ============================================================
 
@@ -651,13 +896,8 @@ function renderAll(data) {
   renderFailingItems(data);
   renderComplianceBreakdown(data);
   renderInspectionTable(data);
-
-  // Update map point count placeholder
-  const mapCount = document.getElementById("mapPointCount");
-  if (mapCount) {
-    const withCoords = data.filter((d) => d.generalInfo.latitude && d.generalInfo.longitude);
-    mapCount.textContent = `${withCoords.length} inspection${withCoords.length !== 1 ? "s" : ""} mapped`;
-  }
+  renderInspectorLeaderboard(data);
+  renderMapPoints(data);
 }
 
 // ============================================================
@@ -670,6 +910,8 @@ document.addEventListener("DOMContentLoaded", () => {
     populateFilterDropdowns(allData);
     filteredData = applyFilters(allData);
     initFilterListeners();
+    initTrendToggle();
+    initInspectionMap();
     renderAll(filteredData);
   });
 });
