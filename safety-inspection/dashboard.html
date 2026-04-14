@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Safety Inspection Dashboard | AEC Field Operations</title>
+    <title>Safety Inspection Dashboard | Worley Field Operations</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,8 +26,8 @@
       body { background: #0f1116; color: #e0e0e0; }
 
       .dashboard-header {
-        background: linear-gradient(135deg, #0a0d12 0%, #0d1520 50%, #0a1628 100%);
-        border-bottom: 1px solid rgba(0,121,193,0.3);
+        background: linear-gradient(135deg, #0a0d12 0%, #0b1a1e 50%, #0d2329 100%);
+        border-bottom: 1px solid rgba(0,95,107,0.4);
         position: relative;
         overflow: hidden;
       }
@@ -35,7 +35,7 @@
         content: '';
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: linear-gradient(90deg, transparent 0%, rgba(0,121,193,0.03) 50%, transparent 100%);
+        background: linear-gradient(90deg, transparent 0%, rgba(0,95,107,0.04) 50%, transparent 100%);
         pointer-events: none;
       }
 
@@ -59,7 +59,7 @@
         height: 3px;
         border-radius: 12px 12px 0 0;
       }
-      .kpi-card.blue::before { background: linear-gradient(90deg, #0079c1, #00a0e9); }
+      .kpi-card.blue::before { background: linear-gradient(90deg, #005F6B, #008C9E); }
       .kpi-card.green::before { background: linear-gradient(90deg, #35ac46, #5ec26a); }
       .kpi-card.red::before { background: linear-gradient(90deg, #d83020, #f05545); }
       .kpi-card.amber::before { background: linear-gradient(90deg, #edd317, #f5e642); }
@@ -227,7 +227,7 @@
         margin-bottom: 16px;
       }
       .report-section h4 {
-        color: #0079c1;
+        color: #005F6B;
         font-size: 0.85rem;
         font-weight: 600;
         text-transform: uppercase;
@@ -294,7 +294,8 @@
       <div class="max-w-[1440px] mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3 relative z-10">
         <div>
           <div class="flex items-center gap-3 mb-1">
-            <div class="w-8 h-8 bg-[#0079c1] rounded-lg flex items-center justify-center">
+            <img src="worley-logo.svg" alt="Worley" style="height:32px; width:auto;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+            <div class="w-8 h-8 bg-[#005F6B] rounded-lg items-center justify-center" style="display:none">
               <calcite-icon icon="graph-bar" scale="s" style="color:white"></calcite-icon>
             </div>
             <h1 class="text-lg md:text-xl font-bold text-white">Safety Inspection Dashboard</h1>
@@ -303,7 +304,7 @@
               <span>Live</span>
             </div>
           </div>
-          <p class="text-xs text-gray-500 ml-11">AEC Field Safety Program &mdash; Real-Time Operations Overview</p>
+          <p class="text-xs text-gray-500 ml-11">Worley Field Safety Program &mdash; Real-Time Operations Overview</p>
         </div>
         <div class="flex items-center gap-3">
           <calcite-button id="generateReportBtn" icon-start="file-report" appearance="outline-fill" scale="s" kind="inverse">
@@ -359,7 +360,7 @@
         <div class="panel lg:col-span-2">
           <div class="panel-header">
             <h3 class="flex items-center gap-2">
-              <calcite-icon icon="check-square" scale="s" style="color:#0079c1"></calcite-icon>
+              <calcite-icon icon="check-square" scale="s" style="color:#005F6B"></calcite-icon>
               Compliance by Category
             </h3>
             <span class="text-xs text-gray-500">Pass rate per inspection section</span>
@@ -396,7 +397,7 @@
         <div class="panel lg:col-span-2">
           <div class="panel-header">
             <h3 class="flex items-center gap-2">
-              <calcite-icon icon="graph-time-series" scale="s" style="color:#0079c1"></calcite-icon>
+              <calcite-icon icon="graph-time-series" scale="s" style="color:#005F6B"></calcite-icon>
               Inspection Trend
             </h3>
             <div class="flex gap-2">
@@ -433,7 +434,7 @@
         <div class="panel lg:col-span-2">
           <div class="panel-header">
             <h3 class="flex items-center gap-2">
-              <calcite-icon icon="map-pin" scale="s" style="color:#0079c1"></calcite-icon>
+              <calcite-icon icon="map-pin" scale="s" style="color:#005F6B"></calcite-icon>
               Inspection Locations
             </h3>
             <span class="text-xs text-gray-500" id="mapPointCount">0 inspections mapped</span>
@@ -491,7 +492,7 @@
       <div class="panel">
         <div class="panel-header">
           <h3 class="flex items-center gap-2">
-            <calcite-icon icon="list" scale="s" style="color:#0079c1"></calcite-icon>
+            <calcite-icon icon="list" scale="s" style="color:#005F6B"></calcite-icon>
             Recent Inspections
           </h3>
           <span class="text-xs text-gray-500" id="tableCount">Showing 0 inspections</span>
@@ -525,7 +526,7 @@
       <div class="report-modal" id="reportModal">
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h2>Safety Inspection Executive Report</h2>
+            <h2>Worley Safety Inspection Executive Report</h2>
             <p class="text-sm text-gray-400" id="reportDateRange">Reporting period: --</p>
           </div>
           <div class="flex gap-2">
@@ -543,9 +544,9 @@
     <footer class="border-t border-gray-800 mt-8 py-6 px-4 text-center">
       <div class="flex items-center justify-center gap-2 mb-2 text-xs text-gray-600">
         <calcite-icon icon="shield" scale="s" style="color:#444"></calcite-icon>
-        <span>Powered by ArcGIS Survey123 &amp; ArcGIS Dashboards</span>
+        <span>Worley &mdash; Powered by ArcGIS Survey123 &amp; ArcGIS Dashboards</span>
       </div>
-      <p class="text-xs text-gray-700">&copy; 2026 Safety Inspection Program. Data refreshes automatically.</p>
+      <p class="text-xs text-gray-700">&copy; 2026 Worley. Data refreshes automatically.</p>
     </footer>
 
     <!-- Dashboard JS -->

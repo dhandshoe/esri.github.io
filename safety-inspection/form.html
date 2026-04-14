@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Safety Inspection Survey | AEC Field Operations</title>
+    <title>Safety Inspection Survey | Worley Field Operations</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,7 +21,7 @@
       * { font-family: "Avenir Next", "Avenir", "Helvetica Neue", sans-serif; }
 
       .form-banner {
-        background: linear-gradient(135deg, #0079c1 0%, #004874 60%, #1a1a1a 100%);
+        background: linear-gradient(135deg, #005F6B 0%, #003840 60%, #1a1a1a 100%);
         position: relative;
         overflow: hidden;
       }
@@ -83,7 +83,7 @@
         width: 28px;
         height: 28px;
         border-radius: 50%;
-        background: #0079c1;
+        background: #005F6B;
         color: white;
         font-size: 0.8rem;
         font-weight: 600;
@@ -93,7 +93,7 @@
 
       .severity-critical { border-left: 4px solid #d83020 !important; }
       .severity-warning { border-left: 4px solid #edd317 !important; }
-      .severity-info { border-left: 4px solid #0079c1 !important; }
+      .severity-info { border-left: 4px solid #005F6B !important; }
       .severity-safe { border-left: 4px solid #35ac46 !important; }
 
       .progress-bar {
@@ -107,7 +107,7 @@
       }
       .progress-bar-fill {
         height: 100%;
-        background: linear-gradient(90deg, #0079c1, #35ac46);
+        background: linear-gradient(90deg, #005F6B, #008C9E);
         transition: width 0.3s ease;
         border-radius: 2px;
       }
@@ -129,7 +129,7 @@
         background: #fafafa;
       }
       .photo-upload-zone:hover {
-        border-color: #0079c1;
+        border-color: #005F6B;
         background: #f0f7fc;
       }
 
@@ -180,7 +180,7 @@
       }
 
       .form-footer {
-        background: linear-gradient(135deg, #004874 0%, #1a1a1a 100%);
+        background: linear-gradient(135deg, #003840 0%, #1a1a1a 100%);
       }
 
       /* Toast notification */
@@ -208,8 +208,8 @@
     <div class="form-banner text-white py-8 px-4 md:px-8">
       <div class="max-w-3xl mx-auto relative z-10">
         <div class="flex items-center gap-3 mb-3 opacity-80 text-sm">
-          <calcite-icon icon="clipboard-check" scale="s"></calcite-icon>
-          <span>AEC Field Safety Program</span>
+          <img src="worley-logo.svg" alt="Worley" style="height:22px; width:auto; opacity:0.9" onerror="this.outerHTML='<calcite-icon icon=\'clipboard-check\' scale=\'s\'></calcite-icon>'" />
+          <span>Worley Field Safety Program</span>
         </div>
         <h1 class="text-2xl md:text-4xl font-bold mb-2">Job Site Safety Inspection</h1>
         <p class="text-sm md:text-base opacity-80 max-w-xl">
@@ -603,7 +603,7 @@
       <div class="section-card severity-info" id="section-photos">
         <div class="p-5 md:p-6">
           <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-1">
-            <calcite-icon icon="camera" scale="m" class="mr-3" style="color:#0079c1"></calcite-icon>
+            <calcite-icon icon="camera" scale="m" class="mr-3" style="color:#005F6B"></calcite-icon>
             Photo Documentation
           </h2>
           <p class="text-sm text-gray-500 mb-5 ml-10">Attach photos of hazards, deficiencies, or positive observations.</p>
@@ -672,9 +672,9 @@
     <div class="form-footer text-white text-center py-6 px-4">
       <div class="flex items-center justify-center gap-2 mb-2 opacity-70 text-sm">
         <calcite-icon icon="shield" scale="s" style="color:white"></calcite-icon>
-        <span>Powered by ArcGIS Survey123</span>
+        <span>Worley &mdash; Powered by ArcGIS Survey123</span>
       </div>
-      <p class="text-xs opacity-50">Data is stored securely in ArcGIS Online. &copy; 2026 Safety Inspection Program.</p>
+      <p class="text-xs opacity-50">Data is stored securely in ArcGIS Enterprise. &copy; 2026 Worley.</p>
     </div>
 
     <!-- Toast Notification -->

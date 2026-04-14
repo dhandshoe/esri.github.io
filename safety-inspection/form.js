@@ -228,7 +228,7 @@ function setLocationOnMap(lat, lon) {
 
     const markerSymbol = {
       type: "simple-marker",
-      color: [0, 121, 193],
+      color: [0, 95, 107],
       outline: { color: [255, 255, 255], width: 2 },
       size: 14,
     };
