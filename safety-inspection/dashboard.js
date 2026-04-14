@@ -867,6 +867,412 @@ function initTrendToggle() {
 }
 
 // ============================================================
+// AUTOMATED REPORT GENERATION (Part B2)
+// ============================================================
+
+function generateReport(data) {
+  const content = document.getElementById("reportContent");
+  if (!content) return;
+
+  const compliance = getOverallCompliance(data);
+  const avgRating = getAverageRating(data);
+  const riskCounts = getRiskCounts(data);
+  const stopWork = getStopWorkCount(data);
+  const corrective = getCorrectiveActionCount(data);
+  const inspectors = getInspectorStats(data).sort((a, b) => b.count - a.count);
+  const sections = Object.keys(SECTION_LABELS);
+
+  // Determine date range
+  const dates = data.map((d) => d.generalInfo.inspectionDate).sort();
+  const startDate = dates.length > 0 ? new Date(dates[0] + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "--";
+  const endDate = dates.length > 0 ? new Date(dates[dates.length - 1] + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "--";
+  document.getElementById("reportDateRange").textContent = `Reporting period: ${startDate} \u2013 ${endDate}`;
+
+  // Find worst and best sections
+  const sectionCompliance = sections.map((s) => {
+    const stats = getSectionStats(data, s);
+    const applicable = stats.pass + stats.fail;
+    return {
+      key: s,
+      label: SECTION_LABELS[s],
+      rate: applicable > 0 ? ((stats.pass / applicable) * 100) : 100,
+      pass: stats.pass,
+      fail: stats.fail,
+      na: stats.na,
+    };
+  }).sort((a, b) => a.rate - b.rate);
+
+  const worstSections = sectionCompliance.filter((s) => s.fail > 0).slice(0, 3);
+  const bestSections = [...sectionCompliance].sort((a, b) => b.rate - a.rate).slice(0, 3);
+
+  // Top failing items
+  const failCounts = getItemFailCounts(data);
+  const topFails = Object.entries(failCounts)
+    .filter(([, v]) => v.fail > 0)
+    .sort((a, b) => b[1].fail - a[1].fail)
+    .slice(0, 5);
+
+  // Projects summary
+  const projectMap = {};
+  data.forEach((d) => {
+    const p = d.generalInfo.projectName;
+    if (!projectMap[p]) projectMap[p] = { count: 0, totalPass: 0, totalApplicable: 0, risks: [] };
+    projectMap[p].count++;
+    projectMap[p].risks.push(d.overallAssessment.riskLevel);
+    Object.values(d.inspectionResults).forEach((section) => {
+      Object.values(section).forEach((v) => {
+        if (v === "pass") { projectMap[p].totalPass++; projectMap[p].totalApplicable++; }
+        else if (v === "fail") { projectMap[p].totalApplicable++; }
+      });
+    });
+  });
+
+  // Determine overall status color and label
+  const compVal = parseFloat(compliance);
+  let statusColor, statusLabel, statusIcon;
+  if (compVal >= 90 && stopWork === 0) {
+    statusColor = "#35ac46"; statusLabel = "GOOD"; statusIcon = "check-circle-f";
+  } else if (compVal >= 75) {
+    statusColor = "#edd317"; statusLabel = "CAUTION"; statusIcon = "exclamation-mark-triangle-f";
+  } else {
+    statusColor = "#d83020"; statusLabel = "ACTION REQUIRED"; statusIcon = "exclamation-mark-circle-f";
+  }
+
+  content.innerHTML = `
+    <!-- Overall Status Banner -->
+    <div class="report-section" style="border-color:${statusColor}44; background:${statusColor}08">
+      <div class="flex items-center gap-3 mb-2">
+        <calcite-icon icon="${statusIcon}" scale="l" style="color:${statusColor}"></calcite-icon>
+        <div>
+          <h4 style="color:${statusColor}; margin:0">Overall Safety Status: ${statusLabel}</h4>
+          <p class="text-sm text-gray-400 mt-1">Based on ${data.length} inspection${data.length !== 1 ? "s" : ""} across ${Object.keys(projectMap).length} project${Object.keys(projectMap).length !== 1 ? "s" : ""}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="report-section">
+      <h4>Key Performance Indicators</h4>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px;">
+        ${reportMetricCard("Total Inspections", data.length, "#00a0e9")}
+        ${reportMetricCard("Overall Compliance", compliance + "%", compVal >= 90 ? "#35ac46" : compVal >= 75 ? "#edd317" : "#d83020")}
+        ${reportMetricCard("Avg Safety Rating", avgRating + " / 5", parseFloat(avgRating) >= 4 ? "#35ac46" : "#edd317")}
+        ${reportMetricCard("Stop Work Orders", stopWork, stopWork > 0 ? "#d83020" : "#35ac46")}
+        ${reportMetricCard("Corrective Actions", corrective, corrective > 0 ? "#edd317" : "#35ac46")}
+        ${reportMetricCard("Unique Inspectors", inspectors.length, "#a78bfa")}
+      </div>
+    </div>
+
+    <!-- Risk Distribution -->
+    <div class="report-section">
+      <h4>Risk Distribution</h4>
+      <div class="flex flex-wrap gap-4">
+        ${reportRiskBar("Low", riskCounts.low, data.length, "#35ac46")}
+        ${reportRiskBar("Moderate", riskCounts.moderate, data.length, "#edd317")}
+        ${reportRiskBar("High", riskCounts.high, data.length, "#f05545")}
+        ${reportRiskBar("Critical", riskCounts.critical, data.length, "#b91c1c")}
+      </div>
+    </div>
+
+    <!-- Category Compliance -->
+    <div class="report-section">
+      <h4>Compliance by Category</h4>
+      <table style="width:100%; font-size:0.8rem; border-collapse:collapse;">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.1)">
+            <th style="text-align:left; padding:6px 8px; color:#888;">Category</th>
+            <th style="text-align:right; padding:6px 8px; color:#888;">Pass</th>
+            <th style="text-align:right; padding:6px 8px; color:#888;">Fail</th>
+            <th style="text-align:right; padding:6px 8px; color:#888;">N/A</th>
+            <th style="text-align:right; padding:6px 8px; color:#888;">Compliance</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sectionCompliance.map((s) => {
+            const rate = s.rate.toFixed(1);
+            const color = s.rate >= 90 ? "#35ac46" : s.rate >= 75 ? "#edd317" : "#d83020";
+            return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+              <td style="padding:6px 8px; color:#ccc;">${s.label}</td>
+              <td style="padding:6px 8px; text-align:right; color:#35ac46;">${s.pass}</td>
+              <td style="padding:6px 8px; text-align:right; color:#f05545;">${s.fail}</td>
+              <td style="padding:6px 8px; text-align:right; color:#666;">${s.na}</td>
+              <td style="padding:6px 8px; text-align:right; font-weight:700; color:${color};">${rate}%</td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Areas of Concern -->
+    ${worstSections.length > 0 ? `
+    <div class="report-section" style="border-color:rgba(216,48,32,0.2)">
+      <h4 style="color:#f05545">Areas of Concern</h4>
+      ${worstSections.map((s) => `
+        <div class="mb-3">
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-300">${s.label}</span>
+            <span class="text-sm font-bold" style="color:${s.rate >= 75 ? "#edd317" : "#f05545"}">${s.rate.toFixed(1)}% compliance</span>
+          </div>
+          <div class="w-full h-1.5 rounded-full mt-1" style="background:rgba(255,255,255,0.06)">
+            <div class="h-full rounded-full" style="width:${s.rate}%; background:${s.rate >= 75 ? "#edd317" : "#f05545"}"></div>
+          </div>
+        </div>
+      `).join("")}
+    </div>` : ""}
+
+    <!-- Top Failing Checklist Items -->
+    ${topFails.length > 0 ? `
+    <div class="report-section" style="border-color:rgba(216,48,32,0.2)">
+      <h4 style="color:#f05545">Top Failing Checklist Items</h4>
+      <ol class="text-sm text-gray-300 space-y-2 pl-4" style="list-style:decimal">
+        ${topFails.map(([itemId, stats]) => {
+          const pct = stats.total > 0 ? ((stats.fail / stats.total) * 100).toFixed(0) : 0;
+          return `<li><span class="text-gray-200">${ITEM_LABELS[itemId] || itemId}</span> &mdash; <span class="text-red-400 font-semibold">${stats.fail} failure${stats.fail !== 1 ? "s" : ""} (${pct}% fail rate)</span></li>`;
+        }).join("")}
+      </ol>
+    </div>` : ""}
+
+    <!-- Positive Highlights -->
+    <div class="report-section" style="border-color:rgba(53,172,70,0.2)">
+      <h4 style="color:#35ac46">Positive Highlights</h4>
+      ${bestSections.filter((s) => s.rate >= 90).length > 0 ? `
+        <p class="text-sm text-gray-300 mb-2">The following categories achieved <span class="text-green-400 font-semibold">&ge;90% compliance</span>:</p>
+        <ul class="text-sm text-gray-300 space-y-1 pl-4" style="list-style:disc">
+          ${bestSections.filter((s) => s.rate >= 90).map((s) => `<li>${s.label} &mdash; <span class="text-green-400 font-semibold">${s.rate.toFixed(1)}%</span></li>`).join("")}
+        </ul>
+      ` : '<p class="text-sm text-gray-400">No categories achieved 90% compliance in this period.</p>'}
+      ${getPositiveObservations(data).length > 0 ? `
+        <p class="text-sm text-gray-300 mt-3 mb-2">Inspector observations:</p>
+        <ul class="text-sm text-gray-400 space-y-1 pl-4" style="list-style:disc">
+          ${getPositiveObservations(data).slice(0, 4).map((obs) => `<li>"${obs}"</li>`).join("")}
+        </ul>
+      ` : ""}
+    </div>
+
+    <!-- Project Breakdown -->
+    <div class="report-section">
+      <h4>Project Summary</h4>
+      <table style="width:100%; font-size:0.8rem; border-collapse:collapse;">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.1)">
+            <th style="text-align:left; padding:6px 8px; color:#888;">Project</th>
+            <th style="text-align:right; padding:6px 8px; color:#888;">Inspections</th>
+            <th style="text-align:right; padding:6px 8px; color:#888;">Compliance</th>
+            <th style="text-align:right; padding:6px 8px; color:#888;">Highest Risk</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${Object.entries(projectMap).map(([name, p]) => {
+            const pCompliance = p.totalApplicable > 0 ? ((p.totalPass / p.totalApplicable) * 100).toFixed(1) : "N/A";
+            const pColor = parseFloat(pCompliance) >= 90 ? "#35ac46" : parseFloat(pCompliance) >= 75 ? "#edd317" : "#d83020";
+            const worstRisk = getWorstRisk(p.risks);
+            const riskBadgeColor = { low: "#35ac46", moderate: "#edd317", high: "#f05545", critical: "#b91c1c" }[worstRisk] || "#888";
+            return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+              <td style="padding:6px 8px; color:#ccc; max-width:200px;" class="truncate" title="${name}">${name}</td>
+              <td style="padding:6px 8px; text-align:right; color:#aaa;">${p.count}</td>
+              <td style="padding:6px 8px; text-align:right; font-weight:600; color:${pColor};">${pCompliance}%</td>
+              <td style="padding:6px 8px; text-align:right;"><span style="color:${riskBadgeColor}; font-weight:600; text-transform:uppercase; font-size:0.7rem;">${worstRisk}</span></td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Inspector Activity -->
+    <div class="report-section">
+      <h4>Inspector Activity</h4>
+      <table style="width:100%; font-size:0.8rem; border-collapse:collapse;">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.1)">
+            <th style="text-align:left; padding:6px 8px; color:#888;">Inspector</th>
+            <th style="text-align:left; padding:6px 8px; color:#888;">Role</th>
+            <th style="text-align:right; padding:6px 8px; color:#888;">Inspections</th>
+            <th style="text-align:right; padding:6px 8px; color:#888;">Avg Rating</th>
+            <th style="text-align:right; padding:6px 8px; color:#888;">Compliance</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${inspectors.map((ins) => {
+            const cColor = parseFloat(ins.compliance) >= 90 ? "#35ac46" : parseFloat(ins.compliance) >= 75 ? "#edd317" : "#d83020";
+            return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+              <td style="padding:6px 8px; color:#ccc;">${ins.name}</td>
+              <td style="padding:6px 8px; color:#888;">${ROLE_LABELS[ins.role] || ins.role}</td>
+              <td style="padding:6px 8px; text-align:right; color:#aaa;">${ins.count}</td>
+              <td style="padding:6px 8px; text-align:right; color:#aaa;">${ins.avgRating}</td>
+              <td style="padding:6px 8px; text-align:right; font-weight:600; color:${cColor};">${ins.compliance}%</td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Corrective Actions Log -->
+    ${corrective > 0 ? `
+    <div class="report-section" style="border-color:rgba(237,211,23,0.2)">
+      <h4 style="color:#edd317">Open Corrective Actions</h4>
+      ${data.filter((d) => d.overallAssessment.correctiveActionsRequired).map((d) => {
+        const dateStr = new Date(d.generalInfo.inspectionDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        const priorityColors = { immediate: "#d83020", today: "#f05545", "24hours": "#edd317", week: "#888" };
+        const prio = d.overallAssessment.correctionPriority || "today";
+        return `<div class="mb-3 p-3 rounded" style="background:rgba(255,255,255,0.02); border-left:3px solid ${priorityColors[prio] || "#888"}">
+          <div class="flex justify-between items-start mb-1">
+            <span class="text-sm font-semibold text-gray-200">${d.generalInfo.projectName}</span>
+            <span class="text-xs px-2 py-0.5 rounded" style="background:${priorityColors[prio]}22; color:${priorityColors[prio]};">${prio.toUpperCase()}</span>
+          </div>
+          <p class="text-xs text-gray-400 mb-1">${dateStr} &bull; ${d.generalInfo.inspectorName}</p>
+          <p class="text-sm text-gray-300">${d.overallAssessment.correctiveActions}</p>
+        </div>`;
+      }).join("")}
+    </div>` : ""}
+
+    <!-- Recommendations -->
+    <div class="report-section">
+      <h4>Automated Recommendations</h4>
+      <ul class="text-sm text-gray-300 space-y-2 pl-4" style="list-style:disc">
+        ${generateRecommendations(data, sectionCompliance, riskCounts, stopWork).map((r) => `<li>${r}</li>`).join("")}
+      </ul>
+    </div>
+
+    <!-- Report Footer -->
+    <div class="mt-6 pt-4 border-t border-gray-700 text-center">
+      <p class="text-xs text-gray-500">This report was automatically generated by the AEC Safety Inspection Dashboard.</p>
+      <p class="text-xs text-gray-600 mt-1">Generated on ${new Date().toLocaleString("en-US", { month: "long", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}</p>
+    </div>
+  `;
+}
+
+// Report helper: metric card HTML
+function reportMetricCard(label, value, color) {
+  return `<div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:12px; text-align:center;">
+    <div style="font-size:1.4rem; font-weight:700; color:${color};">${value}</div>
+    <div style="font-size:0.7rem; color:#888; text-transform:uppercase; letter-spacing:0.04em; margin-top:4px;">${label}</div>
+  </div>`;
+}
+
+// Report helper: risk bar HTML
+function reportRiskBar(label, count, total, color) {
+  const pct = total > 0 ? ((count / total) * 100).toFixed(0) : 0;
+  return `<div style="flex:1; min-width:100px;">
+    <div class="flex justify-between text-xs mb-1">
+      <span style="color:${color}">${label}</span>
+      <span class="text-gray-400">${count} (${pct}%)</span>
+    </div>
+    <div style="height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden;">
+      <div style="height:100%; width:${pct}%; background:${color}; border-radius:3px;"></div>
+    </div>
+  </div>`;
+}
+
+// Report helper: get worst risk from an array of risk levels
+function getWorstRisk(risks) {
+  const order = ["critical", "high", "moderate", "low"];
+  for (const level of order) {
+    if (risks.includes(level)) return level;
+  }
+  return "low";
+}
+
+// Report helper: extract positive observations
+function getPositiveObservations(data) {
+  return data
+    .map((d) => d.overallAssessment.positiveObservations)
+    .filter((obs) => obs && obs.trim().length > 10);
+}
+
+// Report helper: generate smart recommendations based on data
+function generateRecommendations(data, sectionCompliance, riskCounts, stopWork) {
+  const recs = [];
+
+  // Low compliance sections
+  const lowSections = sectionCompliance.filter((s) => s.rate < 80 && s.fail > 0);
+  if (lowSections.length > 0) {
+    recs.push(`Schedule targeted safety stand-downs for <strong>${lowSections.map((s) => s.label).join(", ")}</strong> \u2014 these categories are below the 80% compliance threshold.`);
+  }
+
+  // Critical / stop work
+  if (riskCounts.critical > 0 || stopWork > 0) {
+    recs.push(`<strong>${riskCounts.critical} critical-risk inspection${riskCounts.critical !== 1 ? "s" : ""}</strong> and <strong>${stopWork} stop work order${stopWork !== 1 ? "s" : ""}</strong> were recorded. Conduct root-cause analysis and verify all corrective actions are closed out before resuming full operations.`);
+  }
+
+  // High-risk trend
+  if (riskCounts.high + riskCounts.critical > data.length * 0.3) {
+    recs.push("More than 30% of inspections were rated High or Critical risk. Consider increasing inspection frequency and deploying additional safety personnel.");
+  }
+
+  // PPE specific
+  const ppeStats = sectionCompliance.find((s) => s.key === "ppe");
+  if (ppeStats && ppeStats.rate < 90) {
+    recs.push(`PPE compliance is at <strong>${ppeStats.rate.toFixed(1)}%</strong>. Reinforce PPE requirements during daily toolbox talks and consider posting visual reminders at site entry points.`);
+  }
+
+  // Fall protection specific
+  const fpStats = sectionCompliance.find((s) => s.key === "fallProtection");
+  if (fpStats && fpStats.rate < 85) {
+    recs.push(`Fall protection compliance (<strong>${fpStats.rate.toFixed(1)}%</strong>) is below the 85% target. This is an OSHA Focus Four hazard \u2014 prioritize guardrail installation and harness inspection programs.`);
+  }
+
+  // Positive reinforcement
+  const excellent = sectionCompliance.filter((s) => s.rate >= 95);
+  if (excellent.length > 0) {
+    recs.push(`Recognize teams for excellent performance in <strong>${excellent.map((s) => s.label).join(", ")}</strong> (${"\u2265"}95% compliance). Positive reinforcement drives sustained safety culture.`);
+  }
+
+  // Inspector coverage
+  const inspectors = getInspectorStats(data);
+  if (data.length > 0 && inspectors.length < 3) {
+    recs.push("Only " + inspectors.length + " inspector(s) contributed during this period. Consider cross-training additional personnel to ensure consistent audit coverage.");
+  }
+
+  // Default if no issues
+  if (recs.length === 0) {
+    recs.push("All safety metrics are within acceptable thresholds. Continue current inspection cadence and maintain safety awareness programs.");
+  }
+
+  return recs;
+}
+
+// Report modal open/close/print handlers
+function initReportModal() {
+  const overlay = document.getElementById("reportOverlay");
+  const openBtn = document.getElementById("generateReportBtn");
+  const closeBtn = document.getElementById("closeReportBtn");
+  const printBtn = document.getElementById("printReportBtn");
+
+  if (openBtn) {
+    openBtn.addEventListener("click", () => {
+      generateReport(filteredData);
+      overlay.classList.add("active");
+    });
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      overlay.classList.remove("active");
+    });
+  }
+
+  // Close on overlay background click
+  if (overlay) {
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) overlay.classList.remove("active");
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && overlay.classList.contains("active")) {
+      overlay.classList.remove("active");
+    }
+  });
+
+  if (printBtn) {
+    printBtn.addEventListener("click", () => {
+      window.print();
+    });
+  }
+}
+
+// ============================================================
 // FILTER EVENT HANDLERS
 // ============================================================
 
@@ -911,6 +1317,7 @@ document.addEventListener("DOMContentLoaded", () => {
     filteredData = applyFilters(allData);
     initFilterListeners();
     initTrendToggle();
+    initReportModal();
     initInspectionMap();
     renderAll(filteredData);
   });
