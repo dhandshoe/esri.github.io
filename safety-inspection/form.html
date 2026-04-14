@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Safety Inspection Survey | AEC Field Operations</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" type="text/css" href="https://webapps-cdn.esri.com/CDN/fonts/v1.4.0/fonts.css" />
+
+    <!-- Calcite Design System -->
+    <script type="module" src="https://js.arcgis.com/calcite-components/2.10.1/calcite.esm.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://js.arcgis.com/calcite-components/2.10.1/calcite.css" />
+
+    <!-- ArcGIS Maps SDK (for location map) -->
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.29/"></script>
+
+    <style>
+      * { font-family: "Avenir Next", "Avenir", "Helvetica Neue", sans-serif; }
+
+      .form-banner {
+        background: linear-gradient(135deg, #0079c1 0%, #004874 60%, #1a1a1a 100%);
+        position: relative;
+        overflow: hidden;
+      }
+      .form-banner::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+        border-radius: 50%;
+      }
+      .form-banner::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: 10%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255,200,0,0.08) 0%, transparent 70%);
+        border-radius: 50%;
+      }
+
+      .section-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+        border: 1px solid #e8e8e8;
+        transition: box-shadow 0.2s ease;
+      }
+      .section-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+      }
+
+      .inspection-grid {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px 16px;
+        align-items: center;
+      }
+      @media (max-width: 640px) {
+        .inspection-grid {
+          grid-template-columns: 1fr;
+          gap: 4px;
+        }
+      }
+
+      .inspection-item-label {
+        font-size: 0.9rem;
+        color: #323232;
+        padding: 6px 0;
+      }
+
+      .section-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #0079c1;
+        color: white;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-right: 10px;
+        flex-shrink: 0;
+      }
+
+      .severity-critical { border-left: 4px solid #d83020 !important; }
+      .severity-warning { border-left: 4px solid #edd317 !important; }
+      .severity-info { border-left: 4px solid #0079c1 !important; }
+      .severity-safe { border-left: 4px solid #35ac46 !important; }
+
+      .progress-bar {
+        height: 4px;
+        background: #e0e0e0;
+        border-radius: 2px;
+        overflow: hidden;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #0079c1, #35ac46);
+        transition: width 0.3s ease;
+        border-radius: 2px;
+      }
+
+      #location-map {
+        height: 200px;
+        width: 100%;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+      }
+
+      .photo-upload-zone {
+        border: 2px dashed #c4c4c4;
+        border-radius: 8px;
+        padding: 24px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #fafafa;
+      }
+      .photo-upload-zone:hover {
+        border-color: #0079c1;
+        background: #f0f7fc;
+      }
+
+      .photo-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .photo-preview-item {
+        position: relative;
+        border-radius: 6px;
+        overflow: hidden;
+        aspect-ratio: 1;
+      }
+      .photo-preview-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .photo-preview-item .remove-btn {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        background: rgba(0,0,0,0.6);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .signature-pad {
+        border: 1px solid #d4d4d4;
+        border-radius: 6px;
+        background: white;
+        cursor: crosshair;
+        touch-action: none;
+      }
+
+      calcite-block {
+        --calcite-block-padding: 0;
+      }
+
+      .form-footer {
+        background: linear-gradient(135deg, #004874 0%, #1a1a1a 100%);
+      }
+
+      /* Toast notification */
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 9999;
+        transform: translateY(120%);
+        transition: transform 0.3s ease;
+      }
+      .toast.show {
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body class="bg-[#f4f4f4] min-h-screen">
+
+    <!-- Progress bar -->
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-bar-fill" id="progressBarFill" style="width: 0%"></div>
+    </div>
+
+    <!-- Banner -->
+    <div class="form-banner text-white py-8 px-4 md:px-8">
+      <div class="max-w-3xl mx-auto relative z-10">
+        <div class="flex items-center gap-3 mb-3 opacity-80 text-sm">
+          <calcite-icon icon="clipboard-check" scale="s"></calcite-icon>
+          <span>AEC Field Safety Program</span>
+        </div>
+        <h1 class="text-2xl md:text-4xl font-bold mb-2">Job Site Safety Inspection</h1>
+        <p class="text-sm md:text-base opacity-80 max-w-xl">
+          Complete this form during routine walk-throughs, pre-task planning, or incident follow-up.
+          All fields marked with <span class="text-yellow-300">*</span> are required.
+        </p>
+        <div class="flex flex-wrap gap-4 mt-4 text-xs opacity-70">
+          <span class="flex items-center gap-1"><calcite-icon icon="clock" scale="s"></calcite-icon> ~10 min to complete</span>
+          <span class="flex items-center gap-1"><calcite-icon icon="layer" scale="s"></calcite-icon> 10 sections</span>
+          <span class="flex items-center gap-1"><calcite-icon icon="camera" scale="s"></calcite-icon> Photo documentation</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Container -->
+    <form id="safetyForm" class="max-w-3xl mx-auto py-6 px-4 md:px-0 space-y-5" novalidate>
+
+      <!-- ==================== SECTION 1: GENERAL INFORMATION ==================== -->
+      <div class="section-card severity-info" id="section-1">
+        <div class="p-5 md:p-6">
+          <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-5">
+            <span class="section-number">1</span>
+            General Information
+          </h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Inspection Date -->
+            <calcite-label>
+              Inspection Date <span class="text-red-500">*</span>
+              <calcite-input-date-picker id="inspectionDate" name="inspectionDate" required></calcite-input-date-picker>
+            </calcite-label>
+
+            <!-- Inspection Time -->
+            <calcite-label>
+              Inspection Time <span class="text-red-500">*</span>
+              <calcite-input-time-picker id="inspectionTime" name="inspectionTime" step="60" required></calcite-input-time-picker>
+            </calcite-label>
+
+            <!-- Inspector Name -->
+            <calcite-label>
+              Inspector Name <span class="text-red-500">*</span>
+              <calcite-input id="inspectorName" name="inspectorName" placeholder="Full name" icon="user" required></calcite-input>
+            </calcite-label>
+
+            <!-- Inspector Role -->
+            <calcite-label>
+              Inspector Role <span class="text-red-500">*</span>
+              <calcite-select id="inspectorRole" name="inspectorRole" required>
+                <calcite-option value="" disabled selected>Select role...</calcite-option>
+                <calcite-option value="safety_officer">Safety Officer</calcite-option>
+                <calcite-option value="site_superintendent">Site Superintendent</calcite-option>
+                <calcite-option value="foreman">Foreman / Crew Lead</calcite-option>
+                <calcite-option value="project_manager">Project Manager</calcite-option>
+                <calcite-option value="safety_engineer">Safety Engineer</calcite-option>
+                <calcite-option value="quality_inspector">Quality Inspector</calcite-option>
+                <calcite-option value="craft_worker">Craft Worker</calcite-option>
+                <calcite-option value="subcontractor_rep">Subcontractor Representative</calcite-option>
+                <calcite-option value="other">Other</calcite-option>
+              </calcite-select>
+            </calcite-label>
+
+            <!-- Project Name -->
+            <calcite-label>
+              Project Name <span class="text-red-500">*</span>
+              <calcite-input id="projectName" name="projectName" placeholder="e.g., Riverside Bridge Replacement" icon="project" required></calcite-input>
+            </calcite-label>
+
+            <!-- Project Number -->
+            <calcite-label>
+              Project / Contract Number
+              <calcite-input id="projectNumber" name="projectNumber" placeholder="e.g., PRJ-2026-0451" icon="number-circle"></calcite-input>
+            </calcite-label>
+
+            <!-- General Contractor -->
+            <calcite-label>
+              General Contractor / Company <span class="text-red-500">*</span>
+              <calcite-input id="contractor" name="contractor" placeholder="Company name" icon="organization" required></calcite-input>
+            </calcite-label>
+
+            <!-- Inspection Type -->
+            <calcite-label>
+              Inspection Type <span class="text-red-500">*</span>
+              <calcite-select id="inspectionType" name="inspectionType" required>
+                <calcite-option value="" disabled selected>Select type...</calcite-option>
+                <calcite-option value="routine">Routine Walk-Through</calcite-option>
+                <calcite-option value="pretask">Pre-Task Safety Check</calcite-option>
+                <calcite-option value="weekly">Weekly Safety Audit</calcite-option>
+                <calcite-option value="monthly">Monthly Comprehensive</calcite-option>
+                <calcite-option value="incident_followup">Incident Follow-Up</calcite-option>
+                <calcite-option value="regulatory">Regulatory / OSHA Prep</calcite-option>
+                <calcite-option value="subcontractor">Subcontractor Oversight</calcite-option>
+                <calcite-option value="other">Other</calcite-option>
+              </calcite-select>
+            </calcite-label>
+
+            <!-- Weather Conditions -->
+            <calcite-label>
+              Weather Conditions <span class="text-red-500">*</span>
+              <calcite-select id="weather" name="weather" required>
+                <calcite-option value="" disabled selected>Select weather...</calcite-option>
+                <calcite-option value="clear">Clear / Sunny</calcite-option>
+                <calcite-option value="partly_cloudy">Partly Cloudy</calcite-option>
+                <calcite-option value="overcast">Overcast</calcite-option>
+                <calcite-option value="light_rain">Light Rain / Drizzle</calcite-option>
+                <calcite-option value="heavy_rain">Heavy Rain</calcite-option>
+                <calcite-option value="snow">Snow / Ice</calcite-option>
+                <calcite-option value="fog">Fog / Low Visibility</calcite-option>
+                <calcite-option value="extreme_heat">Extreme Heat (&gt;95 F)</calcite-option>
+                <calcite-option value="extreme_cold">Extreme Cold (&lt;32 F)</calcite-option>
+                <calcite-option value="high_wind">High Wind (&gt;25 mph)</calcite-option>
+              </calcite-select>
+            </calcite-label>
+
+            <!-- Temperature -->
+            <calcite-label>
+              Temperature (F)
+              <calcite-input id="temperature" name="temperature" type="number" placeholder="e.g., 78" icon="temperature" suffix-text="F"></calcite-input>
+            </calcite-label>
+
+            <!-- Number of Workers On-Site -->
+            <calcite-label>
+              Workers On-Site <span class="text-red-500">*</span>
+              <calcite-input id="workerCount" name="workerCount" type="number" placeholder="Total headcount" icon="users" min="1" required></calcite-input>
+            </calcite-label>
+
+            <!-- Shift -->
+            <calcite-label>
+              Shift
+              <calcite-select id="shift" name="shift">
+                <calcite-option value="day" selected>Day Shift</calcite-option>
+                <calcite-option value="swing">Swing Shift</calcite-option>
+                <calcite-option value="night">Night Shift</calcite-option>
+              </calcite-select>
+            </calcite-label>
+          </div>
+
+          <!-- Site Location (Map) -->
+          <div class="mt-5">
+            <calcite-label>
+              Site Location <span class="text-red-500">*</span>
+              <div class="flex gap-2 mb-2">
+                <calcite-button id="captureLocationBtn" icon-start="gps-on" appearance="outline" scale="s" width="auto">
+                  Capture My Location
+                </calcite-button>
+                <calcite-chip id="locationChip" scale="s" appearance="outline" kind="brand" class="hidden">
+                  <calcite-icon icon="pin" slot="image" scale="s"></calcite-icon>
+                  <span id="locationText">--</span>
+                </calcite-chip>
+              </div>
+              <div id="location-map"></div>
+              <input type="hidden" id="latitude" name="latitude" />
+              <input type="hidden" id="longitude" name="longitude" />
+            </calcite-label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SECTION 2: PPE COMPLIANCE ==================== -->
+      <div class="section-card severity-critical" id="section-2">
+        <div class="p-5 md:p-6">
+          <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-1">
+            <span class="section-number" style="background:#d83020">2</span>
+            Personal Protective Equipment (PPE)
+          </h2>
+          <p class="text-sm text-gray-500 mb-5 ml-10">Verify compliance for all workers observed on-site.</p>
+
+          <div class="space-y-3">
+            <div class="inspection-grid" id="ppeGrid">
+              <!-- PPE items will be injected by JS -->
+            </div>
+          </div>
+
+          <calcite-label class="mt-4">
+            PPE Notes / Deficiencies Observed
+            <calcite-input-text-area id="ppeNotes" name="ppeNotes" placeholder="Describe any PPE non-compliance, missing equipment, or damage observed..." rows="3"></calcite-input-text-area>
+          </calcite-label>
+        </div>
+      </div>
+
+      <!-- ==================== SECTION 3: HOUSEKEEPING & SITE CONDITIONS ==================== -->
+      <div class="section-card severity-warning" id="section-3">
+        <div class="p-5 md:p-6">
+          <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-1">
+            <span class="section-number" style="background:#b5890a">3</span>
+            Housekeeping &amp; Site Conditions
+          </h2>
+          <p class="text-sm text-gray-500 mb-5 ml-10">Evaluate general site cleanliness, organization, and conditions.</p>
+
+          <div class="inspection-grid" id="housekeepingGrid">
+            <!-- Items injected by JS -->
+          </div>
+
+          <calcite-label class="mt-4">
+            Housekeeping Notes
+            <calcite-input-text-area id="housekeepingNotes" name="housekeepingNotes" placeholder="Note any housekeeping concerns, material storage issues, or drainage problems..." rows="3"></calcite-input-text-area>
+          </calcite-label>
+        </div>
+      </div>
+
+      <!-- ==================== SECTION 4: FALL PROTECTION ==================== -->
+      <div class="section-card severity-critical" id="section-4">
+        <div class="p-5 md:p-6">
+          <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-1">
+            <span class="section-number" style="background:#d83020">4</span>
+            Fall Protection
+          </h2>
+          <p class="text-sm text-gray-500 mb-5 ml-10">Assess fall hazards and protection systems. Check N/A if no elevated work is occurring.</p>
+
+          <div class="inspection-grid" id="fallProtectionGrid">
+            <!-- Items injected by JS -->
+          </div>
+
+          <calcite-label class="mt-4">
+            Fall Protection Notes
+            <calcite-input-text-area id="fallProtectionNotes" name="fallProtectionNotes" placeholder="Note any fall hazards, missing guardrails, inadequate anchorage points..." rows="3"></calcite-input-text-area>
+          </calcite-label>
+        </div>
+      </div>
+
+      <!-- ==================== SECTION 5: SCAFFOLDING ==================== -->
+      <div class="section-card severity-warning" id="section-5">
+        <div class="p-5 md:p-6">
+          <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-1">
+            <span class="section-number" style="background:#b5890a">5</span>
+            Scaffolding
+          </h2>
+          <p class="text-sm text-gray-500 mb-5 ml-10">Inspect all scaffolding on-site. Check N/A if no scaffolding is present.</p>
+
+          <div class="inspection-grid" id="scaffoldingGrid">
+            <!-- Items injected by JS -->
+          </div>
+
+          <calcite-label class="mt-4">
+            Scaffolding Notes
+            <calcite-input-text-area id="scaffoldingNotes" name="scaffoldingNotes" placeholder="Note any scaffolding deficiencies, missing tags, or structural concerns..." rows="3"></calcite-input-text-area>
+          </calcite-label>
+        </div>
+      </div>
+
+      <!-- ==================== SECTION 6: ELECTRICAL SAFETY ==================== -->
+      <div class="section-card severity-critical" id="section-6">
+        <div class="p-5 md:p-6">
+          <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-1">
+            <span class="section-number" style="background:#d83020">6</span>
+            Electrical Safety
+          </h2>
+          <p class="text-sm text-gray-500 mb-5 ml-10">Evaluate electrical safety practices and temporary power installations.</p>
+
+          <div class="inspection-grid" id="electricalGrid">
+            <!-- Items injected by JS -->
+          </div>
+
+          <calcite-label class="mt-4">
+            Electrical Safety Notes
+            <calcite-input-text-area id="electricalNotes" name="electricalNotes" placeholder="Note any exposed wiring, missing GFCIs, lockout/tagout violations..." rows="3"></calcite-input-text-area>
+          </calcite-label>
+        </div>
+      </div>
+
+      <!-- ==================== SECTION 7: FIRE PREVENTION & HOT WORK ==================== -->
+      <div class="section-card severity-critical" id="section-7">
+        <div class="p-5 md:p-6">
+          <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-1">
+            <span class="section-number" style="background:#d83020">7</span>
+            Fire Prevention &amp; Hot Work
+          </h2>
+          <p class="text-sm text-gray-500 mb-5 ml-10">Assess fire prevention measures and hot work (welding, cutting, brazing) practices.</p>
+
+          <div class="inspection-grid" id="fireHotWorkGrid">
+            <!-- Items injected by JS -->
+          </div>
+
+          <calcite-label class="mt-4">
+            Fire / Hot Work Notes
+            <calcite-input-text-area id="fireNotes" name="fireNotes" placeholder="Note any fire hazards, missing extinguishers, hot work permit issues..." rows="3"></calcite-input-text-area>
+          </calcite-label>
+        </div>
+      </div>
+
+      <!-- ==================== SECTION 8: TOOLS, EQUIPMENT & MACHINERY ==================== -->
+      <div class="section-card severity-warning" id="section-8">
+        <div class="p-5 md:p-6">
+          <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-1">
+            <span class="section-number" style="background:#b5890a">8</span>
+            Tools, Equipment &amp; Machinery
+          </h2>
+          <p class="text-sm text-gray-500 mb-5 ml-10">Inspect hand tools, power tools, heavy equipment, and rigging.</p>
+
+          <div class="inspection-grid" id="toolsGrid">
+            <!-- Items injected by JS -->
+          </div>
+
+          <calcite-label class="mt-4">
+            Tools / Equipment Notes
+            <calcite-input-text-area id="toolsNotes" name="toolsNotes" placeholder="Note any damaged tools, missing guards, uninspected equipment..." rows="3"></calcite-input-text-area>
+          </calcite-label>
+        </div>
+      </div>
+
+      <!-- ==================== SECTION 9: EXCAVATION & TRENCHING ==================== -->
+      <div class="section-card severity-critical" id="section-9">
+        <div class="p-5 md:p-6">
+          <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-1">
+            <span class="section-number" style="background:#d83020">9</span>
+            Excavation &amp; Trenching
+          </h2>
+          <p class="text-sm text-gray-500 mb-5 ml-10">Inspect excavation and trenching operations. Check N/A if no excavation work is in progress.</p>
+
+          <div class="inspection-grid" id="excavationGrid">
+            <!-- Items injected by JS -->
+          </div>
+
+          <calcite-label class="mt-4">
+            Excavation Notes
+            <calcite-input-text-area id="excavationNotes" name="excavationNotes" placeholder="Note any trenching hazards, soil stability concerns, missing protective systems..." rows="3"></calcite-input-text-area>
+          </calcite-label>
+        </div>
+      </div>
+
+      <!-- ==================== SECTION 10: OVERALL ASSESSMENT ==================== -->
+      <div class="section-card severity-safe" id="section-10">
+        <div class="p-5 md:p-6">
+          <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-1">
+            <span class="section-number" style="background:#35ac46">10</span>
+            Overall Assessment &amp; Summary
+          </h2>
+          <p class="text-sm text-gray-500 mb-5 ml-10">Provide your overall assessment of the site safety conditions.</p>
+
+          <!-- Overall Rating -->
+          <calcite-label class="mb-4">
+            Overall Site Safety Rating <span class="text-red-500">*</span>
+            <calcite-rating id="overallRating" name="overallRating" scale="l" required average="0" show-chip></calcite-rating>
+          </calcite-label>
+
+          <!-- Risk Level -->
+          <calcite-label class="mb-4">
+            Risk Level <span class="text-red-500">*</span>
+            <calcite-segmented-control id="riskLevel" name="riskLevel" width="full" scale="m" required>
+              <calcite-segmented-control-item value="low">Low Risk</calcite-segmented-control-item>
+              <calcite-segmented-control-item value="moderate" checked>Moderate Risk</calcite-segmented-control-item>
+              <calcite-segmented-control-item value="high">High Risk</calcite-segmented-control-item>
+              <calcite-segmented-control-item value="critical">Critical / Stop Work</calcite-segmented-control-item>
+            </calcite-segmented-control>
+          </calcite-label>
+
+          <!-- Stop Work Issued? -->
+          <calcite-label class="mb-4">
+            <calcite-checkbox id="stopWorkIssued" name="stopWorkIssued"></calcite-checkbox>
+            Stop Work Order issued during this inspection
+          </calcite-label>
+
+          <!-- Immediate Corrective Actions Required -->
+          <calcite-label class="mb-4">
+            <calcite-checkbox id="correctiveActionsRequired" name="correctiveActionsRequired"></calcite-checkbox>
+            Immediate corrective actions required
+          </calcite-label>
+
+          <!-- Corrective Actions Detail -->
+          <div id="correctiveActionsSection" class="hidden mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <calcite-label>
+              Describe Required Corrective Actions <span class="text-red-500">*</span>
+              <calcite-input-text-area id="correctiveActions" name="correctiveActions" placeholder="Detail each corrective action needed, responsible party, and deadline..." rows="4"></calcite-input-text-area>
+            </calcite-label>
+
+            <calcite-label class="mt-3">
+              Corrective Action Priority
+              <calcite-select id="correctionPriority" name="correctionPriority">
+                <calcite-option value="immediate">Immediate (within 1 hour)</calcite-option>
+                <calcite-option value="today">Today (end of shift)</calcite-option>
+                <calcite-option value="24hours">Within 24 Hours</calcite-option>
+                <calcite-option value="week">Within 1 Week</calcite-option>
+              </calcite-select>
+            </calcite-label>
+          </div>
+
+          <!-- Positive Observations -->
+          <calcite-label class="mb-4">
+            Positive Safety Observations
+            <calcite-input-text-area id="positiveObservations" name="positiveObservations" placeholder="Note any exemplary safety practices, good behavior, or improvements since last inspection..." rows="3"></calcite-input-text-area>
+          </calcite-label>
+
+          <!-- Additional Comments -->
+          <calcite-label>
+            Additional Comments
+            <calcite-input-text-area id="additionalComments" name="additionalComments" placeholder="Any other observations, follow-up items, or recommendations..." rows="3"></calcite-input-text-area>
+          </calcite-label>
+        </div>
+      </div>
+
+      <!-- ==================== PHOTO DOCUMENTATION ==================== -->
+      <div class="section-card severity-info" id="section-photos">
+        <div class="p-5 md:p-6">
+          <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-1">
+            <calcite-icon icon="camera" scale="m" class="mr-3" style="color:#0079c1"></calcite-icon>
+            Photo Documentation
+          </h2>
+          <p class="text-sm text-gray-500 mb-5 ml-10">Attach photos of hazards, deficiencies, or positive observations.</p>
+
+          <div class="photo-upload-zone" id="photoUploadZone">
+            <calcite-icon icon="image-plus" scale="l" style="color:#999"></calcite-icon>
+            <p class="text-gray-500 mt-2 text-sm">Tap to take a photo or browse files</p>
+            <p class="text-gray-400 text-xs mt-1">Supports JPG, PNG up to 10 MB each</p>
+            <input type="file" id="photoInput" name="photos" accept="image/*" capture="environment" multiple class="hidden" />
+          </div>
+
+          <div class="photo-preview-grid" id="photoPreviewGrid"></div>
+
+          <calcite-label class="mt-4">
+            Photo Descriptions
+            <calcite-input-text-area id="photoDescriptions" name="photoDescriptions" placeholder="Briefly describe what each photo shows (e.g., 'Photo 1: Missing guardrail at 2nd floor opening')..." rows="2"></calcite-input-text-area>
+          </calcite-label>
+        </div>
+      </div>
+
+      <!-- ==================== SIGN-OFF ==================== -->
+      <div class="section-card severity-safe" id="section-signoff">
+        <div class="p-5 md:p-6">
+          <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-1">
+            <calcite-icon icon="check-circle-f" scale="m" class="mr-3" style="color:#35ac46"></calcite-icon>
+            Inspector Sign-Off
+          </h2>
+          <p class="text-sm text-gray-500 mb-5 ml-10">By signing below, I certify this inspection was conducted thoroughly and accurately.</p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <calcite-label>
+              Inspector Email <span class="text-red-500">*</span>
+              <calcite-input id="inspectorEmail" name="inspectorEmail" type="email" placeholder="email@company.com" icon="envelope" required></calcite-input>
+            </calcite-label>
+
+            <calcite-label>
+              Inspector Phone
+              <calcite-input id="inspectorPhone" name="inspectorPhone" type="tel" placeholder="(555) 123-4567" icon="mobile"></calcite-input>
+            </calcite-label>
+          </div>
+
+          <!-- Digital Signature -->
+          <calcite-label class="mb-2">
+            Signature <span class="text-red-500">*</span>
+          </calcite-label>
+          <canvas id="signaturePad" class="signature-pad w-full" height="150"></canvas>
+          <div class="flex gap-2 mt-2">
+            <calcite-button id="clearSignature" appearance="outline" scale="s" icon-start="reset" kind="neutral">Clear Signature</calcite-button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SUBMIT BUTTONS ==================== -->
+      <div class="flex flex-col sm:flex-row gap-3 pb-8">
+        <calcite-button id="submitBtn" scale="l" width="full" icon-start="check-circle" type="button">
+          Submit Inspection
+        </calcite-button>
+        <calcite-button id="saveDraftBtn" scale="l" width="full" appearance="outline" icon-start="save" kind="neutral" type="button">
+          Save as Draft
+        </calcite-button>
+      </div>
+
+    </form>
+
+    <!-- Footer -->
+    <div class="form-footer text-white text-center py-6 px-4">
+      <div class="flex items-center justify-center gap-2 mb-2 opacity-70 text-sm">
+        <calcite-icon icon="shield" scale="s" style="color:white"></calcite-icon>
+        <span>Powered by ArcGIS Survey123</span>
+      </div>
+      <p class="text-xs opacity-50">Data is stored securely in ArcGIS Online. &copy; 2026 Safety Inspection Program.</p>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+      <calcite-alert id="toastAlert" open auto-close scale="m" kind="success" icon="check-circle">
+        <div slot="title">Inspection Submitted</div>
+        <div slot="message">Your safety inspection has been recorded successfully.</div>
+      </calcite-alert>
+    </div>
+
+    <!-- Form JavaScript -->
+    <script src="form.js"></script>
+  </body>
+</html>
