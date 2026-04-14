@@ -1,133 +1,320 @@
 /**
- * Safety Inspection Dashboard - Sample Dataset
- * This file will be replaced by a full pre-populated database in Part 3.
- * For now it provides enough records for the dashboard to render meaningfully.
+ * Safety Inspection Dashboard - Pre-Populated Database (Part 3)
+ * Procedural generator that produces 150 realistic inspection records
+ * with varied projects, inspectors, contractors, weather, GPS scatter,
+ * and per-site quality patterns.
  */
 
-const SAMPLE_INSPECTIONS = [
-  {
-    generalInfo: { inspectionDate: "2026-04-01", inspectionTime: "07:30", inspectorName: "Mike Torres", inspectorRole: "safety_officer", projectName: "Riverside Bridge Replacement", projectNumber: "PRJ-2026-0451", contractor: "Turner Construction", inspectionType: "routine", weather: "clear", temperature: "72", workerCount: "45", shift: "day", latitude: "29.7604", longitude: "-95.3698" },
-    inspectionResults: {
-      ppe: { ppe_hardhat: "pass", ppe_safety_glasses: "pass", ppe_highvis: "pass", ppe_gloves: "pass", ppe_steel_toe: "pass", ppe_hearing: "pass", ppe_respiratory: "na", ppe_face_shield: "na", ppe_fall_harness: "pass", ppe_condition: "pass" },
-      housekeeping: { hk_walkways: "pass", hk_materials: "pass", hk_waste: "fail", hk_spills: "pass", hk_signage: "pass", hk_lighting: "pass", hk_sanitation: "pass", hk_water: "pass", hk_first_aid: "pass", hk_emergency_routes: "pass" },
-      fallProtection: { fp_guardrails: "pass", fp_floor_openings: "pass", fp_harness_inspect: "pass", fp_anchorage: "pass", fp_lanyards: "pass", fp_ladders_secured: "pass", fp_ladder_condition: "pass", fp_hole_covers: "fail", fp_safety_net: "na", fp_training: "pass" },
-      scaffolding: { sc_competent_person: "pass", sc_inspection_tag: "pass", sc_base_plates: "pass", sc_plumb_level: "pass", sc_planking: "pass", sc_guardrails: "pass", sc_access: "pass", sc_clearance: "pass", sc_tied_off: "pass", sc_no_overload: "pass" },
-      electrical: { el_gfci: "pass", el_loto: "pass", el_panel_access: "pass", el_cords: "fail", el_grounding: "pass", el_wet_conditions: "pass", el_temp_wiring: "pass", el_labeling: "pass", el_arc_flash: "na", el_qualified: "pass" },
-      fireHotWork: { fh_extinguishers: "pass", fh_hot_work_permit: "na", fh_fire_watch: "na", fh_combustibles: "pass", fh_cylinders: "na", fh_cylinder_storage: "na", fh_hoses: "na", fh_ventilation: "pass", fh_flammable_storage: "pass", fh_emergency_plan: "pass" },
-      tools: { tl_hand_tools: "pass", tl_power_tools: "pass", tl_inspected: "pass", tl_cords_hoses: "pass", tl_right_tool: "pass", tl_heavy_equip: "pass", tl_operator_cert: "pass", tl_rigging: "na", tl_crane: "na", tl_barricades: "pass" },
-      excavation: { ex_competent_person: "na", ex_utilities: "na", ex_protective_system: "na", ex_soil_class: "na", ex_access_egress: "na", ex_spoil_pile: "na", ex_water_control: "na", ex_atmosphere: "na", ex_daily_inspect: "na", ex_traffic: "na" }
-    },
-    overallAssessment: { rating: "4", riskLevel: "low", stopWorkIssued: false, correctiveActionsRequired: true, correctiveActions: "Waste containers overflowing in Zone B. Damaged extension cord at Panel 3.", correctionPriority: "today", positiveObservations: "Excellent PPE compliance. New safety signage well-placed.", additionalComments: "" },
-    photoCount: 3
-  },
-  {
-    generalInfo: { inspectionDate: "2026-04-02", inspectionTime: "08:15", inspectorName: "Sarah Chen", inspectorRole: "safety_engineer", projectName: "Downtown Tower Phase II", projectNumber: "PRJ-2026-0523", contractor: "Skanska USA", inspectionType: "weekly", weather: "partly_cloudy", temperature: "68", workerCount: "82", shift: "day", latitude: "29.7550", longitude: "-95.3700" },
-    inspectionResults: {
-      ppe: { ppe_hardhat: "pass", ppe_safety_glasses: "pass", ppe_highvis: "fail", ppe_gloves: "pass", ppe_steel_toe: "pass", ppe_hearing: "fail", ppe_respiratory: "pass", ppe_face_shield: "pass", ppe_fall_harness: "pass", ppe_condition: "pass" },
-      housekeeping: { hk_walkways: "fail", hk_materials: "fail", hk_waste: "pass", hk_spills: "pass", hk_signage: "pass", hk_lighting: "fail", hk_sanitation: "pass", hk_water: "pass", hk_first_aid: "pass", hk_emergency_routes: "pass" },
-      fallProtection: { fp_guardrails: "fail", fp_floor_openings: "fail", fp_harness_inspect: "pass", fp_anchorage: "pass", fp_lanyards: "pass", fp_ladders_secured: "fail", fp_ladder_condition: "pass", fp_hole_covers: "fail", fp_safety_net: "na", fp_training: "pass" },
-      scaffolding: { sc_competent_person: "pass", sc_inspection_tag: "fail", sc_base_plates: "pass", sc_plumb_level: "pass", sc_planking: "fail", sc_guardrails: "pass", sc_access: "pass", sc_clearance: "pass", sc_tied_off: "pass", sc_no_overload: "pass" },
-      electrical: { el_gfci: "pass", el_loto: "fail", el_panel_access: "fail", el_cords: "fail", el_grounding: "pass", el_wet_conditions: "pass", el_temp_wiring: "fail", el_labeling: "fail", el_arc_flash: "pass", el_qualified: "pass" },
-      fireHotWork: { fh_extinguishers: "pass", fh_hot_work_permit: "pass", fh_fire_watch: "fail", fh_combustibles: "fail", fh_cylinders: "pass", fh_cylinder_storage: "pass", fh_hoses: "pass", fh_ventilation: "fail", fh_flammable_storage: "pass", fh_emergency_plan: "pass" },
-      tools: { tl_hand_tools: "fail", tl_power_tools: "fail", tl_inspected: "fail", tl_cords_hoses: "pass", tl_right_tool: "pass", tl_heavy_equip: "pass", tl_operator_cert: "pass", tl_rigging: "pass", tl_crane: "pass", tl_barricades: "pass" },
-      excavation: { ex_competent_person: "pass", ex_utilities: "pass", ex_protective_system: "fail", ex_soil_class: "pass", ex_access_egress: "pass", ex_spoil_pile: "fail", ex_water_control: "pass", ex_atmosphere: "na", ex_daily_inspect: "pass", ex_traffic: "pass" }
-    },
-    overallAssessment: { rating: "2", riskLevel: "high", stopWorkIssued: false, correctiveActionsRequired: true, correctiveActions: "Multiple fall protection deficiencies on floors 8-10. LOTO not followed at electrical panel C.", correctionPriority: "immediate", positiveObservations: "Excavation team following procedures well.", additionalComments: "Recommend safety stand-down for fall protection refresher." },
-    photoCount: 7
-  },
-  {
-    generalInfo: { inspectionDate: "2026-04-03", inspectionTime: "06:45", inspectorName: "James Rodriguez", inspectorRole: "foreman", projectName: "Highway 290 Expansion", projectNumber: "PRJ-2025-0892", contractor: "Granite Construction", inspectionType: "pretask", weather: "extreme_heat", temperature: "98", workerCount: "35", shift: "day", latitude: "29.7850", longitude: "-95.4100" },
-    inspectionResults: {
-      ppe: { ppe_hardhat: "pass", ppe_safety_glasses: "pass", ppe_highvis: "pass", ppe_gloves: "pass", ppe_steel_toe: "pass", ppe_hearing: "pass", ppe_respiratory: "pass", ppe_face_shield: "na", ppe_fall_harness: "na", ppe_condition: "pass" },
-      housekeeping: { hk_walkways: "pass", hk_materials: "pass", hk_waste: "pass", hk_spills: "pass", hk_signage: "pass", hk_lighting: "pass", hk_sanitation: "pass", hk_water: "pass", hk_first_aid: "pass", hk_emergency_routes: "pass" },
-      fallProtection: { fp_guardrails: "na", fp_floor_openings: "na", fp_harness_inspect: "na", fp_anchorage: "na", fp_lanyards: "na", fp_ladders_secured: "pass", fp_ladder_condition: "pass", fp_hole_covers: "na", fp_safety_net: "na", fp_training: "pass" },
-      scaffolding: { sc_competent_person: "na", sc_inspection_tag: "na", sc_base_plates: "na", sc_plumb_level: "na", sc_planking: "na", sc_guardrails: "na", sc_access: "na", sc_clearance: "na", sc_tied_off: "na", sc_no_overload: "na" },
-      electrical: { el_gfci: "pass", el_loto: "pass", el_panel_access: "pass", el_cords: "pass", el_grounding: "pass", el_wet_conditions: "pass", el_temp_wiring: "pass", el_labeling: "pass", el_arc_flash: "na", el_qualified: "pass" },
-      fireHotWork: { fh_extinguishers: "pass", fh_hot_work_permit: "na", fh_fire_watch: "na", fh_combustibles: "pass", fh_cylinders: "na", fh_cylinder_storage: "na", fh_hoses: "na", fh_ventilation: "pass", fh_flammable_storage: "pass", fh_emergency_plan: "pass" },
-      tools: { tl_hand_tools: "pass", tl_power_tools: "pass", tl_inspected: "pass", tl_cords_hoses: "pass", tl_right_tool: "pass", tl_heavy_equip: "pass", tl_operator_cert: "pass", tl_rigging: "pass", tl_crane: "na", tl_barricades: "pass" },
-      excavation: { ex_competent_person: "pass", ex_utilities: "pass", ex_protective_system: "pass", ex_soil_class: "pass", ex_access_egress: "pass", ex_spoil_pile: "pass", ex_water_control: "pass", ex_atmosphere: "pass", ex_daily_inspect: "pass", ex_traffic: "pass" }
-    },
-    overallAssessment: { rating: "5", riskLevel: "low", stopWorkIssued: false, correctiveActionsRequired: false, correctiveActions: "", correctionPriority: "", positiveObservations: "Exemplary site. Heat illness prevention plan actively enforced. Extra water stations set up.", additionalComments: "" },
-    photoCount: 2
-  },
-  {
-    generalInfo: { inspectionDate: "2026-04-05", inspectionTime: "14:00", inspectorName: "Angela Washington", inspectorRole: "safety_officer", projectName: "Riverside Bridge Replacement", projectNumber: "PRJ-2026-0451", contractor: "Turner Construction", inspectionType: "incident_followup", weather: "light_rain", temperature: "65", workerCount: "38", shift: "day", latitude: "29.7610", longitude: "-95.3690" },
-    inspectionResults: {
-      ppe: { ppe_hardhat: "pass", ppe_safety_glasses: "pass", ppe_highvis: "pass", ppe_gloves: "fail", ppe_steel_toe: "pass", ppe_hearing: "pass", ppe_respiratory: "pass", ppe_face_shield: "pass", ppe_fall_harness: "pass", ppe_condition: "fail" },
-      housekeeping: { hk_walkways: "fail", hk_materials: "pass", hk_waste: "pass", hk_spills: "fail", hk_signage: "pass", hk_lighting: "pass", hk_sanitation: "pass", hk_water: "pass", hk_first_aid: "pass", hk_emergency_routes: "pass" },
-      fallProtection: { fp_guardrails: "pass", fp_floor_openings: "pass", fp_harness_inspect: "fail", fp_anchorage: "pass", fp_lanyards: "fail", fp_ladders_secured: "pass", fp_ladder_condition: "pass", fp_hole_covers: "pass", fp_safety_net: "na", fp_training: "pass" },
-      scaffolding: { sc_competent_person: "pass", sc_inspection_tag: "pass", sc_base_plates: "pass", sc_plumb_level: "pass", sc_planking: "pass", sc_guardrails: "pass", sc_access: "pass", sc_clearance: "pass", sc_tied_off: "fail", sc_no_overload: "pass" },
-      electrical: { el_gfci: "pass", el_loto: "pass", el_panel_access: "pass", el_cords: "pass", el_grounding: "pass", el_wet_conditions: "fail", el_temp_wiring: "pass", el_labeling: "pass", el_arc_flash: "na", el_qualified: "pass" },
-      fireHotWork: { fh_extinguishers: "pass", fh_hot_work_permit: "pass", fh_fire_watch: "pass", fh_combustibles: "pass", fh_cylinders: "pass", fh_cylinder_storage: "pass", fh_hoses: "pass", fh_ventilation: "pass", fh_flammable_storage: "pass", fh_emergency_plan: "pass" },
-      tools: { tl_hand_tools: "pass", tl_power_tools: "pass", tl_inspected: "pass", tl_cords_hoses: "pass", tl_right_tool: "pass", tl_heavy_equip: "pass", tl_operator_cert: "pass", tl_rigging: "pass", tl_crane: "pass", tl_barricades: "pass" },
-      excavation: { ex_competent_person: "na", ex_utilities: "na", ex_protective_system: "na", ex_soil_class: "na", ex_access_egress: "na", ex_spoil_pile: "na", ex_water_control: "na", ex_atmosphere: "na", ex_daily_inspect: "na", ex_traffic: "na" }
-    },
-    overallAssessment: { rating: "3", riskLevel: "moderate", stopWorkIssued: false, correctiveActionsRequired: true, correctiveActions: "Wet conditions creating slip hazards on deck. Harness lanyards frayed - replace immediately.", correctionPriority: "immediate", positiveObservations: "Fire prevention practices excellent. Good housekeeping in most areas.", additionalComments: "Follow-up from last week's near-miss on deck level 3." },
-    photoCount: 5
-  },
-  {
-    generalInfo: { inspectionDate: "2026-04-07", inspectionTime: "07:00", inspectorName: "Mike Torres", inspectorRole: "safety_officer", projectName: "Midtown Medical Center", projectNumber: "PRJ-2026-0610", contractor: "McCarthy Building", inspectionType: "monthly", weather: "overcast", temperature: "71", workerCount: "120", shift: "day", latitude: "29.7400", longitude: "-95.3850" },
-    inspectionResults: {
-      ppe: { ppe_hardhat: "pass", ppe_safety_glasses: "pass", ppe_highvis: "pass", ppe_gloves: "pass", ppe_steel_toe: "pass", ppe_hearing: "fail", ppe_respiratory: "fail", ppe_face_shield: "fail", ppe_fall_harness: "pass", ppe_condition: "pass" },
-      housekeeping: { hk_walkways: "pass", hk_materials: "fail", hk_waste: "pass", hk_spills: "pass", hk_signage: "pass", hk_lighting: "pass", hk_sanitation: "fail", hk_water: "pass", hk_first_aid: "pass", hk_emergency_routes: "pass" },
-      fallProtection: { fp_guardrails: "pass", fp_floor_openings: "fail", fp_harness_inspect: "pass", fp_anchorage: "pass", fp_lanyards: "pass", fp_ladders_secured: "pass", fp_ladder_condition: "fail", fp_hole_covers: "fail", fp_safety_net: "pass", fp_training: "pass" },
-      scaffolding: { sc_competent_person: "pass", sc_inspection_tag: "pass", sc_base_plates: "pass", sc_plumb_level: "pass", sc_planking: "pass", sc_guardrails: "fail", sc_access: "pass", sc_clearance: "pass", sc_tied_off: "pass", sc_no_overload: "pass" },
-      electrical: { el_gfci: "pass", el_loto: "pass", el_panel_access: "pass", el_cords: "pass", el_grounding: "pass", el_wet_conditions: "pass", el_temp_wiring: "pass", el_labeling: "fail", el_arc_flash: "pass", el_qualified: "pass" },
-      fireHotWork: { fh_extinguishers: "pass", fh_hot_work_permit: "pass", fh_fire_watch: "pass", fh_combustibles: "pass", fh_cylinders: "pass", fh_cylinder_storage: "fail", fh_hoses: "pass", fh_ventilation: "pass", fh_flammable_storage: "fail", fh_emergency_plan: "pass" },
-      tools: { tl_hand_tools: "pass", tl_power_tools: "pass", tl_inspected: "fail", tl_cords_hoses: "pass", tl_right_tool: "pass", tl_heavy_equip: "pass", tl_operator_cert: "pass", tl_rigging: "fail", tl_crane: "pass", tl_barricades: "pass" },
-      excavation: { ex_competent_person: "na", ex_utilities: "na", ex_protective_system: "na", ex_soil_class: "na", ex_access_egress: "na", ex_spoil_pile: "na", ex_water_control: "na", ex_atmosphere: "na", ex_daily_inspect: "na", ex_traffic: "na" }
-    },
-    overallAssessment: { rating: "3", riskLevel: "moderate", stopWorkIssued: false, correctiveActionsRequired: true, correctiveActions: "Hearing/respiratory protection gaps in MEP work areas. Cylinder storage not separated per OSHA.", correctionPriority: "24hours", positiveObservations: "Electrical work areas well-managed. Good crane operations.", additionalComments: "Large site with many subcontractors - need more frequent walk-throughs." },
-    photoCount: 8
-  },
-  {
-    generalInfo: { inspectionDate: "2026-04-08", inspectionTime: "15:30", inspectorName: "Sarah Chen", inspectorRole: "safety_engineer", projectName: "Downtown Tower Phase II", projectNumber: "PRJ-2026-0523", contractor: "Skanska USA", inspectionType: "routine", weather: "clear", temperature: "85", workerCount: "78", shift: "swing", latitude: "29.7555", longitude: "-95.3695" },
-    inspectionResults: {
-      ppe: { ppe_hardhat: "pass", ppe_safety_glasses: "pass", ppe_highvis: "pass", ppe_gloves: "pass", ppe_steel_toe: "pass", ppe_hearing: "pass", ppe_respiratory: "pass", ppe_face_shield: "pass", ppe_fall_harness: "pass", ppe_condition: "pass" },
-      housekeeping: { hk_walkways: "pass", hk_materials: "pass", hk_waste: "pass", hk_spills: "pass", hk_signage: "pass", hk_lighting: "pass", hk_sanitation: "pass", hk_water: "pass", hk_first_aid: "pass", hk_emergency_routes: "pass" },
-      fallProtection: { fp_guardrails: "pass", fp_floor_openings: "pass", fp_harness_inspect: "pass", fp_anchorage: "pass", fp_lanyards: "pass", fp_ladders_secured: "pass", fp_ladder_condition: "pass", fp_hole_covers: "pass", fp_safety_net: "na", fp_training: "pass" },
-      scaffolding: { sc_competent_person: "pass", sc_inspection_tag: "pass", sc_base_plates: "pass", sc_plumb_level: "pass", sc_planking: "pass", sc_guardrails: "pass", sc_access: "pass", sc_clearance: "pass", sc_tied_off: "pass", sc_no_overload: "pass" },
-      electrical: { el_gfci: "pass", el_loto: "pass", el_panel_access: "pass", el_cords: "pass", el_grounding: "pass", el_wet_conditions: "pass", el_temp_wiring: "pass", el_labeling: "pass", el_arc_flash: "pass", el_qualified: "pass" },
-      fireHotWork: { fh_extinguishers: "pass", fh_hot_work_permit: "pass", fh_fire_watch: "pass", fh_combustibles: "pass", fh_cylinders: "pass", fh_cylinder_storage: "pass", fh_hoses: "pass", fh_ventilation: "pass", fh_flammable_storage: "pass", fh_emergency_plan: "pass" },
-      tools: { tl_hand_tools: "pass", tl_power_tools: "pass", tl_inspected: "pass", tl_cords_hoses: "pass", tl_right_tool: "pass", tl_heavy_equip: "pass", tl_operator_cert: "pass", tl_rigging: "pass", tl_crane: "pass", tl_barricades: "pass" },
-      excavation: { ex_competent_person: "pass", ex_utilities: "pass", ex_protective_system: "pass", ex_soil_class: "pass", ex_access_egress: "pass", ex_spoil_pile: "pass", ex_water_control: "pass", ex_atmosphere: "pass", ex_daily_inspect: "pass", ex_traffic: "pass" }
-    },
-    overallAssessment: { rating: "5", riskLevel: "low", stopWorkIssued: false, correctiveActionsRequired: false, correctiveActions: "", correctionPriority: "", positiveObservations: "Outstanding improvement since last week's audit. All corrective actions from previous inspection closed out. Swing shift demonstrating strong safety culture.", additionalComments: "" },
-    photoCount: 2
-  },
-  {
-    generalInfo: { inspectionDate: "2026-04-09", inspectionTime: "09:00", inspectorName: "Robert Kim", inspectorRole: "site_superintendent", projectName: "Westside Water Treatment", projectNumber: "PRJ-2026-0715", contractor: "Kiewit Infrastructure", inspectionType: "subcontractor", weather: "fog", temperature: "62", workerCount: "55", shift: "day", latitude: "29.7300", longitude: "-95.4500" },
-    inspectionResults: {
-      ppe: { ppe_hardhat: "pass", ppe_safety_glasses: "fail", ppe_highvis: "pass", ppe_gloves: "fail", ppe_steel_toe: "pass", ppe_hearing: "pass", ppe_respiratory: "pass", ppe_face_shield: "na", ppe_fall_harness: "pass", ppe_condition: "fail" },
-      housekeeping: { hk_walkways: "fail", hk_materials: "fail", hk_waste: "fail", hk_spills: "fail", hk_signage: "pass", hk_lighting: "fail", hk_sanitation: "pass", hk_water: "pass", hk_first_aid: "fail", hk_emergency_routes: "pass" },
-      fallProtection: { fp_guardrails: "fail", fp_floor_openings: "fail", fp_harness_inspect: "fail", fp_anchorage: "fail", fp_lanyards: "fail", fp_ladders_secured: "fail", fp_ladder_condition: "fail", fp_hole_covers: "fail", fp_safety_net: "na", fp_training: "fail" },
-      scaffolding: { sc_competent_person: "fail", sc_inspection_tag: "fail", sc_base_plates: "fail", sc_plumb_level: "pass", sc_planking: "fail", sc_guardrails: "fail", sc_access: "fail", sc_clearance: "pass", sc_tied_off: "fail", sc_no_overload: "fail" },
-      electrical: { el_gfci: "fail", el_loto: "fail", el_panel_access: "fail", el_cords: "fail", el_grounding: "fail", el_wet_conditions: "fail", el_temp_wiring: "fail", el_labeling: "fail", el_arc_flash: "fail", el_qualified: "fail" },
-      fireHotWork: { fh_extinguishers: "fail", fh_hot_work_permit: "fail", fh_fire_watch: "fail", fh_combustibles: "fail", fh_cylinders: "fail", fh_cylinder_storage: "fail", fh_hoses: "fail", fh_ventilation: "fail", fh_flammable_storage: "fail", fh_emergency_plan: "fail" },
-      tools: { tl_hand_tools: "fail", tl_power_tools: "fail", tl_inspected: "fail", tl_cords_hoses: "fail", tl_right_tool: "fail", tl_heavy_equip: "fail", tl_operator_cert: "fail", tl_rigging: "fail", tl_crane: "na", tl_barricades: "fail" },
-      excavation: { ex_competent_person: "fail", ex_utilities: "pass", ex_protective_system: "fail", ex_soil_class: "fail", ex_access_egress: "fail", ex_spoil_pile: "fail", ex_water_control: "fail", ex_atmosphere: "fail", ex_daily_inspect: "fail", ex_traffic: "fail" }
-    },
-    overallAssessment: { rating: "1", riskLevel: "critical", stopWorkIssued: true, correctiveActionsRequired: true, correctiveActions: "STOP WORK issued. Subcontractor Apex Mechanical has systematic safety failures across all categories. Immediate removal from site until safety program is reviewed and re-approved.", correctionPriority: "immediate", positiveObservations: "Main contractor Kiewit areas are acceptable. Problem isolated to subcontractor.", additionalComments: "Incident report filed. OSHA notification may be required." },
-    photoCount: 15
-  },
-  {
-    generalInfo: { inspectionDate: "2026-04-10", inspectionTime: "07:15", inspectorName: "Angela Washington", inspectorRole: "safety_officer", projectName: "Highway 290 Expansion", projectNumber: "PRJ-2025-0892", contractor: "Granite Construction", inspectionType: "routine", weather: "partly_cloudy", temperature: "75", workerCount: "40", shift: "day", latitude: "29.7860", longitude: "-95.4110" },
-    inspectionResults: {
-      ppe: { ppe_hardhat: "pass", ppe_safety_glasses: "pass", ppe_highvis: "pass", ppe_gloves: "pass", ppe_steel_toe: "pass", ppe_hearing: "pass", ppe_respiratory: "na", ppe_face_shield: "na", ppe_fall_harness: "na", ppe_condition: "pass" },
-      housekeeping: { hk_walkways: "pass", hk_materials: "pass", hk_waste: "pass", hk_spills: "pass", hk_signage: "pass", hk_lighting: "pass", hk_sanitation: "pass", hk_water: "pass", hk_first_aid: "pass", hk_emergency_routes: "pass" },
-      fallProtection: { fp_guardrails: "na", fp_floor_openings: "na", fp_harness_inspect: "na", fp_anchorage: "na", fp_lanyards: "na", fp_ladders_secured: "pass", fp_ladder_condition: "pass", fp_hole_covers: "na", fp_safety_net: "na", fp_training: "pass" },
-      scaffolding: { sc_competent_person: "na", sc_inspection_tag: "na", sc_base_plates: "na", sc_plumb_level: "na", sc_planking: "na", sc_guardrails: "na", sc_access: "na", sc_clearance: "na", sc_tied_off: "na", sc_no_overload: "na" },
-      electrical: { el_gfci: "pass", el_loto: "pass", el_panel_access: "pass", el_cords: "pass", el_grounding: "pass", el_wet_conditions: "pass", el_temp_wiring: "pass", el_labeling: "pass", el_arc_flash: "na", el_qualified: "pass" },
-      fireHotWork: { fh_extinguishers: "pass", fh_hot_work_permit: "na", fh_fire_watch: "na", fh_combustibles: "pass", fh_cylinders: "na", fh_cylinder_storage: "na", fh_hoses: "na", fh_ventilation: "pass", fh_flammable_storage: "pass", fh_emergency_plan: "pass" },
-      tools: { tl_hand_tools: "pass", tl_power_tools: "pass", tl_inspected: "pass", tl_cords_hoses: "pass", tl_right_tool: "pass", tl_heavy_equip: "pass", tl_operator_cert: "pass", tl_rigging: "pass", tl_crane: "pass", tl_barricades: "pass" },
-      excavation: { ex_competent_person: "pass", ex_utilities: "pass", ex_protective_system: "pass", ex_soil_class: "pass", ex_access_egress: "pass", ex_spoil_pile: "pass", ex_water_control: "pass", ex_atmosphere: "pass", ex_daily_inspect: "pass", ex_traffic: "pass" }
-    },
-    overallAssessment: { rating: "5", riskLevel: "low", stopWorkIssued: false, correctiveActionsRequired: false, correctiveActions: "", correctionPriority: "", positiveObservations: "Granite continues to set the standard. Perfect excavation operations. Great traffic control.", additionalComments: "" },
-    photoCount: 1
-  }
+// ============================================================
+// SEEDED PSEUDO-RANDOM NUMBER GENERATOR (deterministic output)
+// ============================================================
+const _seed = { v: 42 };
+function rand() {
+  _seed.v = (_seed.v * 16807 + 0) % 2147483647;
+  return (_seed.v & 0x7fffffff) / 2147483647;
+}
+function randInt(min, max) { return Math.floor(rand() * (max - min + 1)) + min; }
+function pick(arr) { return arr[randInt(0, arr.length - 1)]; }
+function weightedPick(arr, weights) {
+  const total = weights.reduce((a, b) => a + b, 0);
+  let r = rand() * total, cum = 0;
+  for (let i = 0; i < arr.length; i++) { cum += weights[i]; if (r <= cum) return arr[i]; }
+  return arr[arr.length - 1];
+}
+
+// ============================================================
+// SEED DATA: projects, people, locations
+// ============================================================
+
+const PROJECTS = [
+  { name: "Riverside Bridge Replacement", number: "PRJ-2026-0451", contractor: "Turner Construction", lat: 29.7604, lon: -95.3698, quality: 0.88, hasScaffold: true, hasExcavation: false, hasHotWork: true, workerRange: [30, 55] },
+  { name: "Downtown Tower Phase II", number: "PRJ-2026-0523", contractor: "Skanska USA", lat: 29.7550, lon: -95.3700, quality: 0.72, hasScaffold: true, hasExcavation: true, hasHotWork: true, workerRange: [60, 130] },
+  { name: "Highway 290 Expansion", number: "PRJ-2025-0892", contractor: "Granite Construction", lat: 29.7850, lon: -95.4100, quality: 0.95, hasScaffold: false, hasExcavation: true, hasHotWork: false, workerRange: [25, 50] },
+  { name: "Midtown Medical Center", number: "PRJ-2026-0610", contractor: "McCarthy Building", lat: 29.7400, lon: -95.3850, quality: 0.80, hasScaffold: true, hasExcavation: false, hasHotWork: true, workerRange: [70, 140] },
+  { name: "Westside Water Treatment", number: "PRJ-2026-0715", contractor: "Kiewit Infrastructure", lat: 29.7300, lon: -95.4500, quality: 0.60, hasScaffold: true, hasExcavation: true, hasHotWork: true, workerRange: [40, 70] },
+  { name: "Bayou Greenway Trail", number: "PRJ-2026-0830", contractor: "Sundt Construction", lat: 29.7700, lon: -95.3550, quality: 0.92, hasScaffold: false, hasExcavation: true, hasHotWork: false, workerRange: [15, 30] },
+  { name: "Port Terminal Expansion", number: "PRJ-2026-0944", contractor: "Bechtel Corporation", lat: 29.7200, lon: -95.2700, quality: 0.76, hasScaffold: true, hasExcavation: true, hasHotWork: true, workerRange: [80, 160] },
+  { name: "Eastside Elementary Reno", number: "PRJ-2026-1010", contractor: "Hensel Phelps", lat: 29.7480, lon: -95.3200, quality: 0.85, hasScaffold: true, hasExcavation: false, hasHotWork: false, workerRange: [20, 40] },
+  { name: "Galleria Parking Garage", number: "PRJ-2026-1105", contractor: "Brasfield & Gorrie", lat: 29.7590, lon: -95.4610, quality: 0.82, hasScaffold: true, hasExcavation: true, hasHotWork: true, workerRange: [35, 65] },
+  { name: "NW Transmission Line", number: "PRJ-2025-1220", contractor: "Quanta Services", lat: 29.8100, lon: -95.5000, quality: 0.78, hasScaffold: false, hasExcavation: true, hasHotWork: true, workerRange: [10, 25] },
 ];
 
-// Human-readable label maps used by the dashboard
+const INSPECTORS = [
+  { name: "Mike Torres", role: "safety_officer" },
+  { name: "Sarah Chen", role: "safety_engineer" },
+  { name: "James Rodriguez", role: "foreman" },
+  { name: "Angela Washington", role: "safety_officer" },
+  { name: "Robert Kim", role: "site_superintendent" },
+  { name: "Lisa Patel", role: "quality_inspector" },
+  { name: "David Okafor", role: "safety_officer" },
+  { name: "Maria Gonzalez", role: "foreman" },
+  { name: "Tom Bradley", role: "project_manager" },
+  { name: "Kevin Nguyen", role: "safety_engineer" },
+  { name: "Rachel Foster", role: "safety_officer" },
+  { name: "Carlos Mendez", role: "subcontractor_rep" },
+];
+
+const INSPECTION_TYPES = ["routine", "routine", "routine", "pretask", "weekly", "weekly", "monthly", "incident_followup", "regulatory", "subcontractor"];
+const SHIFTS = ["day", "day", "day", "day", "swing", "night"];
+const WEATHER_BY_MONTH = {
+  1: { opts: ["clear", "overcast", "fog", "extreme_cold", "light_rain"], weights: [25, 25, 15, 20, 15] },
+  2: { opts: ["clear", "partly_cloudy", "overcast", "light_rain", "fog"], weights: [25, 25, 15, 20, 15] },
+  3: { opts: ["clear", "partly_cloudy", "light_rain", "heavy_rain", "fog"], weights: [20, 25, 25, 15, 15] },
+  4: { opts: ["clear", "partly_cloudy", "light_rain", "heavy_rain", "extreme_heat"], weights: [20, 25, 20, 20, 15] },
+  5: { opts: ["clear", "partly_cloudy", "extreme_heat", "heavy_rain", "high_wind"], weights: [20, 20, 25, 20, 15] },
+  6: { opts: ["clear", "extreme_heat", "partly_cloudy", "heavy_rain", "high_wind"], weights: [15, 35, 15, 25, 10] },
+  7: { opts: ["extreme_heat", "clear", "partly_cloudy", "heavy_rain"], weights: [40, 25, 20, 15] },
+  8: { opts: ["extreme_heat", "clear", "partly_cloudy", "heavy_rain"], weights: [40, 25, 20, 15] },
+  9: { opts: ["extreme_heat", "clear", "partly_cloudy", "light_rain", "heavy_rain"], weights: [25, 25, 20, 15, 15] },
+  10: { opts: ["clear", "partly_cloudy", "overcast", "light_rain", "fog"], weights: [30, 25, 15, 20, 10] },
+  11: { opts: ["clear", "partly_cloudy", "overcast", "light_rain", "fog", "extreme_cold"], weights: [25, 20, 15, 15, 15, 10] },
+  12: { opts: ["clear", "overcast", "fog", "extreme_cold", "light_rain"], weights: [25, 20, 20, 20, 15] },
+};
+
+const TEMP_BY_WEATHER = {
+  clear: [68, 92], partly_cloudy: [65, 88], overcast: [58, 78], light_rain: [55, 75],
+  heavy_rain: [52, 72], snow: [18, 34], fog: [48, 65], extreme_heat: [96, 108],
+  extreme_cold: [22, 35], high_wind: [55, 80],
+};
+
+// Checklist item keys per section
+const SECTION_ITEMS = {
+  ppe: ["ppe_hardhat", "ppe_safety_glasses", "ppe_highvis", "ppe_gloves", "ppe_steel_toe", "ppe_hearing", "ppe_respiratory", "ppe_face_shield", "ppe_fall_harness", "ppe_condition"],
+  housekeeping: ["hk_walkways", "hk_materials", "hk_waste", "hk_spills", "hk_signage", "hk_lighting", "hk_sanitation", "hk_water", "hk_first_aid", "hk_emergency_routes"],
+  fallProtection: ["fp_guardrails", "fp_floor_openings", "fp_harness_inspect", "fp_anchorage", "fp_lanyards", "fp_ladders_secured", "fp_ladder_condition", "fp_hole_covers", "fp_safety_net", "fp_training"],
+  scaffolding: ["sc_competent_person", "sc_inspection_tag", "sc_base_plates", "sc_plumb_level", "sc_planking", "sc_guardrails", "sc_access", "sc_clearance", "sc_tied_off", "sc_no_overload"],
+  electrical: ["el_gfci", "el_loto", "el_panel_access", "el_cords", "el_grounding", "el_wet_conditions", "el_temp_wiring", "el_labeling", "el_arc_flash", "el_qualified"],
+  fireHotWork: ["fh_extinguishers", "fh_hot_work_permit", "fh_fire_watch", "fh_combustibles", "fh_cylinders", "fh_cylinder_storage", "fh_hoses", "fh_ventilation", "fh_flammable_storage", "fh_emergency_plan"],
+  tools: ["tl_hand_tools", "tl_power_tools", "tl_inspected", "tl_cords_hoses", "tl_right_tool", "tl_heavy_equip", "tl_operator_cert", "tl_rigging", "tl_crane", "tl_barricades"],
+  excavation: ["ex_competent_person", "ex_utilities", "ex_protective_system", "ex_soil_class", "ex_access_egress", "ex_spoil_pile", "ex_water_control", "ex_atmosphere", "ex_daily_inspect", "ex_traffic"],
+};
+
+// Items that are N/A when a section's activity is not present on the project
+const NA_WHEN_MISSING = {
+  scaffolding: "all",
+  excavation: "all",
+  fireHotWork: ["fh_hot_work_permit", "fh_fire_watch", "fh_combustibles", "fh_cylinders", "fh_cylinder_storage", "fh_hoses", "fh_ventilation"],
+};
+
+// Positive observation pool
+const POSITIVE_OBS = [
+  "Excellent PPE compliance across all trades today.",
+  "Toolbox talk was well-attended and engaging.",
+  "New safety signage is clear and well-positioned.",
+  "Housekeeping has improved significantly since last inspection.",
+  "Crane crew demonstrated exemplary rigging practices.",
+  "Fire watch procedures followed meticulously during welding.",
+  "Workers proactively reporting near-misses - strong safety culture.",
+  "Subcontractor safety plans are thorough and up to date.",
+  "Excavation crew following OSHA competent person requirements perfectly.",
+  "Great job securing ladders and maintaining 3-point contact.",
+  "Emergency muster drill completed under target time.",
+  "Heat illness prevention plan actively enforced with extra water stations.",
+  "Fall protection training records all current.",
+  "GFCIs tested and functioning on all temporary circuits.",
+  "Scaffolding inspection tags current, platforms fully planked.",
+  "Traffic control setup exceeded DOT requirements.",
+  "Lock-out/tag-out procedures followed without exception.",
+  "Night shift safety lighting meets all requirements.",
+  "",
+  "",
+];
+
+// Corrective action pool
+const CORRECTIVE_ACTIONS = [
+  "Waste containers overflowing in Zone B - add additional dumpster.",
+  "Damaged extension cord at Panel 3 - replace immediately.",
+  "Missing guardrail at 2nd floor opening west side - install before next shift.",
+  "Harness lanyard frayed on worker #247 - remove from service.",
+  "Fire extinguisher in break area expired - replace and log.",
+  "Spoil pile too close to trench edge in Area C - move back 2 ft minimum.",
+  "Hot work permit not posted at welding station 4 - obtain permit before resuming.",
+  "Three workers observed without hearing protection near concrete saw.",
+  "Scaffold inspection tag missing on north scaffold - competent person must re-inspect.",
+  "Electrical panel C blocked by material storage - clear 36 in. minimum.",
+  "Ladder at south access point not secured - tie off at top.",
+  "Trench box shifted after rain - competent person must evaluate before entry.",
+  "Multiple extension cords daisy-chained at tool staging - correct wiring.",
+  "Arc flash boundaries not marked at Panel 7 - label immediately.",
+  "Gas cylinders stored together without separation barrier.",
+  "Workers on scaffold without toe boards - install before next shift.",
+  "Floor opening on level 5 covered but not labeled - mark as HOLE/COVER.",
+  "LOTO procedures not followed during motor replacement - retrain crew.",
+];
+
+// ============================================================
+// RECORD GENERATOR
+// ============================================================
+
+function generateInspection(dateStr, project, inspector) {
+  const month = parseInt(dateStr.split("-")[1]);
+  const weatherInfo = WEATHER_BY_MONTH[month];
+  const weather = weightedPick(weatherInfo.opts, weatherInfo.weights);
+  const tempRange = TEMP_BY_WEATHER[weather];
+  const temperature = randInt(tempRange[0], tempRange[1]);
+  const shift = pick(SHIFTS);
+  const inspType = pick(INSPECTION_TYPES);
+  const workerCount = randInt(project.workerRange[0], project.workerRange[1]);
+
+  // GPS jitter (up to ~200m scatter)
+  const lat = (project.lat + (rand() - 0.5) * 0.004).toFixed(6);
+  const lon = (project.lon + (rand() - 0.5) * 0.004).toFixed(6);
+
+  // Time: mostly morning starts
+  const hour = weightedPick([6, 7, 8, 9, 10, 13, 14, 15], [10, 25, 20, 15, 5, 5, 10, 10]);
+  const minute = pick(["00", "15", "30", "45"]);
+
+  // Quality modifier: worse in bad weather, at night, with certain inspectors
+  let q = project.quality;
+  if (weather === "heavy_rain" || weather === "extreme_heat") q -= 0.06;
+  if (weather === "fog" || weather === "snow") q -= 0.04;
+  if (shift === "night") q -= 0.05;
+  if (inspType === "incident_followup") q -= 0.08;
+  q = Math.max(0.2, Math.min(0.98, q + (rand() - 0.5) * 0.12));
+
+  // Generate checklist results
+  const inspectionResults = {};
+  let totalPass = 0, totalFail = 0;
+
+  Object.entries(SECTION_ITEMS).forEach(([sectionKey, items]) => {
+    const sectionResult = {};
+    const isNASection =
+      (sectionKey === "scaffolding" && !project.hasScaffold) ||
+      (sectionKey === "excavation" && !project.hasExcavation);
+
+    items.forEach((itemId) => {
+      // Determine if item should be N/A
+      let isNA = false;
+      if (isNASection) { isNA = true; }
+      else if (sectionKey === "fireHotWork" && !project.hasHotWork && NA_WHEN_MISSING.fireHotWork.includes(itemId)) { isNA = true; }
+      // Some items are contextually N/A sometimes
+      else if (itemId === "ppe_face_shield" && !project.hasHotWork && rand() > 0.3) { isNA = true; }
+      else if (itemId === "ppe_respiratory" && rand() > 0.6) { isNA = true; }
+      else if (itemId === "fp_safety_net" && rand() > 0.3) { isNA = true; }
+      else if (itemId === "el_arc_flash" && rand() > 0.5) { isNA = true; }
+      else if (itemId === "tl_crane" && rand() > 0.4) { isNA = true; }
+      else if (itemId === "tl_rigging" && rand() > 0.5) { isNA = true; }
+
+      if (isNA) {
+        sectionResult[itemId] = "na";
+      } else {
+        // Pass/fail based on quality factor
+        const passes = rand() < q;
+        sectionResult[itemId] = passes ? "pass" : "fail";
+        if (passes) totalPass++; else totalFail++;
+      }
+    });
+    inspectionResults[sectionKey] = sectionResult;
+  });
+
+  // Overall assessment based on results
+  const totalApplicable = totalPass + totalFail;
+  const complianceRate = totalApplicable > 0 ? totalPass / totalApplicable : 1;
+
+  let riskLevel, rating;
+  if (complianceRate >= 0.95) { riskLevel = "low"; rating = 5; }
+  else if (complianceRate >= 0.88) { riskLevel = "low"; rating = 4; }
+  else if (complianceRate >= 0.78) { riskLevel = "moderate"; rating = 3; }
+  else if (complianceRate >= 0.65) { riskLevel = "high"; rating = 2; }
+  else { riskLevel = "critical"; rating = 1; }
+
+  // Occasionally bump risk up for drama
+  if (rand() < 0.05 && riskLevel !== "critical") {
+    const levels = ["low", "moderate", "high", "critical"];
+    const idx = levels.indexOf(riskLevel);
+    riskLevel = levels[Math.min(idx + 1, 3)];
+    rating = Math.max(1, rating - 1);
+  }
+
+  const stopWork = riskLevel === "critical" && rand() < 0.7;
+  const needsCorrective = totalFail > 2 || riskLevel === "high" || riskLevel === "critical";
+
+  let correctiveActions = "", correctionPriority = "";
+  if (needsCorrective) {
+    const numActions = Math.min(totalFail, randInt(1, 3));
+    const actions = [];
+    for (let i = 0; i < numActions; i++) actions.push(pick(CORRECTIVE_ACTIONS));
+    correctiveActions = [...new Set(actions)].join(" ");
+    correctionPriority = riskLevel === "critical" ? "immediate" : riskLevel === "high" ? "today" : pick(["today", "24hours", "week"]);
+  }
+
+  const positiveObs = pick(POSITIVE_OBS);
+
+  return {
+    generalInfo: {
+      inspectionDate: dateStr,
+      inspectionTime: String(hour).padStart(2, "0") + ":" + minute,
+      inspectorName: inspector.name,
+      inspectorRole: inspector.role,
+      projectName: project.name,
+      projectNumber: project.number,
+      contractor: project.contractor,
+      inspectionType: inspType,
+      weather: weather,
+      temperature: String(temperature),
+      workerCount: String(workerCount),
+      shift: shift,
+      latitude: lat,
+      longitude: lon,
+    },
+    inspectionResults: inspectionResults,
+    overallAssessment: {
+      rating: String(rating),
+      riskLevel: riskLevel,
+      stopWorkIssued: stopWork,
+      correctiveActionsRequired: needsCorrective,
+      correctiveActions: correctiveActions,
+      correctionPriority: correctionPriority,
+      positiveObservations: positiveObs,
+      additionalComments: "",
+    },
+    photoCount: randInt(0, 10),
+  };
+}
+
+// ============================================================
+// GENERATE 150 RECORDS ACROSS 90 DAYS
+// ============================================================
+
+function generateDatabase() {
+  const records = [];
+  // Generate dates from Jan 2 2026 through Apr 14 2026 (~103 days)
+  const startDate = new Date(2026, 0, 2);  // Jan 2
+  const endDate = new Date(2026, 3, 14);   // Apr 14
+
+  const current = new Date(startDate);
+  while (current <= endDate) {
+    // Skip weekends (most construction is Mon-Sat, but skip Sundays)
+    const dow = current.getDay();
+    if (dow === 0) { current.setDate(current.getDate() + 1); continue; }
+
+    // Determine how many inspections this day (1-3, with some days having 0)
+    let inspectionsToday;
+    if (dow === 6) {
+      inspectionsToday = rand() < 0.5 ? 1 : 0; // Saturdays: fewer inspections
+    } else {
+      inspectionsToday = weightedPick([0, 1, 2, 3], [2, 30, 40, 28]);
+    }
+
+    for (let i = 0; i < inspectionsToday; i++) {
+      const project = pick(PROJECTS);
+      const inspector = pick(INSPECTORS);
+      const dateStr = current.toISOString().split("T")[0];
+      records.push(generateInspection(dateStr, project, inspector));
+    }
+
+    current.setDate(current.getDate() + 1);
+  }
+
+  return records;
+}
+
+const SAMPLE_INSPECTIONS = generateDatabase();
+
+// ============================================================
+// HUMAN-READABLE LABEL MAPS (used by dashboard.js)
+// ============================================================
+
 const SECTION_LABELS = {
   ppe: "PPE",
   housekeeping: "Housekeeping",
