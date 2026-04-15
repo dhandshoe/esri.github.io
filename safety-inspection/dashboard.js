@@ -24,10 +24,341 @@ Chart.defaults.plugins.legend.labels.boxWidth = 12;
 Chart.defaults.plugins.legend.labels.padding = 12;
 
 // ============================================================
+// FEATURE SERVICE INTEGRATION
+// ============================================================
+
+/**
+ * Authenticate with ArcGIS Enterprise using the configured auth mode.
+ * Returns a token string or null if auth is not needed.
+ */
+async function authenticateEnterprise() {
+  const config = DASHBOARD_CONFIG;
+
+  if (config.AUTH_MODE === "none") return null;
+
+  if (config.AUTH_MODE === "token") return config.AUTH_TOKEN || null;
+
+  // "identity-manager" mode — use ArcGIS JS API IdentityManager
+  return new Promise((resolve, reject) => {
+    require([
+      "esri/identity/IdentityManager",
+      "esri/identity/OAuthInfo",
+    ], function (IdentityManager, OAuthInfo) {
+      // Register the portal so the sign-in popup targets the right server
+      IdentityManager.registerServers([{
+        server: config.PORTAL_URL,
+        hasServer: true,
+      }]);
+
+      // Request credentials — this will show the Enterprise login popup
+      IdentityManager.getCredential(config.PORTAL_URL + "/sharing/rest")
+        .then(function (credential) {
+          resolve(credential.token);
+        })
+        .catch(function (err) {
+          console.warn("Authentication cancelled or failed:", err);
+          reject(err);
+        });
+    });
+  });
+}
+
+/**
+ * Fetch all records from the Feature Service with pagination support.
+ */
+async function fetchFromFeatureService(token) {
+  const config = DASHBOARD_CONFIG;
+  const url = config.FEATURE_SERVICE_URL;
+
+  if (!url) throw new Error("FEATURE_SERVICE_URL is not configured.");
+
+  const allFeatures = [];
+  let offset = 0;
+  const batchSize = config.MAX_RECORDS || 2000;
+  let hasMore = true;
+
+  while (hasMore) {
+    const params = new URLSearchParams({
+      where: "1=1",
+      outFields: "*",
+      f: "json",
+      resultOffset: String(offset),
+      resultRecordCount: String(batchSize),
+      orderByFields: config.FIELD_MAP.inspectionDate + " DESC",
+    });
+
+    if (token) params.append("token", token);
+
+    const response = await fetch(url + "/query?" + params.toString());
+    if (!response.ok) throw new Error("Feature Service returned HTTP " + response.status);
+
+    const json = await response.json();
+    if (json.error) throw new Error(json.error.message || "Feature Service query error");
+
+    const features = json.features || [];
+    allFeatures.push(...features);
+
+    // Check if there are more records (exceededTransferLimit)
+    hasMore = json.exceededTransferLimit === true && features.length > 0;
+    offset += features.length;
+  }
+
+  return allFeatures;
+}
+
+/**
+ * Transform a single Feature Service record (attributes object) into the
+ * dashboard's expected record structure using DASHBOARD_CONFIG.FIELD_MAP.
+ */
+function transformFeatureServiceRecord(attributes) {
+  const fm = DASHBOARD_CONFIG.FIELD_MAP;
+
+  // Helper: get a mapped value (returns empty string if field not mapped or null)
+  function val(key) {
+    const fieldName = fm[key];
+    if (!fieldName || attributes[fieldName] === undefined || attributes[fieldName] === null) return "";
+    return String(attributes[fieldName]);
+  }
+
+  // Helper: get a checklist value — normalise to "pass"/"fail"/"na"
+  function checkVal(key) {
+    const raw = val(key).toLowerCase().trim();
+    if (raw === "pass" || raw === "yes" || raw === "compliant" || raw === "1") return "pass";
+    if (raw === "fail" || raw === "no" || raw === "non-compliant" || raw === "0") return "fail";
+    return "na";
+  }
+
+  // Parse inspection date from epoch ms or string
+  let inspectionDate = "";
+  const rawDate = fm.inspectionDate ? attributes[fm.inspectionDate] : null;
+  if (rawDate !== null && rawDate !== undefined) {
+    if (typeof rawDate === "number") {
+      inspectionDate = new Date(rawDate).toISOString().split("T")[0];
+    } else {
+      // Try to parse as string date
+      const d = new Date(rawDate);
+      inspectionDate = isNaN(d.getTime()) ? String(rawDate) : d.toISOString().split("T")[0];
+    }
+  }
+
+  // Parse time
+  let inspectionTime = "";
+  const rawTime = fm.inspectionTime ? attributes[fm.inspectionTime] : null;
+  if (rawTime !== null && rawTime !== undefined) {
+    if (typeof rawTime === "number") {
+      const td = new Date(rawTime);
+      inspectionTime = td.getHours().toString().padStart(2, "0") + ":" + td.getMinutes().toString().padStart(2, "0");
+    } else {
+      inspectionTime = String(rawTime);
+    }
+  }
+
+  // Build inspection results sections
+  const inspectionResults = {
+    ppe: {
+      ppe_hardhat: checkVal("ppe_hardhat"),
+      ppe_safety_glasses: checkVal("ppe_safety_glasses"),
+      ppe_highvis: checkVal("ppe_highvis"),
+      ppe_gloves: checkVal("ppe_gloves"),
+      ppe_steel_toe: checkVal("ppe_steel_toe"),
+      ppe_hearing: checkVal("ppe_hearing"),
+      ppe_respiratory: checkVal("ppe_respiratory"),
+      ppe_face_shield: checkVal("ppe_face_shield"),
+      ppe_fall_harness: checkVal("ppe_fall_harness"),
+      ppe_condition: checkVal("ppe_condition"),
+    },
+    housekeeping: {
+      hk_walkways: checkVal("hk_walkways"),
+      hk_materials: checkVal("hk_materials"),
+      hk_waste: checkVal("hk_waste"),
+      hk_spills: checkVal("hk_spills"),
+      hk_signage: checkVal("hk_signage"),
+      hk_lighting: checkVal("hk_lighting"),
+      hk_sanitation: checkVal("hk_sanitation"),
+      hk_water: checkVal("hk_water"),
+      hk_first_aid: checkVal("hk_first_aid"),
+      hk_emergency_routes: checkVal("hk_emergency_routes"),
+    },
+    fallProtection: {
+      fp_guardrails: checkVal("fp_guardrails"),
+      fp_floor_openings: checkVal("fp_floor_openings"),
+      fp_harness_inspect: checkVal("fp_harness_inspect"),
+      fp_anchorage: checkVal("fp_anchorage"),
+      fp_lanyards: checkVal("fp_lanyards"),
+      fp_ladders_secured: checkVal("fp_ladders_secured"),
+      fp_ladder_condition: checkVal("fp_ladder_condition"),
+      fp_hole_covers: checkVal("fp_hole_covers"),
+      fp_safety_net: checkVal("fp_safety_net"),
+      fp_training: checkVal("fp_training"),
+    },
+    scaffolding: {
+      sc_competent_person: checkVal("sc_competent_person"),
+      sc_inspection_tag: checkVal("sc_inspection_tag"),
+      sc_base_plates: checkVal("sc_base_plates"),
+      sc_plumb_level: checkVal("sc_plumb_level"),
+      sc_planking: checkVal("sc_planking"),
+      sc_guardrails: checkVal("sc_guardrails"),
+      sc_access: checkVal("sc_access"),
+      sc_clearance: checkVal("sc_clearance"),
+      sc_tied_off: checkVal("sc_tied_off"),
+      sc_no_overload: checkVal("sc_no_overload"),
+    },
+    electrical: {
+      el_gfci: checkVal("el_gfci"),
+      el_loto: checkVal("el_loto"),
+      el_panel_access: checkVal("el_panel_access"),
+      el_cords: checkVal("el_cords"),
+      el_grounding: checkVal("el_grounding"),
+      el_wet_conditions: checkVal("el_wet_conditions"),
+      el_temp_wiring: checkVal("el_temp_wiring"),
+      el_labeling: checkVal("el_labeling"),
+      el_arc_flash: checkVal("el_arc_flash"),
+      el_qualified: checkVal("el_qualified"),
+    },
+    fireHotWork: {
+      fh_extinguishers: checkVal("fh_extinguishers"),
+      fh_hot_work_permit: checkVal("fh_hot_work_permit"),
+      fh_fire_watch: checkVal("fh_fire_watch"),
+      fh_combustibles: checkVal("fh_combustibles"),
+      fh_cylinders: checkVal("fh_cylinders"),
+      fh_cylinder_storage: checkVal("fh_cylinder_storage"),
+      fh_hoses: checkVal("fh_hoses"),
+      fh_ventilation: checkVal("fh_ventilation"),
+      fh_flammable_storage: checkVal("fh_flammable_storage"),
+      fh_emergency_plan: checkVal("fh_emergency_plan"),
+    },
+    toolsEquipment: {
+      tl_hand_tools: checkVal("tl_hand_tools"),
+      tl_power_tools: checkVal("tl_power_tools"),
+      tl_inspected: checkVal("tl_inspected"),
+      tl_cords_hoses: checkVal("tl_cords_hoses"),
+      tl_right_tool: checkVal("tl_right_tool"),
+      tl_heavy_equip: checkVal("tl_heavy_equip"),
+      tl_operator_cert: checkVal("tl_operator_cert"),
+      tl_rigging: checkVal("tl_rigging"),
+      tl_crane: checkVal("tl_crane"),
+      tl_barricades: checkVal("tl_barricades"),
+    },
+    excavation: {
+      ex_competent_person: checkVal("ex_competent_person"),
+      ex_utilities: checkVal("ex_utilities"),
+      ex_protective_system: checkVal("ex_protective_system"),
+      ex_soil_class: checkVal("ex_soil_class"),
+      ex_access_egress: checkVal("ex_access_egress"),
+      ex_spoil_pile: checkVal("ex_spoil_pile"),
+      ex_water_control: checkVal("ex_water_control"),
+      ex_atmosphere: checkVal("ex_atmosphere"),
+      ex_daily_inspect: checkVal("ex_daily_inspect"),
+      ex_traffic: checkVal("ex_traffic"),
+    },
+  };
+
+  // Compute compliance from results
+  let totalPass = 0, totalFail = 0;
+  Object.values(inspectionResults).forEach(function (section) {
+    Object.values(section).forEach(function (v) {
+      if (v === "pass") totalPass++;
+      else if (v === "fail") totalFail++;
+    });
+  });
+
+  // Overall assessment
+  const riskRaw = val("riskLevel").toLowerCase();
+  const riskLevel = ["low", "moderate", "high", "critical"].includes(riskRaw) ? riskRaw : "low";
+
+  const ratingRaw = parseInt(val("overallRating")) || 0;
+  const rating = ratingRaw >= 1 && ratingRaw <= 5 ? String(ratingRaw) : "3";
+
+  const stopWorkRaw = val("stopWorkIssued").toLowerCase();
+  const stopWorkIssued = stopWorkRaw === "true" || stopWorkRaw === "yes" || stopWorkRaw === "1";
+
+  const correctiveRaw = val("correctiveActionsRequired").toLowerCase();
+  const correctiveActionsRequired = correctiveRaw === "true" || correctiveRaw === "yes" || correctiveRaw === "1";
+
+  // GPS coordinates — try to extract from geometry first, then from fields
+  let latitude = "", longitude = "";
+  const latVal = val("latitude") || "";
+  const lonVal = val("longitude") || "";
+  if (latVal) latitude = latVal;
+  if (lonVal) longitude = lonVal;
+
+  return {
+    generalInfo: {
+      inspectionDate: inspectionDate,
+      inspectionTime: inspectionTime,
+      inspectorName: val("inspectorName"),
+      inspectorRole: val("inspectorRole"),
+      projectName: val("projectName"),
+      projectNumber: val("projectNumber"),
+      contractor: val("contractor"),
+      inspectionType: val("inspectionType"),
+      weather: val("weather"),
+      temperature: val("temperature"),
+      workerCount: val("workerCount"),
+      shift: val("shift"),
+      latitude: latitude,
+      longitude: longitude,
+    },
+    inspectionResults: inspectionResults,
+    overallAssessment: {
+      rating: rating,
+      riskLevel: riskLevel,
+      stopWorkIssued: stopWorkIssued,
+      correctiveActionsRequired: correctiveActionsRequired,
+      correctiveActions: val("correctiveActions"),
+      correctionPriority: val("correctionPriority"),
+      positiveObservations: val("positiveObservations"),
+      additionalComments: val("additionalComments"),
+    },
+    sectionNotes: {
+      ppeNotes: val("ppeNotes"),
+      housekeepingNotes: val("housekeepingNotes"),
+      fallProtectionNotes: val("fallProtectionNotes"),
+      scaffoldingNotes: val("scaffoldingNotes"),
+      electricalNotes: val("electricalNotes"),
+      fireNotes: val("fireNotes"),
+      toolsNotes: val("toolsNotes"),
+      excavationNotes: val("excavationNotes"),
+    },
+    photoCount: 0,
+  };
+}
+
+/**
+ * Load inspection data from the Feature Service, transforming each record.
+ * Returns an array in the same format as SAMPLE_INSPECTIONS.
+ */
+async function loadFeatureServiceData() {
+  const token = await authenticateEnterprise();
+  const features = await fetchFromFeatureService(token);
+  return features.map(function (f) {
+    return transformFeatureServiceRecord(f.attributes || {});
+  });
+}
+
+// ============================================================
 // DATA PROCESSING UTILITIES
 // ============================================================
 
-function getInspectionData() {
+/**
+ * Get inspection data — from Feature Service (if configured) or demo data.
+ * Returns a Promise that resolves to the records array.
+ */
+async function getInspectionData() {
+  if (typeof DASHBOARD_CONFIG !== "undefined" && DASHBOARD_CONFIG.USE_FEATURE_SERVICE) {
+    try {
+      const data = await loadFeatureServiceData();
+      if (data.length > 0) {
+        // Update timestamp
+        const el = document.getElementById("lastUpdated");
+        if (el) el.textContent = "Updated " + new Date().toLocaleTimeString();
+        return data;
+      }
+      console.warn("Feature Service returned 0 records, falling back to demo data.");
+    } catch (err) {
+      console.error("Feature Service error, falling back to demo data:", err);
+    }
+  }
   return SAMPLE_INSPECTIONS || [];
 }
 
@@ -1285,8 +1616,8 @@ function initReportModal() {
 // FILTER EVENT HANDLERS
 // ============================================================
 
-function onFilterChange() {
-  const allData = getInspectionData();
+async function onFilterChange() {
+  const allData = await getInspectionData();
   filteredData = applyFilters(allData);
   renderAll(filteredData);
 }
@@ -1320,15 +1651,29 @@ function renderAll(data) {
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  customElements.whenDefined("calcite-select").then(() => {
-    const allData = getInspectionData();
-    computeDatasetLatestDate(allData);
-    populateFilterDropdowns(allData);
-    filteredData = applyFilters(allData);
-    initFilterListeners();
-    initTrendToggle();
-    initReportModal();
-    initInspectionMap();
-    renderAll(filteredData);
+  customElements.whenDefined("calcite-select").then(async () => {
+    try {
+      const allData = await getInspectionData();
+      computeDatasetLatestDate(allData);
+      populateFilterDropdowns(allData);
+      filteredData = applyFilters(allData);
+      initFilterListeners();
+      initTrendToggle();
+      initReportModal();
+      initInspectionMap();
+      renderAll(filteredData);
+    } catch (err) {
+      console.error("Dashboard initialization error:", err);
+      // Fall back to demo data if Feature Service fails at startup
+      const allData = SAMPLE_INSPECTIONS || [];
+      computeDatasetLatestDate(allData);
+      populateFilterDropdowns(allData);
+      filteredData = applyFilters(allData);
+      initFilterListeners();
+      initTrendToggle();
+      initReportModal();
+      initInspectionMap();
+      renderAll(filteredData);
+    }
   });
 });
