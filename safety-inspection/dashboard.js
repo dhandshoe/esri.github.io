@@ -15,13 +15,16 @@
 let filteredData = [];
 let chartInstances = {};
 
-// Chart.js global defaults for dark theme
-Chart.defaults.color = "#999";
-Chart.defaults.borderColor = "rgba(255,255,255,0.06)";
-Chart.defaults.font.family = "'Avenir Next', 'Avenir', 'Helvetica Neue', sans-serif";
-Chart.defaults.font.size = 11;
-Chart.defaults.plugins.legend.labels.boxWidth = 12;
-Chart.defaults.plugins.legend.labels.padding = 12;
+// Chart.js global defaults for dark theme (applied at init to ensure Chart.js is loaded)
+function applyChartDefaults() {
+  if (typeof Chart === "undefined") return;
+  Chart.defaults.color = "#999";
+  Chart.defaults.borderColor = "rgba(255,255,255,0.06)";
+  Chart.defaults.font.family = "'Avenir Next', 'Avenir', 'Helvetica Neue', sans-serif";
+  Chart.defaults.font.size = 11;
+  Chart.defaults.plugins.legend.labels.boxWidth = 12;
+  Chart.defaults.plugins.legend.labels.padding = 12;
+}
 
 // ============================================================
 // FEATURE SERVICE INTEGRATION
@@ -1652,6 +1655,7 @@ function renderAll(data) {
 
 document.addEventListener("DOMContentLoaded", () => {
   customElements.whenDefined("calcite-select").then(async () => {
+    applyChartDefaults();
     try {
       const allData = await getInspectionData();
       computeDatasetLatestDate(allData);
