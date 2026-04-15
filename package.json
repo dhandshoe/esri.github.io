@@ -6,9 +6,8 @@
   "author": "Esri",
   "license": "Apache-2.0",
   "main": "index.js",
-  "dependencies": {
-  },
   "devDependencies": {
+    "tailwindcss": "^3.4.19"
   },
   "scripts": {
     "test": "echo no test defined",
