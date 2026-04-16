@@ -974,19 +974,34 @@ let _mapReady = false;
 let _pendingMapData = null;
 
 function initInspectionMap() {
+  if (typeof require === "undefined") {
+    console.warn("ArcGIS JS API not loaded — map disabled.");
+    showMapFallback("ArcGIS JS API not available. Map requires access to js.arcgis.com.");
+    return;
+  }
+
   require([
+    "esri/config",
     "esri/Map",
     "esri/views/MapView",
     "esri/Graphic",
     "esri/layers/GraphicsLayer",
-    "esri/widgets/Legend",
-  ], function (Map, MapView, Graphic, GraphicsLayer, Legend) {
+  ], function (esriConfig, Map, MapView, Graphic, GraphicsLayer) {
+    // Point the API at the Enterprise portal so basemaps and services
+    // are resolved through the portal instead of ArcGIS Online.
+    var portalUrl = (typeof DASHBOARD_CONFIG !== "undefined" && DASHBOARD_CONFIG.PORTAL_URL)
+      ? DASHBOARD_CONFIG.PORTAL_URL
+      : "";
+    if (portalUrl) {
+      esriConfig.portalUrl = portalUrl;
+    }
+
     // Store constructors globally for renderMapPoints
     window._MapGraphic = Graphic;
 
     mapGraphicsLayer = new GraphicsLayer({ title: "Inspections" });
 
-    const map = new Map({
+    var map = new Map({
       basemap: "dark-gray-vector",
       layers: [mapGraphicsLayer],
     });
@@ -1004,14 +1019,30 @@ function initInspectionMap() {
     });
 
     // When map is ready, render any queued data
-    mapView.when(() => {
+    mapView.when(function () {
       _mapReady = true;
       if (_pendingMapData) {
         renderMapPoints(_pendingMapData);
         _pendingMapData = null;
       }
+    }, function (err) {
+      console.error("MapView failed to load:", err);
+      showMapFallback("Map failed to load. Check network access to the ArcGIS basemap service.");
     });
   });
+}
+
+function showMapFallback(message) {
+  var container = document.getElementById("inspectionMap");
+  if (container) {
+    container.style.display = "flex";
+    container.style.alignItems = "center";
+    container.style.justifyContent = "center";
+    container.style.background = "#1a1f2a";
+    container.innerHTML = '<div style="text-align:center;color:#666;font-size:0.85rem;padding:20px;">'
+      + '<calcite-icon icon="exclamation-mark-triangle" scale="l" style="color:#555;margin-bottom:8px;"></calcite-icon>'
+      + '<br>' + message + '</div>';
+  }
 }
 
 function renderMapPoints(data) {
