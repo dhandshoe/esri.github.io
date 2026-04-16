@@ -187,14 +187,32 @@
       .toast {
         position: fixed;
         bottom: 24px;
-        right: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(120%);
         z-index: 9999;
-        transform: translateY(120%);
         transition: transform 0.3s ease;
+        width: 90%;
+        max-width: 500px;
       }
       .toast.show {
-        transform: translateY(0);
+        transform: translateX(-50%) translateY(0);
       }
+      .toast-inner {
+        padding: 14px 20px;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 0.9rem;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .toast-inner.success { background: #1a7a2e; }
+      .toast-inner.danger { background: #c42b1c; }
+      .toast-inner.warning { background: #9d6b0a; }
+      .toast-inner.info { background: #005F6B; }
+      .toast-title { font-weight: 600; }
+      .toast-message { opacity: 0.9; font-size: 0.82rem; }
     </style>
   </head>
   <body class="bg-[#f4f4f4] min-h-screen">
@@ -679,10 +697,9 @@
 
     <!-- Toast Notification -->
     <div id="toast" class="toast">
-      <calcite-alert id="toastAlert" open auto-close scale="m" kind="success" icon="check-circle">
-        <div slot="title">Inspection Submitted</div>
-        <div slot="message">Your safety inspection has been recorded successfully.</div>
-      </calcite-alert>
+      <div id="toastInner" class="toast-inner success">
+        <div><span class="toast-title" id="toastTitle">Success</span><br><span class="toast-message" id="toastMessage">Done.</span></div>
+      </div>
     </div>
 
     <!-- Form JavaScript -->

@@ -970,6 +970,8 @@ function renderInspectionTable(data) {
 
 let mapView = null;
 let mapGraphicsLayer = null;
+let _mapReady = false;
+let _pendingMapData = null;
 
 function initInspectionMap() {
   require([
@@ -1001,15 +1003,23 @@ function initInspectionMap() {
       },
     });
 
-    // Dark theme for the map view
+    // When map is ready, render any queued data
     mapView.when(() => {
-      renderMapPoints(filteredData);
+      _mapReady = true;
+      if (_pendingMapData) {
+        renderMapPoints(_pendingMapData);
+        _pendingMapData = null;
+      }
     });
   });
 }
 
 function renderMapPoints(data) {
-  if (!mapGraphicsLayer || !window._MapGraphic) return;
+  if (!_mapReady || !mapGraphicsLayer || !window._MapGraphic) {
+    // Map not ready yet — queue for when it initializes
+    _pendingMapData = data;
+    return;
+  }
   mapGraphicsLayer.removeAll();
 
   const riskColorMap = {

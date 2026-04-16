@@ -525,16 +525,18 @@ function initCorrectiveActionsToggle() {
 
 function showToast(kind, title, message) {
   const container = document.getElementById("toast");
-  const alert = document.getElementById("toastAlert");
+  const inner = document.getElementById("toastInner");
+  const titleEl = document.getElementById("toastTitle");
+  const msgEl = document.getElementById("toastMessage");
 
-  alert.setAttribute("kind", kind);
-  alert.querySelector("[slot='title']").textContent = title;
-  alert.querySelector("[slot='message']").textContent = message;
+  // Update content and color
+  inner.className = "toast-inner " + kind;
+  titleEl.textContent = title;
+  msgEl.textContent = message;
 
-  // Force re-open
-  alert.removeAttribute("open");
+  // Show then auto-hide
+  container.classList.remove("show");
   requestAnimationFrame(() => {
-    alert.setAttribute("open", "");
     container.classList.add("show");
     setTimeout(() => container.classList.remove("show"), 5000);
   });
