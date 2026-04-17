@@ -586,7 +586,7 @@ function renderKPIs(data) {
 }
 
 function getKpiColor(colorName) {
-  const map = { blue: "#44C8C1", green: "#8DC63F", red: "#f05545", amber: "#f5e642", purple: "#a78bfa", teal: "#44C8C1" };
+  const map = { blue: "#F4736B", green: "#8DC63F", red: "#f05545", amber: "#f5e642", purple: "#a78bfa", teal: "#44C8C1" };
   return map[colorName] || "#fff";
 }
 
@@ -1340,7 +1340,7 @@ function generateReport(data) {
     <div class="report-section">
       <h4>Key Performance Indicators</h4>
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px;">
-        ${reportMetricCard("Total Inspections", data.length, "#44C8C1")}
+        ${reportMetricCard("Total Inspections", data.length, "#F4736B")}
         ${reportMetricCard("Overall Compliance", compliance + "%", compVal >= 90 ? "#35ac46" : compVal >= 75 ? "#edd317" : "#d83020")}
         ${reportMetricCard("Avg Safety Rating", avgRating + " / 5", parseFloat(avgRating) >= 4 ? "#35ac46" : "#edd317")}
         ${reportMetricCard("Stop Work Orders", stopWork, stopWork > 0 ? "#d83020" : "#35ac46")}

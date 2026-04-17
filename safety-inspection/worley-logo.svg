@@ -1,20 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 56" fill="none">
-  <!-- Wave/Globe Mark -->
-  <g transform="translate(0,2) scale(0.52)">
-    <!-- Red waves -->
-    <path d="M48,10 C42,10 38,16 32,20 C26,24 20,28 14,28 C8,28 4,24 2,20" stroke="#E8413C" stroke-width="6.5" stroke-linecap="round" fill="none"/>
-    <path d="M56,24 C50,24 44,30 38,34 C32,38 26,42 18,42 C10,42 4,36 2,32" stroke="#E8413C" stroke-width="6.5" stroke-linecap="round" fill="none"/>
-    <!-- Coral/pink wave -->
-    <path d="M60,38 C54,38 48,44 40,50 C32,56 24,60 14,58 C6,56 2,50 2,44" stroke="#F4736B" stroke-width="6.5" stroke-linecap="round" fill="none"/>
-    <!-- Teal waves -->
-    <path d="M10,82 C18,82 26,76 34,70 C42,64 48,58 56,58" stroke="#44C8C1" stroke-width="6.5" stroke-linecap="round" fill="none"/>
-    <path d="M4,70 C12,70 20,64 28,58 C36,52 44,46 54,46" stroke="#44C8C1" stroke-width="6.5" stroke-linecap="round" fill="none"/>
-    <!-- Green waves -->
-    <path d="M20,92 C28,90 36,82 42,76 C48,70 54,66 60,68" stroke="#8DC63F" stroke-width="6.5" stroke-linecap="round" fill="none"/>
-    <path d="M34,98 C40,94 46,86 50,80 C54,74 58,70 62,72" stroke="#8DC63F" stroke-width="6.5" stroke-linecap="round" fill="none"/>
-  </g>
-  <!-- "worley" text -->
-  <text x="60" y="32" font-family="'Avenir Next','Avenir','Helvetica Neue',sans-serif" font-size="32" font-weight="700" fill="#ffffff" letter-spacing="1.2">worley</text>
-  <!-- "consulting" text -->
-  <text x="60" y="50" font-family="'Avenir Next','Avenir','Helvetica Neue',sans-serif" font-size="16" font-weight="600" fill="rgba(255,255,255,0.6)" letter-spacing="2">consulting</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" fill="none">
+  <!-- Red rounded square mark -->
+  <rect x="2" y="8" width="48" height="48" rx="8" fill="#E8413C"/>
+  <!-- White wave motif inside the mark -->
+  <path d="M10 24 Q18 18 26 24 T42 24" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" fill="none" opacity="1"/>
+  <path d="M10 32 Q18 26 26 32 T42 32" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" fill="none" opacity="0.88"/>
+  <path d="M10 40 Q18 34 26 40 T42 40" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" fill="none" opacity="0.76"/>
+  <!-- "worley" wordmark -->
+  <text x="62" y="38" font-family="'Avenir Next','Avenir','Helvetica Neue',Arial,sans-serif" font-size="30" font-weight="700" fill="#ffffff" letter-spacing="0.5">worley</text>
+  <!-- "CONSULTING" sub-line -->
+  <text x="63" y="54" font-family="'Avenir Next','Avenir','Helvetica Neue',Arial,sans-serif" font-size="10" font-weight="600" fill="#E8413C" letter-spacing="3.8">CONSULTING</text>
 </svg>
