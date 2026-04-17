@@ -18,12 +18,12 @@ let chartInstances = {};
 // Chart.js global defaults for dark theme (applied at init to ensure Chart.js is loaded)
 function applyChartDefaults() {
   if (typeof Chart === "undefined") return;
-  Chart.defaults.color = "#999";
-  Chart.defaults.borderColor = "rgba(255,255,255,0.06)";
+  Chart.defaults.color = "#aaa";
+  Chart.defaults.borderColor = "rgba(255,255,255,0.08)";
   Chart.defaults.font.family = "'Avenir Next', 'Avenir', 'Helvetica Neue', sans-serif";
-  Chart.defaults.font.size = 11;
+  Chart.defaults.font.size = 12;
   Chart.defaults.plugins.legend.labels.boxWidth = 12;
-  Chart.defaults.plugins.legend.labels.padding = 12;
+  Chart.defaults.plugins.legend.labels.padding = 14;
 }
 
 // ============================================================
@@ -586,7 +586,7 @@ function renderKPIs(data) {
 }
 
 function getKpiColor(colorName) {
-  const map = { blue: "#008C9E", green: "#5ec26a", red: "#f05545", amber: "#f5e642", purple: "#a78bfa", teal: "#2dd4bf" };
+  const map = { blue: "#44C8C1", green: "#8DC63F", red: "#f05545", amber: "#f5e642", purple: "#a78bfa", teal: "#44C8C1" };
   return map[colorName] || "#fff";
 }
 
@@ -606,9 +606,9 @@ function renderComplianceChart(data) {
   });
 
   const barColors = rates.map((r) => {
-    if (r >= 90) return "rgba(53,172,70,0.85)";
-    if (r >= 75) return "rgba(237,211,23,0.85)";
-    return "rgba(216,48,32,0.85)";
+    if (r >= 90) return "rgba(141,198,63,0.9)";
+    if (r >= 75) return "rgba(237,211,23,0.9)";
+    return "rgba(232,65,60,0.9)";
   });
 
   chartInstances.compliance = new Chart(ctx, {
@@ -736,27 +736,29 @@ function renderTrendChart(data) {
         {
           label: "Inspections",
           data: trend.map((t) => t.count),
-          borderColor: "#005F6B",
-          backgroundColor: "rgba(0,95,107,0.15)",
+          borderColor: "#44C8C1",
+          backgroundColor: "rgba(68,200,193,0.12)",
           fill: true,
           tension: 0.3,
           pointRadius: 5,
-          pointBackgroundColor: "#005F6B",
+          pointBackgroundColor: "#44C8C1",
           pointBorderColor: "#161a22",
           pointBorderWidth: 2,
+          borderWidth: 2.5,
           yAxisID: "y",
         },
         {
           label: "Compliance %",
           data: trend.map((t) => t.compliance),
-          borderColor: "#35ac46",
-          backgroundColor: "rgba(53,172,70,0.08)",
+          borderColor: "#8DC63F",
+          backgroundColor: "rgba(141,198,63,0.10)",
           fill: true,
           tension: 0.3,
           pointRadius: 5,
-          pointBackgroundColor: "#35ac46",
+          pointBackgroundColor: "#8DC63F",
           pointBorderColor: "#161a22",
           pointBorderWidth: 2,
+          borderWidth: 2.5,
           yAxisID: "y1",
           hidden: true,
         },
@@ -1338,7 +1340,7 @@ function generateReport(data) {
     <div class="report-section">
       <h4>Key Performance Indicators</h4>
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px;">
-        ${reportMetricCard("Total Inspections", data.length, "#00a0e9")}
+        ${reportMetricCard("Total Inspections", data.length, "#44C8C1")}
         ${reportMetricCard("Overall Compliance", compliance + "%", compVal >= 90 ? "#35ac46" : compVal >= 75 ? "#edd317" : "#d83020")}
         ${reportMetricCard("Avg Safety Rating", avgRating + " / 5", parseFloat(avgRating) >= 4 ? "#35ac46" : "#edd317")}
         ${reportMetricCard("Stop Work Orders", stopWork, stopWork > 0 ? "#d83020" : "#35ac46")}
@@ -1674,6 +1676,76 @@ function initFilterListeners() {
 }
 
 // ============================================================
+// PHOTO DOCUMENTATION PANEL
+// ============================================================
+
+function renderPhotoDocumentation(data) {
+  var container = document.getElementById("photoDocPanel");
+  var countEl = document.getElementById("photoCount");
+  if (!container) return;
+
+  var photos = [];
+  data.forEach(function (d) {
+    if (!d.photoDescriptions || d.photoDescriptions.length === 0) return;
+    var dateStr = new Date(d.generalInfo.inspectionDate + "T00:00:00").toLocaleDateString("en-US", {
+      month: "short", day: "numeric",
+    });
+    d.photoDescriptions.forEach(function (photo) {
+      photos.push({
+        text: photo.text,
+        type: photo.type,
+        date: dateStr,
+        project: d.generalInfo.projectName,
+        inspector: d.generalInfo.inspectorName,
+        risk: d.overallAssessment.riskLevel,
+      });
+    });
+  });
+
+  var totalPhotoCount = data.reduce(function (sum, d) { return sum + (d.photoCount || 0); }, 0);
+  if (countEl) {
+    countEl.textContent = totalPhotoCount + " photos across " + data.length + " inspections";
+  }
+
+  if (photos.length === 0) {
+    container.innerHTML = '<p class="text-sm text-gray-500 text-center py-6">No photo documentation available for the selected inspections.</p>';
+    return;
+  }
+
+  var recent = photos.slice(0, 12);
+
+  var typeIcons = {
+    hazard: "exclamation-mark-triangle",
+    positive: "check-circle",
+    general: "camera",
+  };
+
+  var html = '<div class="photo-grid">';
+  recent.forEach(function (photo) {
+    html += '<div class="photo-card">'
+      + '<div class="photo-thumb ' + photo.type + '">'
+      + '<calcite-icon icon="' + (typeIcons[photo.type] || "camera") + '" scale="l" class="photo-type-icon"></calcite-icon>'
+      + '<span class="photo-type-badge ' + photo.type + '">' + photo.type + '</span>'
+      + '</div>'
+      + '<div class="photo-card-body">'
+      + '<div class="photo-card-desc">' + photo.text + '</div>'
+      + '<div class="photo-card-meta">'
+      + photo.date + ' &bull; ' + photo.project
+      + '<br>' + photo.inspector
+      + '</div>'
+      + '</div>'
+      + '</div>';
+  });
+  html += '</div>';
+
+  if (photos.length > 12) {
+    html += '<p class="text-xs text-gray-500 text-center mt-3">Showing 12 of ' + photos.length + ' documented photos</p>';
+  }
+
+  container.innerHTML = html;
+}
+
+// ============================================================
 // RENDER ALL
 // ============================================================
 
@@ -1684,6 +1756,7 @@ function renderAll(data) {
   renderTrendChart(data);
   renderWeatherChart(data);
   renderFailingItems(data);
+  renderPhotoDocumentation(data);
   renderComplianceBreakdown(data);
   renderInspectionTable(data);
   renderInspectorLeaderboard(data);

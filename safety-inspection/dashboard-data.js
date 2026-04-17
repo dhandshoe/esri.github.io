@@ -269,7 +269,65 @@ function generateInspection(dateStr, project, inspector) {
       additionalComments: "",
     },
     photoCount: randInt(0, 10),
+    photoDescriptions: generatePhotoDescriptions(riskLevel, inspectionResults),
   };
+}
+
+const PHOTO_DESCRIPTIONS = {
+  hazard: [
+    "Exposed rebar without caps near walkway",
+    "Missing guardrail at 2nd floor opening",
+    "Unsecured materials stacked near edge",
+    "Damaged scaffold planking on west side",
+    "Tripping hazard - loose cables across path",
+    "Improperly stored flammable liquids",
+    "Excavation without adequate shoring",
+    "Electrical panel left open and unguarded",
+    "Worker at height without harness attached",
+    "Fire extinguisher blocked by materials",
+    "Wet conditions near live electrical panel",
+    "Unstable spoil pile close to trench edge",
+  ],
+  positive: [
+    "Well-organized material laydown area",
+    "All workers wearing proper PPE on elevated platform",
+    "Clearly marked emergency exits and assembly point",
+    "Proper LOTO applied to electrical disconnects",
+    "Clean and organized tool storage area",
+    "Proper barricading around excavation site",
+    "Fire watch stationed during hot work operation",
+    "Safety signage posted at all access points",
+  ],
+  general: [
+    "Overview of active work zone from south access",
+    "Daily safety briefing in progress",
+    "Scaffold inspection tag - current and compliant",
+    "GFCI tested and tagged on temp power panel",
+    "Crane inspection certificate posted on cab door",
+    "Emergency first aid station with full supplies",
+  ],
+};
+
+function generatePhotoDescriptions(riskLevel, inspectionResults) {
+  var count = randInt(0, 4);
+  if (count === 0) return [];
+  var descriptions = [];
+  var failItems = [];
+  Object.values(inspectionResults).forEach(function(section) {
+    Object.entries(section).forEach(function(entry) {
+      if (entry[1] === "fail") failItems.push(entry[0]);
+    });
+  });
+  for (var i = 0; i < count; i++) {
+    if (failItems.length > 0 && rand() < 0.5) {
+      descriptions.push({ text: pick(PHOTO_DESCRIPTIONS.hazard), type: "hazard" });
+    } else if (rand() < 0.3) {
+      descriptions.push({ text: pick(PHOTO_DESCRIPTIONS.positive), type: "positive" });
+    } else {
+      descriptions.push({ text: pick(PHOTO_DESCRIPTIONS.general), type: "general" });
+    }
+  }
+  return descriptions;
 }
 
 // ============================================================
