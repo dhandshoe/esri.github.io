@@ -26,11 +26,11 @@
     <style>
       * { font-family: "Avenir Next", "Avenir", "Helvetica Neue", sans-serif; }
 
-      body { background: #0f1116; color: #e0e0e0; }
+      body { background: #9DADBA; color: #0b2430; }
 
       .dashboard-header {
-        background: linear-gradient(135deg, #0a0d12 0%, #140a0d 50%, #1c0f10 100%);
-        border-bottom: 2px solid #E8413C;
+        background: linear-gradient(135deg, #003B4D 0%, #002833 100%);
+        border-bottom: 3px solid #E8413C;
         position: relative;
         overflow: hidden;
       }
@@ -38,47 +38,49 @@
         content: '';
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: linear-gradient(90deg, transparent 0%, rgba(232,65,60,0.05) 50%, transparent 100%);
+        background: linear-gradient(90deg, transparent 0%, rgba(232,65,60,0.06) 50%, transparent 100%);
         pointer-events: none;
       }
 
       .kpi-card {
-        background: linear-gradient(145deg, #161a22 0%, #1a1f2a 100%);
-        border: 1px solid rgba(255,255,255,0.06);
+        background: #66868F;
+        border: 1px solid rgba(255,255,255,0.12);
         border-radius: 12px;
         padding: 20px 24px;
         position: relative;
         overflow: hidden;
+        color: #ffffff;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
       }
       .kpi-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        box-shadow: 0 8px 24px rgba(0,59,77,0.25);
       }
       .kpi-card::before {
         content: '';
         position: absolute;
         top: 0; left: 0; right: 0;
-        height: 3px;
+        height: 4px;
         border-radius: 12px 12px 0 0;
       }
       .kpi-card.blue::before { background: linear-gradient(90deg, #E8413C, #F4736B); }
       .kpi-card.green::before { background: linear-gradient(90deg, #8DC63F, #44C8C1); }
-      .kpi-card.red::before { background: linear-gradient(90deg, #d83020, #f05545); }
+      .kpi-card.red::before { background: linear-gradient(90deg, #E8413C, #F4736B); }
       .kpi-card.amber::before { background: linear-gradient(90deg, #edd317, #f5e642); }
-      .kpi-card.purple::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+      .kpi-card.purple::before { background: linear-gradient(90deg, #44C8C1, #003B4D); }
       .kpi-card.teal::before { background: linear-gradient(90deg, #44C8C1, #8DC63F); }
 
       .kpi-value {
         font-size: 2.2rem;
         font-weight: 700;
         line-height: 1.1;
+        color: #ffffff;
       }
       .kpi-label {
-        font-size: 0.75rem;
+        font-size: 0.78rem;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: #999;
+        color: rgba(255,255,255,0.85);
         margin-top: 6px;
         font-weight: 600;
       }
@@ -89,37 +91,45 @@
         align-items: center;
         gap: 4px;
       }
-      .kpi-trend.up { color: #35ac46; }
-      .kpi-trend.down { color: #d83020; }
-      .kpi-trend.neutral { color: #888; }
+      .kpi-trend.up { color: #c4ea8a; }
+      .kpi-trend.down { color: #ffb8b3; }
+      .kpi-trend.neutral { color: rgba(255,255,255,0.7); }
 
       .kpi-icon {
         position: absolute;
         top: 16px;
         right: 16px;
-        opacity: 0.12;
+        opacity: 0.18;
         font-size: 2.5rem;
+        color: #ffffff;
       }
 
       .panel {
-        background: linear-gradient(145deg, #161a22 0%, #1a1f2a 100%);
-        border: 1px solid rgba(255,255,255,0.06);
+        background: #66868F;
+        border: 1px solid rgba(255,255,255,0.12);
         border-radius: 12px;
         overflow: hidden;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,59,77,0.08);
       }
       .panel-header {
         padding: 16px 20px;
-        border-bottom: 1px solid rgba(255,255,255,0.06);
+        border-bottom: 1px solid rgba(255,255,255,0.15);
+        background: rgba(0,59,77,0.18);
         display: flex;
         align-items: center;
         justify-content: space-between;
       }
       .panel-header h3 {
-        font-size: 1.15rem;
+        font-size: 1.2rem;
         font-weight: 700;
         color: #ffffff;
-        letter-spacing: 0.015em;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        letter-spacing: 0.02em;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+      }
+      .panel-header .text-xs,
+      .panel-header span {
+        color: rgba(255,255,255,0.8) !important;
       }
       .panel-body {
         padding: 20px;
@@ -142,66 +152,71 @@
         border-radius: 50%;
         display: inline-block;
       }
-      .status-dot.pass { background: #35ac46; }
-      .status-dot.fail { background: #d83020; }
+      .status-dot.pass { background: #8DC63F; }
+      .status-dot.fail { background: #E8413C; }
       .status-dot.moderate { background: #edd317; }
 
       .data-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.8rem;
+        font-size: 0.85rem;
       }
       .data-table thead th {
         text-align: left;
-        padding: 10px 12px;
-        color: #999;
+        padding: 12px;
+        color: rgba(255,255,255,0.9);
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        font-size: 0.7rem;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
+        font-size: 0.72rem;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        background: rgba(0,59,77,0.18);
       }
       .data-table tbody tr {
-        border-bottom: 1px solid rgba(255,255,255,0.04);
+        border-bottom: 1px solid rgba(255,255,255,0.08);
         transition: background 0.15s ease;
       }
       .data-table tbody tr:hover {
-        background: rgba(0,121,193,0.06);
+        background: rgba(255,255,255,0.08);
       }
       .data-table tbody td {
         padding: 10px 12px;
-        color: #ccc;
+        color: #ffffff;
       }
 
       .risk-badge {
         display: inline-block;
-        padding: 2px 10px;
+        padding: 3px 10px;
         border-radius: 12px;
         font-size: 0.7rem;
-        font-weight: 600;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.04em;
       }
-      .risk-badge.low { background: rgba(53,172,70,0.15); color: #35ac46; }
-      .risk-badge.moderate { background: rgba(237,211,23,0.15); color: #edd317; }
-      .risk-badge.high { background: rgba(240,85,69,0.15); color: #f05545; }
-      .risk-badge.critical { background: rgba(216,48,32,0.25); color: #ff6b6b; }
+      .risk-badge.low { background: rgba(141,198,63,0.25); color: #d4f09f; border: 1px solid rgba(141,198,63,0.5); }
+      .risk-badge.moderate { background: rgba(237,211,23,0.25); color: #fff0a0; border: 1px solid rgba(237,211,23,0.5); }
+      .risk-badge.high { background: rgba(244,115,107,0.3); color: #ffd5d1; border: 1px solid rgba(244,115,107,0.5); }
+      .risk-badge.critical { background: rgba(232,65,60,0.45); color: #ffffff; border: 1px solid rgba(232,65,60,0.8); }
 
       .filter-bar {
-        background: rgba(22,26,34,0.8);
+        background: rgba(0,59,77,0.92);
         backdrop-filter: blur(8px);
-        border-bottom: 1px solid rgba(255,255,255,0.06);
+        border-bottom: 2px solid #E8413C;
         padding: 12px 24px;
         position: sticky;
         top: 0;
         z-index: 50;
+        color: #ffffff;
+      }
+      .filter-bar #lastUpdated {
+        color: rgba(255,255,255,0.7) !important;
       }
 
       /* Report modal */
       .report-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.7);
+        background: rgba(0,59,77,0.75);
         backdrop-filter: blur(4px);
         z-index: 1000;
         display: none;
@@ -210,24 +225,27 @@
       }
       .report-overlay.active { display: flex; }
       .report-modal {
-        background: #1a1f2a;
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 16px;
+        background: #66868F;
+        border: 1px solid rgba(255,255,255,0.15);
+        border-top: 4px solid #E8413C;
+        border-radius: 12px;
         width: 90%;
         max-width: 800px;
         max-height: 85vh;
         overflow-y: auto;
         padding: 32px;
-        box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+        color: #ffffff;
+        box-shadow: 0 24px 48px rgba(0,0,0,0.4);
       }
       .report-modal h2 {
-        color: #fff;
-        font-size: 1.4rem;
+        color: #ffffff;
+        font-size: 1.5rem;
+        font-weight: 700;
         margin-bottom: 8px;
       }
       .report-section {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.06);
+        background: rgba(0,59,77,0.25);
+        border: 1px solid rgba(255,255,255,0.12);
         border-radius: 8px;
         padding: 16px 20px;
         margin-bottom: 16px;
@@ -248,28 +266,28 @@
         padding: 6px 0;
       }
       .sparkline-label {
-        flex: 0 0 120px;
-        font-size: 0.82rem;
-        color: #bbb;
-        font-weight: 500;
+        flex: 0 0 140px;
+        font-size: 0.88rem;
+        color: #ffffff;
+        font-weight: 600;
       }
       .sparkline-bar-bg {
         flex: 1;
-        height: 6px;
-        background: rgba(255,255,255,0.06);
-        border-radius: 3px;
+        height: 8px;
+        background: rgba(0,59,77,0.3);
+        border-radius: 4px;
         overflow: hidden;
       }
       .sparkline-bar-fill {
         height: 100%;
-        border-radius: 3px;
+        border-radius: 4px;
         transition: width 0.8s ease;
       }
       .sparkline-value {
-        flex: 0 0 45px;
+        flex: 0 0 50px;
         text-align: right;
-        font-size: 0.8rem;
-        font-weight: 600;
+        font-size: 0.85rem;
+        font-weight: 700;
       }
 
       /* Pulse animation for live indicator */
@@ -280,7 +298,7 @@
       .live-dot {
         width: 8px;
         height: 8px;
-        background: #35ac46;
+        background: #8DC63F;
         border-radius: 50%;
         animation: pulse 2s ease-in-out infinite;
       }
@@ -292,15 +310,15 @@
         gap: 16px;
       }
       .photo-card {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.06);
+        background: rgba(0,59,77,0.25);
+        border: 1px solid rgba(255,255,255,0.15);
         border-radius: 8px;
         overflow: hidden;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
       }
       .photo-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        box-shadow: 0 6px 20px rgba(0,59,77,0.3);
       }
       .photo-thumb {
         height: 120px;
@@ -311,38 +329,72 @@
       }
       .photo-thumb .photo-type-icon {
         font-size: 2rem;
-        opacity: 0.5;
+        opacity: 0.8;
+        color: #ffffff;
       }
-      .photo-thumb.hazard { background: linear-gradient(135deg, rgba(232,65,60,0.15), rgba(244,115,107,0.08)); }
-      .photo-thumb.positive { background: linear-gradient(135deg, rgba(141,198,63,0.15), rgba(68,200,193,0.08)); }
-      .photo-thumb.general { background: linear-gradient(135deg, rgba(68,200,193,0.12), rgba(0,59,77,0.15)); }
+      .photo-thumb.hazard { background: linear-gradient(135deg, #E8413C, #a8302c); }
+      .photo-thumb.positive { background: linear-gradient(135deg, #8DC63F, #5a8a25); }
+      .photo-thumb.general { background: linear-gradient(135deg, #44C8C1, #003B4D); }
       .photo-type-badge {
         position: absolute;
         top: 8px;
         right: 8px;
-        font-size: 0.6rem;
+        font-size: 0.62rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        padding: 2px 8px;
+        padding: 3px 8px;
         border-radius: 4px;
+        background: rgba(0,0,0,0.4);
+        color: #ffffff;
       }
-      .photo-type-badge.hazard { background: rgba(232,65,60,0.2); color: #F4736B; }
-      .photo-type-badge.positive { background: rgba(141,198,63,0.2); color: #8DC63F; }
-      .photo-type-badge.general { background: rgba(68,200,193,0.2); color: #44C8C1; }
+      .photo-type-badge.hazard { background: rgba(0,0,0,0.35); color: #ffffff; }
+      .photo-type-badge.positive { background: rgba(0,0,0,0.35); color: #ffffff; }
+      .photo-type-badge.general { background: rgba(0,0,0,0.35); color: #ffffff; }
       .photo-card-body {
         padding: 12px;
       }
       .photo-card-desc {
-        font-size: 0.82rem;
-        color: #ccc;
+        font-size: 0.85rem;
+        color: #ffffff;
         line-height: 1.4;
         margin-bottom: 6px;
+        font-weight: 500;
       }
       .photo-card-meta {
-        font-size: 0.7rem;
-        color: #666;
+        font-size: 0.72rem;
+        color: rgba(255,255,255,0.75);
       }
+
+      /* Text utility overrides for lighter palette */
+      .panel-body .text-gray-400,
+      .panel-body .text-gray-500,
+      .panel-body .text-gray-600,
+      .panel-body .text-gray-700,
+      .panel-header .text-gray-400,
+      .panel-header .text-gray-500,
+      .panel-header .text-gray-600,
+      .panel-header .text-gray-700 {
+        color: rgba(255,255,255,0.85) !important;
+      }
+      .panel-body .text-red-400 { color: #ffb8b3 !important; }
+      .panel-body .text-red-500 { color: #ffb8b3 !important; }
+      .panel-body .text-green-400 { color: #c4ea8a !important; }
+      .panel-body .text-green-500 { color: #c4ea8a !important; }
+
+      .dashboard-header .text-gray-400,
+      .dashboard-header .text-gray-500 { color: rgba(255,255,255,0.85) !important; }
+
+      .filter-bar .text-gray-400,
+      .filter-bar .text-gray-500 { color: rgba(255,255,255,0.85) !important; }
+
+      .dashboard-footer {
+        background: #003B4D;
+        border-top: 3px solid #E8413C;
+        color: rgba(255,255,255,0.85);
+      }
+      .dashboard-footer .text-gray-600,
+      .dashboard-footer .text-gray-700 { color: rgba(255,255,255,0.7) !important; }
 
       /* Print styles for report */
       @media print {
@@ -386,7 +438,7 @@
     <!-- ==================== FILTER BAR ==================== -->
     <div class="filter-bar no-print">
       <div class="max-w-[1440px] mx-auto flex flex-wrap items-center gap-3">
-        <calcite-icon icon="filter" scale="s" style="color:#666"></calcite-icon>
+        <calcite-icon icon="filter" scale="s" style="color:rgba(255,255,255,0.85)"></calcite-icon>
         <calcite-select id="filterProject" scale="s" style="width:180px">
           <calcite-option value="all" selected>All Projects</calcite-option>
         </calcite-select>
@@ -484,7 +536,7 @@
         <div class="panel">
           <div class="panel-header">
             <h3 class="flex items-center gap-2">
-              <calcite-icon icon="exclamation-mark-circle" scale="s" style="color:#d83020"></calcite-icon>
+              <calcite-icon icon="exclamation-mark-circle" scale="s" style="color:#E8413C"></calcite-icon>
               Top Failing Items
             </h3>
           </div>
@@ -607,7 +659,7 @@
         <div class="flex items-center justify-between mb-4">
           <div>
             <h2>Worley Safety Inspection Executive Report</h2>
-            <p class="text-sm text-gray-400" id="reportDateRange">Reporting period: --</p>
+            <p class="text-sm" style="color:rgba(255,255,255,0.85);" id="reportDateRange">Reporting period: --</p>
           </div>
           <div class="flex gap-2">
             <calcite-button id="printReportBtn" icon-start="print" appearance="outline" scale="s" kind="inverse">Print</calcite-button>
@@ -621,12 +673,12 @@
     </div>
 
     <!-- ==================== FOOTER ==================== -->
-    <footer class="border-t border-gray-800 mt-8 py-6 px-4 text-center">
-      <div class="flex items-center justify-center gap-2 mb-2 text-xs text-gray-600">
-        <calcite-icon icon="shield" scale="s" style="color:#444"></calcite-icon>
+    <footer class="dashboard-footer mt-8 py-6 px-4 text-center">
+      <div class="flex items-center justify-center gap-2 mb-2 text-xs">
+        <calcite-icon icon="shield" scale="s" style="color:#F4736B"></calcite-icon>
         <span>Worley &mdash; Powered by ArcGIS Survey123 &amp; ArcGIS Dashboards</span>
       </div>
-      <p class="text-xs text-gray-700">&copy; 2026 Worley. Data refreshes automatically.</p>
+      <p class="text-xs">&copy; 2026 Worley. Data refreshes automatically.</p>
     </footer>
 
     <!-- Dashboard JS -->

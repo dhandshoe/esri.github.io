@@ -18,12 +18,14 @@ let chartInstances = {};
 // Chart.js global defaults for dark theme (applied at init to ensure Chart.js is loaded)
 function applyChartDefaults() {
   if (typeof Chart === "undefined") return;
-  Chart.defaults.color = "#aaa";
-  Chart.defaults.borderColor = "rgba(255,255,255,0.08)";
+  Chart.defaults.color = "#ffffff";
+  Chart.defaults.borderColor = "rgba(255,255,255,0.18)";
   Chart.defaults.font.family = "'Avenir Next', 'Avenir', 'Helvetica Neue', sans-serif";
   Chart.defaults.font.size = 12;
+  Chart.defaults.font.weight = "500";
   Chart.defaults.plugins.legend.labels.boxWidth = 12;
   Chart.defaults.plugins.legend.labels.padding = 14;
+  Chart.defaults.plugins.legend.labels.color = "#ffffff";
 }
 
 // ============================================================
@@ -586,8 +588,15 @@ function renderKPIs(data) {
 }
 
 function getKpiColor(colorName) {
-  const map = { blue: "#F4736B", green: "#8DC63F", red: "#f05545", amber: "#f5e642", purple: "#a78bfa", teal: "#44C8C1" };
-  return map[colorName] || "#fff";
+  const map = {
+    blue: "#ffffff",
+    green: "#c4ea8a",
+    red: "#ffb8b3",
+    amber: "#fff0a0",
+    purple: "#ffffff",
+    teal: "#d0f4f1",
+  };
+  return map[colorName] || "#ffffff";
 }
 
 // ============================================================
@@ -606,9 +615,9 @@ function renderComplianceChart(data) {
   });
 
   const barColors = rates.map((r) => {
-    if (r >= 90) return "rgba(141,198,63,0.9)";
-    if (r >= 75) return "rgba(237,211,23,0.9)";
-    return "rgba(232,65,60,0.9)";
+    if (r >= 90) return "#8DC63F";
+    if (r >= 75) return "#edd317";
+    return "#E8413C";
   });
 
   chartInstances.compliance = new Chart(ctx, {
@@ -640,11 +649,12 @@ function renderComplianceChart(data) {
         x: {
           min: 0,
           max: 100,
-          grid: { color: "rgba(255,255,255,0.04)" },
-          ticks: { callback: (v) => v + "%" },
+          grid: { color: "rgba(255,255,255,0.15)" },
+          ticks: { callback: (v) => v + "%", color: "#ffffff" },
         },
         y: {
           grid: { display: false },
+          ticks: { color: "#ffffff", font: { weight: "600" } },
         },
       },
     },
@@ -661,10 +671,10 @@ function renderRiskDonut(data) {
 
   const riskCounts = getRiskCounts(data);
   const riskColors = {
-    low: "#35ac46",
+    low: "#8DC63F",
     moderate: "#edd317",
-    high: "#f05545",
-    critical: "#b91c1c",
+    high: "#F4736B",
+    critical: "#E8413C",
   };
 
   chartInstances.riskDonut = new Chart(ctx, {
@@ -674,7 +684,8 @@ function renderRiskDonut(data) {
       datasets: [{
         data: [riskCounts.low, riskCounts.moderate, riskCounts.high, riskCounts.critical],
         backgroundColor: [riskColors.low, riskColors.moderate, riskColors.high, riskColors.critical],
-        borderWidth: 0,
+        borderWidth: 2,
+        borderColor: "#66868F",
         hoverOffset: 6,
       }],
     },
@@ -703,11 +714,11 @@ function renderRiskDonut(data) {
     row.innerHTML = `
       <div class="flex items-center gap-2">
         <span class="w-2 h-2 rounded-full" style="background:${item.color}"></span>
-        <span class="text-gray-400">${item.label}</span>
+        <span style="color:#ffffff; font-weight:500;">${item.label}</span>
       </div>
       <div>
-        <span class="font-semibold" style="color:${item.color}">${item.count}</span>
-        <span class="text-gray-600 ml-1">(${((item.count / total) * 100).toFixed(0)}%)</span>
+        <span class="font-bold" style="color:${item.color}">${item.count}</span>
+        <span style="color:rgba(255,255,255,0.7)" class="ml-1">(${((item.count / total) * 100).toFixed(0)}%)</span>
       </div>
     `;
     legend.appendChild(row);
@@ -736,29 +747,29 @@ function renderTrendChart(data) {
         {
           label: "Inspections",
           data: trend.map((t) => t.count),
-          borderColor: "#44C8C1",
-          backgroundColor: "rgba(68,200,193,0.12)",
+          borderColor: "#F4736B",
+          backgroundColor: "rgba(244,115,107,0.2)",
           fill: true,
           tension: 0.3,
           pointRadius: 5,
-          pointBackgroundColor: "#44C8C1",
-          pointBorderColor: "#161a22",
+          pointBackgroundColor: "#F4736B",
+          pointBorderColor: "#ffffff",
           pointBorderWidth: 2,
-          borderWidth: 2.5,
+          borderWidth: 3,
           yAxisID: "y",
         },
         {
           label: "Compliance %",
           data: trend.map((t) => t.compliance),
           borderColor: "#8DC63F",
-          backgroundColor: "rgba(141,198,63,0.10)",
+          backgroundColor: "rgba(141,198,63,0.18)",
           fill: true,
           tension: 0.3,
           pointRadius: 5,
           pointBackgroundColor: "#8DC63F",
-          pointBorderColor: "#161a22",
+          pointBorderColor: "#ffffff",
           pointBorderWidth: 2,
-          borderWidth: 2.5,
+          borderWidth: 3,
           yAxisID: "y1",
           hidden: true,
         },
@@ -780,14 +791,17 @@ function renderTrendChart(data) {
         },
       },
       scales: {
-        x: { grid: { color: "rgba(255,255,255,0.04)" } },
+        x: {
+          grid: { color: "rgba(255,255,255,0.15)" },
+          ticks: { color: "#ffffff" },
+        },
         y: {
           type: "linear",
           position: "left",
           beginAtZero: true,
-          ticks: { stepSize: 1 },
-          grid: { color: "rgba(255,255,255,0.04)" },
-          title: { display: true, text: "Count", color: "#666" },
+          ticks: { stepSize: 1, color: "#ffffff" },
+          grid: { color: "rgba(255,255,255,0.15)" },
+          title: { display: true, text: "Count", color: "#ffffff" },
         },
         y1: {
           type: "linear",
@@ -795,8 +809,8 @@ function renderTrendChart(data) {
           min: 0,
           max: 100,
           grid: { display: false },
-          ticks: { callback: (v) => v + "%" },
-          title: { display: true, text: "Compliance %", color: "#666" },
+          ticks: { callback: (v) => v + "%", color: "#ffffff" },
+          title: { display: true, text: "Compliance %", color: "#ffffff" },
           display: false,
         },
       },
@@ -842,8 +856,9 @@ function renderWeatherChart(data) {
       },
       scales: {
         r: {
-          grid: { color: "rgba(255,255,255,0.06)" },
+          grid: { color: "rgba(255,255,255,0.2)" },
           ticks: { display: false },
+          angleLines: { color: "rgba(255,255,255,0.15)" },
         },
       },
     },
@@ -865,7 +880,7 @@ function renderFailingItems(data) {
     .slice(0, 8);
 
   if (sorted.length === 0) {
-    container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">No failures recorded.</p>';
+    container.innerHTML = '<p class="text-sm text-center py-4" style="color:rgba(255,255,255,0.7);">No failures recorded.</p>';
     return;
   }
 
@@ -880,11 +895,11 @@ function renderFailingItems(data) {
     row.className = "mb-3";
     row.innerHTML = `
       <div class="flex justify-between items-center mb-1">
-        <span class="text-xs text-gray-300 truncate" style="max-width:180px" title="${label}">${label}</span>
-        <span class="text-xs font-semibold text-red-400">${stats.fail} fail${stats.fail !== 1 ? "s" : ""} <span class="text-gray-600">(${pct}%)</span></span>
+        <span class="text-xs truncate" style="max-width:180px; color:#ffffff; font-weight:500;" title="${label}">${label}</span>
+        <span class="text-xs font-bold" style="color:#ffd5d1">${stats.fail} fail${stats.fail !== 1 ? "s" : ""} <span style="color:rgba(255,255,255,0.7); font-weight:500;">(${pct}%)</span></span>
       </div>
-      <div class="w-full h-1.5 rounded-full" style="background:rgba(255,255,255,0.06)">
-        <div class="h-full rounded-full" style="width:${barWidth}%; background: linear-gradient(90deg, #d83020, #f05545);"></div>
+      <div class="w-full h-2 rounded-full" style="background:rgba(0,59,77,0.3)">
+        <div class="h-full rounded-full" style="width:${barWidth}%; background: linear-gradient(90deg, #E8413C, #F4736B);"></div>
       </div>
     `;
     container.appendChild(row);
@@ -907,7 +922,8 @@ function renderComplianceBreakdown(data) {
     const passRate = applicable > 0 ? ((stats.pass / applicable) * 100).toFixed(1) : 0;
     const failRate = applicable > 0 ? ((stats.fail / applicable) * 100).toFixed(1) : 0;
 
-    const barColor = passRate >= 90 ? "#35ac46" : passRate >= 75 ? "#edd317" : "#d83020";
+    const barColor = passRate >= 90 ? "#8DC63F" : passRate >= 75 ? "#edd317" : "#E8413C";
+    const valueColor = passRate >= 90 ? "#c4ea8a" : passRate >= 75 ? "#fff0a0" : "#ffb8b3";
 
     const row = document.createElement("div");
     row.className = "sparkline-row";
@@ -916,11 +932,11 @@ function renderComplianceBreakdown(data) {
       <div class="sparkline-bar-bg">
         <div class="sparkline-bar-fill" style="width:${passRate}%; background:${barColor}"></div>
       </div>
-      <div class="sparkline-value" style="color:${barColor}">${passRate}%</div>
+      <div class="sparkline-value" style="color:${valueColor}">${passRate}%</div>
       <div style="flex:0 0 80px; text-align:right">
-        <span class="text-xs text-green-500">${stats.pass}P</span>
-        <span class="text-xs text-red-400 ml-1">${stats.fail}F</span>
-        <span class="text-xs text-gray-600 ml-1">${stats.na}N</span>
+        <span class="text-xs font-semibold" style="color:#c4ea8a">${stats.pass}P</span>
+        <span class="text-xs font-semibold ml-1" style="color:#ffb8b3">${stats.fail}F</span>
+        <span class="text-xs ml-1" style="color:rgba(255,255,255,0.7)">${stats.na}N</span>
       </div>
     `;
     container.appendChild(row);
@@ -947,6 +963,7 @@ function renderInspectionTable(data) {
     const typeLabel = INSPECTION_TYPE_LABELS[d.generalInfo.inspectionType] || d.generalInfo.inspectionType;
 
     const row = document.createElement("tr");
+    const complianceColor = parseFloat(compliance) >= 90 ? "#c4ea8a" : parseFloat(compliance) >= 75 ? "#fff0a0" : "#ffb8b3";
     row.innerHTML = `
       <td class="whitespace-nowrap">${dateStr}</td>
       <td>${d.generalInfo.inspectorName}</td>
@@ -954,11 +971,11 @@ function renderInspectionTable(data) {
       <td class="max-w-[140px] truncate" title="${d.generalInfo.contractor}">${d.generalInfo.contractor}</td>
       <td>${typeLabel}</td>
       <td><span class="risk-badge ${riskLevel}">${riskLevel}</span></td>
-      <td>${"&#9733;".repeat(parseInt(d.overallAssessment.rating))}${"&#9734;".repeat(5 - parseInt(d.overallAssessment.rating))}</td>
+      <td style="color:#fff0a0">${"&#9733;".repeat(parseInt(d.overallAssessment.rating))}<span style="color:rgba(255,255,255,0.4)">${"&#9734;".repeat(5 - parseInt(d.overallAssessment.rating))}</span></td>
       <td>
-        <span style="color:${parseFloat(compliance) >= 90 ? "#35ac46" : parseFloat(compliance) >= 75 ? "#edd317" : "#d83020"}">${compliance}%</span>
+        <span style="color:${complianceColor}; font-weight:700;">${compliance}%</span>
       </td>
-      <td>${d.overallAssessment.stopWorkIssued ? '<span class="risk-badge critical">YES</span>' : '<span class="text-gray-600">No</span>'}</td>
+      <td>${d.overallAssessment.stopWorkIssued ? '<span class="risk-badge critical">YES</span>' : '<span style="color:rgba(255,255,255,0.6)">No</span>'}</td>
     `;
     tbody.appendChild(row);
   });
@@ -1004,7 +1021,7 @@ function initInspectionMap() {
     mapGraphicsLayer = new GraphicsLayer({ title: "Inspections" });
 
     var map = new Map({
-      basemap: "dark-gray-vector",
+      basemap: "gray-vector",
       layers: [mapGraphicsLayer],
     });
 
@@ -1040,9 +1057,9 @@ function showMapFallback(message) {
     container.style.display = "flex";
     container.style.alignItems = "center";
     container.style.justifyContent = "center";
-    container.style.background = "#1a1f2a";
-    container.innerHTML = '<div style="text-align:center;color:#666;font-size:0.85rem;padding:20px;">'
-      + '<calcite-icon icon="exclamation-mark-triangle" scale="l" style="color:#555;margin-bottom:8px;"></calcite-icon>'
+    container.style.background = "rgba(0,59,77,0.25)";
+    container.innerHTML = '<div style="text-align:center;color:#ffffff;font-size:0.9rem;padding:20px;">'
+      + '<calcite-icon icon="exclamation-mark-triangle" scale="l" style="color:#F4736B;margin-bottom:8px;"></calcite-icon>'
       + '<br>' + message + '</div>';
   }
 }
@@ -1056,10 +1073,10 @@ function renderMapPoints(data) {
   mapGraphicsLayer.removeAll();
 
   const riskColorMap = {
-    low: [53, 172, 70],
+    low: [141, 198, 63],
     moderate: [237, 211, 23],
-    high: [240, 85, 69],
-    critical: [185, 28, 28],
+    high: [244, 115, 107],
+    critical: [232, 65, 60],
   };
 
   const riskSizeMap = { low: 10, moderate: 12, high: 14, critical: 18 };
@@ -1082,8 +1099,8 @@ function renderMapPoints(data) {
 
     const symbol = {
       type: "simple-marker",
-      color: riskColorMap[risk] || [0, 95, 107],
-      outline: { color: [20, 24, 34, 200], width: 2 },
+      color: riskColorMap[risk] || [0, 59, 77],
+      outline: { color: [255, 255, 255, 230], width: 2 },
       size: riskSizeMap[risk] || 12,
     };
 
@@ -1189,7 +1206,7 @@ function renderInspectorLeaderboard(data) {
   const inspectors = getInspectorStats(data).sort((a, b) => b.count - a.count);
 
   if (inspectors.length === 0) {
-    container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">No inspectors found.</p>';
+    container.innerHTML = '<p class="text-sm text-center py-4" style="color:rgba(255,255,255,0.7);">No inspectors found.</p>';
     return;
   }
 
@@ -1197,23 +1214,24 @@ function renderInspectorLeaderboard(data) {
   const medals = ["#f59e0b", "#94a3b8", "#b45309"];
 
   inspectors.slice(0, 5).forEach((inspector, idx) => {
-    const compColor = parseFloat(inspector.compliance) >= 90 ? "#35ac46" : parseFloat(inspector.compliance) >= 75 ? "#edd317" : "#d83020";
+    const compColor = parseFloat(inspector.compliance) >= 90 ? "#c4ea8a" : parseFloat(inspector.compliance) >= 75 ? "#fff0a0" : "#ffb8b3";
     const roleLabel = ROLE_LABELS[inspector.role] || inspector.role;
 
     const row = document.createElement("div");
-    row.className = "flex items-center gap-3 py-2" + (idx < inspectors.length - 1 ? " border-b border-gray-800" : "");
+    row.className = "flex items-center gap-3 py-2" + (idx < inspectors.length - 1 ? " border-b" : "");
+    row.style.borderColor = "rgba(255,255,255,0.12)";
     row.innerHTML = `
       <div class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
-           style="background:${idx < 3 ? medals[idx] + "22" : "rgba(255,255,255,0.04)"}; color:${idx < 3 ? medals[idx] : "#666"};">
+           style="background:${idx < 3 ? medals[idx] + "33" : "rgba(255,255,255,0.12)"}; color:${idx < 3 ? medals[idx] : "#ffffff"};">
         ${idx + 1}
       </div>
       <div class="flex-grow min-w-0">
-        <div class="text-sm font-medium text-gray-200 truncate">${inspector.name}</div>
-        <div class="text-xs text-gray-500">${roleLabel}</div>
+        <div class="text-sm font-semibold truncate" style="color:#ffffff">${inspector.name}</div>
+        <div class="text-xs" style="color:rgba(255,255,255,0.75)">${roleLabel}</div>
       </div>
       <div class="text-right flex-shrink-0">
-        <div class="text-sm font-semibold" style="color:${compColor}">${inspector.compliance}%</div>
-        <div class="text-xs text-gray-500">${inspector.count} insp.</div>
+        <div class="text-sm font-bold" style="color:${compColor}">${inspector.compliance}%</div>
+        <div class="text-xs" style="color:rgba(255,255,255,0.7)">${inspector.count} insp.</div>
       </div>
     `;
     container.appendChild(row);
@@ -1315,23 +1333,23 @@ function generateReport(data) {
 
   // Determine overall status color and label
   const compVal = parseFloat(compliance);
-  let statusColor, statusLabel, statusIcon;
+  let statusColor, statusLabel, statusIcon, statusTextColor;
   if (compVal >= 90 && stopWork === 0) {
-    statusColor = "#35ac46"; statusLabel = "GOOD"; statusIcon = "check-circle-f";
+    statusColor = "#8DC63F"; statusTextColor = "#c4ea8a"; statusLabel = "GOOD"; statusIcon = "check-circle-f";
   } else if (compVal >= 75) {
-    statusColor = "#edd317"; statusLabel = "CAUTION"; statusIcon = "exclamation-mark-triangle-f";
+    statusColor = "#edd317"; statusTextColor = "#fff0a0"; statusLabel = "CAUTION"; statusIcon = "exclamation-mark-triangle-f";
   } else {
-    statusColor = "#d83020"; statusLabel = "ACTION REQUIRED"; statusIcon = "exclamation-mark-circle-f";
+    statusColor = "#E8413C"; statusTextColor = "#ffb8b3"; statusLabel = "ACTION REQUIRED"; statusIcon = "exclamation-mark-circle-f";
   }
 
   content.innerHTML = `
     <!-- Overall Status Banner -->
-    <div class="report-section" style="border-color:${statusColor}44; background:${statusColor}08">
+    <div class="report-section" style="border-color:${statusColor}66; background:${statusColor}1a">
       <div class="flex items-center gap-3 mb-2">
-        <calcite-icon icon="${statusIcon}" scale="l" style="color:${statusColor}"></calcite-icon>
+        <calcite-icon icon="${statusIcon}" scale="l" style="color:${statusTextColor}"></calcite-icon>
         <div>
-          <h4 style="color:${statusColor}; margin:0">Overall Safety Status: ${statusLabel}</h4>
-          <p class="text-sm text-gray-400 mt-1">Based on ${data.length} inspection${data.length !== 1 ? "s" : ""} across ${Object.keys(projectMap).length} project${Object.keys(projectMap).length !== 1 ? "s" : ""}</p>
+          <h4 style="color:${statusTextColor}; margin:0">Overall Safety Status: ${statusLabel}</h4>
+          <p class="text-sm mt-1" style="color:rgba(255,255,255,0.85);">Based on ${data.length} inspection${data.length !== 1 ? "s" : ""} across ${Object.keys(projectMap).length} project${Object.keys(projectMap).length !== 1 ? "s" : ""}</p>
         </div>
       </div>
     </div>
@@ -1340,12 +1358,12 @@ function generateReport(data) {
     <div class="report-section">
       <h4>Key Performance Indicators</h4>
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px;">
-        ${reportMetricCard("Total Inspections", data.length, "#F4736B")}
-        ${reportMetricCard("Overall Compliance", compliance + "%", compVal >= 90 ? "#35ac46" : compVal >= 75 ? "#edd317" : "#d83020")}
-        ${reportMetricCard("Avg Safety Rating", avgRating + " / 5", parseFloat(avgRating) >= 4 ? "#35ac46" : "#edd317")}
-        ${reportMetricCard("Stop Work Orders", stopWork, stopWork > 0 ? "#d83020" : "#35ac46")}
-        ${reportMetricCard("Corrective Actions", corrective, corrective > 0 ? "#edd317" : "#35ac46")}
-        ${reportMetricCard("Unique Inspectors", inspectors.length, "#a78bfa")}
+        ${reportMetricCard("Total Inspections", data.length, "#ffffff")}
+        ${reportMetricCard("Overall Compliance", compliance + "%", compVal >= 90 ? "#c4ea8a" : compVal >= 75 ? "#fff0a0" : "#ffb8b3")}
+        ${reportMetricCard("Avg Safety Rating", avgRating + " / 5", parseFloat(avgRating) >= 4 ? "#c4ea8a" : "#fff0a0")}
+        ${reportMetricCard("Stop Work Orders", stopWork, stopWork > 0 ? "#ffb8b3" : "#c4ea8a")}
+        ${reportMetricCard("Corrective Actions", corrective, corrective > 0 ? "#fff0a0" : "#c4ea8a")}
+        ${reportMetricCard("Unique Inspectors", inspectors.length, "#d0f4f1")}
       </div>
     </div>
 
@@ -1353,10 +1371,10 @@ function generateReport(data) {
     <div class="report-section">
       <h4>Risk Distribution</h4>
       <div class="flex flex-wrap gap-4">
-        ${reportRiskBar("Low", riskCounts.low, data.length, "#35ac46")}
+        ${reportRiskBar("Low", riskCounts.low, data.length, "#8DC63F")}
         ${reportRiskBar("Moderate", riskCounts.moderate, data.length, "#edd317")}
-        ${reportRiskBar("High", riskCounts.high, data.length, "#f05545")}
-        ${reportRiskBar("Critical", riskCounts.critical, data.length, "#b91c1c")}
+        ${reportRiskBar("High", riskCounts.high, data.length, "#F4736B")}
+        ${reportRiskBar("Critical", riskCounts.critical, data.length, "#E8413C")}
       </div>
     </div>
 
@@ -1365,23 +1383,23 @@ function generateReport(data) {
       <h4>Compliance by Category</h4>
       <table style="width:100%; font-size:0.8rem; border-collapse:collapse;">
         <thead>
-          <tr style="border-bottom:1px solid rgba(255,255,255,0.1)">
-            <th style="text-align:left; padding:6px 8px; color:#888;">Category</th>
-            <th style="text-align:right; padding:6px 8px; color:#888;">Pass</th>
-            <th style="text-align:right; padding:6px 8px; color:#888;">Fail</th>
-            <th style="text-align:right; padding:6px 8px; color:#888;">N/A</th>
-            <th style="text-align:right; padding:6px 8px; color:#888;">Compliance</th>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.18)">
+            <th style="text-align:left; padding:6px 8px; color:rgba(255,255,255,0.75); font-weight:600;">Category</th>
+            <th style="text-align:right; padding:6px 8px; color:rgba(255,255,255,0.75); font-weight:600;">Pass</th>
+            <th style="text-align:right; padding:6px 8px; color:rgba(255,255,255,0.75); font-weight:600;">Fail</th>
+            <th style="text-align:right; padding:6px 8px; color:rgba(255,255,255,0.75); font-weight:600;">N/A</th>
+            <th style="text-align:right; padding:6px 8px; color:rgba(255,255,255,0.75); font-weight:600;">Compliance</th>
           </tr>
         </thead>
         <tbody>
           ${sectionCompliance.map((s) => {
             const rate = s.rate.toFixed(1);
-            const color = s.rate >= 90 ? "#35ac46" : s.rate >= 75 ? "#edd317" : "#d83020";
-            return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
-              <td style="padding:6px 8px; color:#ccc;">${s.label}</td>
-              <td style="padding:6px 8px; text-align:right; color:#35ac46;">${s.pass}</td>
-              <td style="padding:6px 8px; text-align:right; color:#f05545;">${s.fail}</td>
-              <td style="padding:6px 8px; text-align:right; color:#666;">${s.na}</td>
+            const color = s.rate >= 90 ? "#c4ea8a" : s.rate >= 75 ? "#fff0a0" : "#ffb8b3";
+            return `<tr style="border-bottom:1px solid rgba(255,255,255,0.08)">
+              <td style="padding:6px 8px; color:#ffffff;">${s.label}</td>
+              <td style="padding:6px 8px; text-align:right; color:#c4ea8a;">${s.pass}</td>
+              <td style="padding:6px 8px; text-align:right; color:#ffb8b3;">${s.fail}</td>
+              <td style="padding:6px 8px; text-align:right; color:rgba(255,255,255,0.6);">${s.na}</td>
               <td style="padding:6px 8px; text-align:right; font-weight:700; color:${color};">${rate}%</td>
             </tr>`;
           }).join("")}
@@ -1391,16 +1409,16 @@ function generateReport(data) {
 
     <!-- Areas of Concern -->
     ${worstSections.length > 0 ? `
-    <div class="report-section" style="border-color:rgba(216,48,32,0.2)">
-      <h4 style="color:#f05545">Areas of Concern</h4>
+    <div class="report-section" style="border-color:rgba(232,65,60,0.4)">
+      <h4 style="color:#ffb8b3">Areas of Concern</h4>
       ${worstSections.map((s) => `
         <div class="mb-3">
           <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-300">${s.label}</span>
-            <span class="text-sm font-bold" style="color:${s.rate >= 75 ? "#edd317" : "#f05545"}">${s.rate.toFixed(1)}% compliance</span>
+            <span class="text-sm" style="color:#ffffff;">${s.label}</span>
+            <span class="text-sm font-bold" style="color:${s.rate >= 75 ? "#fff0a0" : "#ffb8b3"}">${s.rate.toFixed(1)}% compliance</span>
           </div>
-          <div class="w-full h-1.5 rounded-full mt-1" style="background:rgba(255,255,255,0.06)">
-            <div class="h-full rounded-full" style="width:${s.rate}%; background:${s.rate >= 75 ? "#edd317" : "#f05545"}"></div>
+          <div class="w-full h-1.5 rounded-full mt-1" style="background:rgba(0,59,77,0.35)">
+            <div class="h-full rounded-full" style="width:${s.rate}%; background:${s.rate >= 75 ? "#edd317" : "#E8413C"}"></div>
           </div>
         </div>
       `).join("")}
@@ -1408,28 +1426,28 @@ function generateReport(data) {
 
     <!-- Top Failing Checklist Items -->
     ${topFails.length > 0 ? `
-    <div class="report-section" style="border-color:rgba(216,48,32,0.2)">
-      <h4 style="color:#f05545">Top Failing Checklist Items</h4>
-      <ol class="text-sm text-gray-300 space-y-2 pl-4" style="list-style:decimal">
+    <div class="report-section" style="border-color:rgba(232,65,60,0.4)">
+      <h4 style="color:#ffb8b3">Top Failing Checklist Items</h4>
+      <ol class="text-sm space-y-2 pl-4" style="list-style:decimal; color:#ffffff;">
         ${topFails.map(([itemId, stats]) => {
           const pct = stats.total > 0 ? ((stats.fail / stats.total) * 100).toFixed(0) : 0;
-          return `<li><span class="text-gray-200">${ITEM_LABELS[itemId] || itemId}</span> &mdash; <span class="text-red-400 font-semibold">${stats.fail} failure${stats.fail !== 1 ? "s" : ""} (${pct}% fail rate)</span></li>`;
+          return `<li><span style="color:#ffffff;">${ITEM_LABELS[itemId] || itemId}</span> &mdash; <span style="color:#ffd5d1; font-weight:600;">${stats.fail} failure${stats.fail !== 1 ? "s" : ""} (${pct}% fail rate)</span></li>`;
         }).join("")}
       </ol>
     </div>` : ""}
 
     <!-- Positive Highlights -->
-    <div class="report-section" style="border-color:rgba(53,172,70,0.2)">
-      <h4 style="color:#35ac46">Positive Highlights</h4>
+    <div class="report-section" style="border-color:rgba(141,198,63,0.4)">
+      <h4 style="color:#c4ea8a">Positive Highlights</h4>
       ${bestSections.filter((s) => s.rate >= 90).length > 0 ? `
-        <p class="text-sm text-gray-300 mb-2">The following categories achieved <span class="text-green-400 font-semibold">&ge;90% compliance</span>:</p>
-        <ul class="text-sm text-gray-300 space-y-1 pl-4" style="list-style:disc">
-          ${bestSections.filter((s) => s.rate >= 90).map((s) => `<li>${s.label} &mdash; <span class="text-green-400 font-semibold">${s.rate.toFixed(1)}%</span></li>`).join("")}
+        <p class="text-sm mb-2" style="color:#ffffff;">The following categories achieved <span style="color:#c4ea8a; font-weight:600;">&ge;90% compliance</span>:</p>
+        <ul class="text-sm space-y-1 pl-4" style="list-style:disc; color:#ffffff;">
+          ${bestSections.filter((s) => s.rate >= 90).map((s) => `<li>${s.label} &mdash; <span style="color:#c4ea8a; font-weight:600;">${s.rate.toFixed(1)}%</span></li>`).join("")}
         </ul>
-      ` : '<p class="text-sm text-gray-400">No categories achieved 90% compliance in this period.</p>'}
+      ` : '<p class="text-sm" style="color:rgba(255,255,255,0.7);">No categories achieved 90% compliance in this period.</p>'}
       ${getPositiveObservations(data).length > 0 ? `
-        <p class="text-sm text-gray-300 mt-3 mb-2">Inspector observations:</p>
-        <ul class="text-sm text-gray-400 space-y-1 pl-4" style="list-style:disc">
+        <p class="text-sm mt-3 mb-2" style="color:#ffffff;">Inspector observations:</p>
+        <ul class="text-sm space-y-1 pl-4" style="list-style:disc; color:rgba(255,255,255,0.85);">
           ${getPositiveObservations(data).slice(0, 4).map((obs) => `<li>"${obs}"</li>`).join("")}
         </ul>
       ` : ""}
@@ -1440,24 +1458,24 @@ function generateReport(data) {
       <h4>Project Summary</h4>
       <table style="width:100%; font-size:0.8rem; border-collapse:collapse;">
         <thead>
-          <tr style="border-bottom:1px solid rgba(255,255,255,0.1)">
-            <th style="text-align:left; padding:6px 8px; color:#888;">Project</th>
-            <th style="text-align:right; padding:6px 8px; color:#888;">Inspections</th>
-            <th style="text-align:right; padding:6px 8px; color:#888;">Compliance</th>
-            <th style="text-align:right; padding:6px 8px; color:#888;">Highest Risk</th>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.18)">
+            <th style="text-align:left; padding:6px 8px; color:rgba(255,255,255,0.75); font-weight:600;">Project</th>
+            <th style="text-align:right; padding:6px 8px; color:rgba(255,255,255,0.75); font-weight:600;">Inspections</th>
+            <th style="text-align:right; padding:6px 8px; color:rgba(255,255,255,0.75); font-weight:600;">Compliance</th>
+            <th style="text-align:right; padding:6px 8px; color:rgba(255,255,255,0.75); font-weight:600;">Highest Risk</th>
           </tr>
         </thead>
         <tbody>
           ${Object.entries(projectMap).map(([name, p]) => {
             const pCompliance = p.totalApplicable > 0 ? ((p.totalPass / p.totalApplicable) * 100).toFixed(1) : "N/A";
-            const pColor = parseFloat(pCompliance) >= 90 ? "#35ac46" : parseFloat(pCompliance) >= 75 ? "#edd317" : "#d83020";
+            const pColor = parseFloat(pCompliance) >= 90 ? "#c4ea8a" : parseFloat(pCompliance) >= 75 ? "#fff0a0" : "#ffb8b3";
             const worstRisk = getWorstRisk(p.risks);
-            const riskBadgeColor = { low: "#35ac46", moderate: "#edd317", high: "#f05545", critical: "#b91c1c" }[worstRisk] || "#888";
-            return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
-              <td style="padding:6px 8px; color:#ccc; max-width:200px;" class="truncate" title="${name}">${name}</td>
-              <td style="padding:6px 8px; text-align:right; color:#aaa;">${p.count}</td>
+            const riskBadgeColor = { low: "#c4ea8a", moderate: "#fff0a0", high: "#ffd5d1", critical: "#ffb8b3" }[worstRisk] || "#ffffff";
+            return `<tr style="border-bottom:1px solid rgba(255,255,255,0.08)">
+              <td style="padding:6px 8px; color:#ffffff; max-width:200px;" class="truncate" title="${name}">${name}</td>
+              <td style="padding:6px 8px; text-align:right; color:#ffffff;">${p.count}</td>
               <td style="padding:6px 8px; text-align:right; font-weight:600; color:${pColor};">${pCompliance}%</td>
-              <td style="padding:6px 8px; text-align:right;"><span style="color:${riskBadgeColor}; font-weight:600; text-transform:uppercase; font-size:0.7rem;">${worstRisk}</span></td>
+              <td style="padding:6px 8px; text-align:right;"><span style="color:${riskBadgeColor}; font-weight:700; text-transform:uppercase; font-size:0.7rem;">${worstRisk}</span></td>
             </tr>`;
           }).join("")}
         </tbody>
@@ -1469,22 +1487,22 @@ function generateReport(data) {
       <h4>Inspector Activity</h4>
       <table style="width:100%; font-size:0.8rem; border-collapse:collapse;">
         <thead>
-          <tr style="border-bottom:1px solid rgba(255,255,255,0.1)">
-            <th style="text-align:left; padding:6px 8px; color:#888;">Inspector</th>
-            <th style="text-align:left; padding:6px 8px; color:#888;">Role</th>
-            <th style="text-align:right; padding:6px 8px; color:#888;">Inspections</th>
-            <th style="text-align:right; padding:6px 8px; color:#888;">Avg Rating</th>
-            <th style="text-align:right; padding:6px 8px; color:#888;">Compliance</th>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.18)">
+            <th style="text-align:left; padding:6px 8px; color:rgba(255,255,255,0.75); font-weight:600;">Inspector</th>
+            <th style="text-align:left; padding:6px 8px; color:rgba(255,255,255,0.75); font-weight:600;">Role</th>
+            <th style="text-align:right; padding:6px 8px; color:rgba(255,255,255,0.75); font-weight:600;">Inspections</th>
+            <th style="text-align:right; padding:6px 8px; color:rgba(255,255,255,0.75); font-weight:600;">Avg Rating</th>
+            <th style="text-align:right; padding:6px 8px; color:rgba(255,255,255,0.75); font-weight:600;">Compliance</th>
           </tr>
         </thead>
         <tbody>
           ${inspectors.map((ins) => {
-            const cColor = parseFloat(ins.compliance) >= 90 ? "#35ac46" : parseFloat(ins.compliance) >= 75 ? "#edd317" : "#d83020";
-            return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
-              <td style="padding:6px 8px; color:#ccc;">${ins.name}</td>
-              <td style="padding:6px 8px; color:#888;">${ROLE_LABELS[ins.role] || ins.role}</td>
-              <td style="padding:6px 8px; text-align:right; color:#aaa;">${ins.count}</td>
-              <td style="padding:6px 8px; text-align:right; color:#aaa;">${ins.avgRating}</td>
+            const cColor = parseFloat(ins.compliance) >= 90 ? "#c4ea8a" : parseFloat(ins.compliance) >= 75 ? "#fff0a0" : "#ffb8b3";
+            return `<tr style="border-bottom:1px solid rgba(255,255,255,0.08)">
+              <td style="padding:6px 8px; color:#ffffff;">${ins.name}</td>
+              <td style="padding:6px 8px; color:rgba(255,255,255,0.7);">${ROLE_LABELS[ins.role] || ins.role}</td>
+              <td style="padding:6px 8px; text-align:right; color:#ffffff;">${ins.count}</td>
+              <td style="padding:6px 8px; text-align:right; color:#fff0a0;">${ins.avgRating}</td>
               <td style="padding:6px 8px; text-align:right; font-weight:600; color:${cColor};">${ins.compliance}%</td>
             </tr>`;
           }).join("")}
@@ -1494,19 +1512,20 @@ function generateReport(data) {
 
     <!-- Corrective Actions Log -->
     ${corrective > 0 ? `
-    <div class="report-section" style="border-color:rgba(237,211,23,0.2)">
-      <h4 style="color:#edd317">Open Corrective Actions</h4>
+    <div class="report-section" style="border-color:rgba(237,211,23,0.4)">
+      <h4 style="color:#fff0a0">Open Corrective Actions</h4>
       ${data.filter((d) => d.overallAssessment.correctiveActionsRequired).map((d) => {
         const dateStr = new Date(d.generalInfo.inspectionDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" });
-        const priorityColors = { immediate: "#d83020", today: "#f05545", "24hours": "#edd317", week: "#888" };
+        const priorityColors = { immediate: "#E8413C", today: "#F4736B", "24hours": "#edd317", week: "#9DADBA" };
+        const priorityTextColors = { immediate: "#ffb8b3", today: "#ffd5d1", "24hours": "#fff0a0", week: "#ffffff" };
         const prio = d.overallAssessment.correctionPriority || "today";
-        return `<div class="mb-3 p-3 rounded" style="background:rgba(255,255,255,0.02); border-left:3px solid ${priorityColors[prio] || "#888"}">
+        return `<div class="mb-3 p-3 rounded" style="background:rgba(0,59,77,0.3); border-left:3px solid ${priorityColors[prio] || "#9DADBA"}">
           <div class="flex justify-between items-start mb-1">
-            <span class="text-sm font-semibold text-gray-200">${d.generalInfo.projectName}</span>
-            <span class="text-xs px-2 py-0.5 rounded" style="background:${priorityColors[prio]}22; color:${priorityColors[prio]};">${prio.toUpperCase()}</span>
+            <span class="text-sm font-semibold" style="color:#ffffff;">${d.generalInfo.projectName}</span>
+            <span class="text-xs px-2 py-0.5 rounded font-semibold" style="background:${priorityColors[prio]}33; color:${priorityTextColors[prio]};">${prio.toUpperCase()}</span>
           </div>
-          <p class="text-xs text-gray-400 mb-1">${dateStr} &bull; ${d.generalInfo.inspectorName}</p>
-          <p class="text-sm text-gray-300">${d.overallAssessment.correctiveActions}</p>
+          <p class="text-xs mb-1" style="color:rgba(255,255,255,0.75);">${dateStr} &bull; ${d.generalInfo.inspectorName}</p>
+          <p class="text-sm" style="color:#ffffff;">${d.overallAssessment.correctiveActions}</p>
         </div>`;
       }).join("")}
     </div>` : ""}
@@ -1514,24 +1533,24 @@ function generateReport(data) {
     <!-- Recommendations -->
     <div class="report-section">
       <h4>Automated Recommendations</h4>
-      <ul class="text-sm text-gray-300 space-y-2 pl-4" style="list-style:disc">
+      <ul class="text-sm space-y-2 pl-4" style="list-style:disc; color:#ffffff;">
         ${generateRecommendations(data, sectionCompliance, riskCounts, stopWork).map((r) => `<li>${r}</li>`).join("")}
       </ul>
     </div>
 
     <!-- Report Footer -->
-    <div class="mt-6 pt-4 border-t border-gray-700 text-center">
-      <p class="text-xs text-gray-500">This report was automatically generated by the Worley Safety Inspection Dashboard.</p>
-      <p class="text-xs text-gray-600 mt-1">Generated on ${new Date().toLocaleString("en-US", { month: "long", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}</p>
+    <div class="mt-6 pt-4 text-center" style="border-top:1px solid rgba(255,255,255,0.18);">
+      <p class="text-xs" style="color:rgba(255,255,255,0.85);">This report was automatically generated by the Worley Safety Inspection Dashboard.</p>
+      <p class="text-xs mt-1" style="color:rgba(255,255,255,0.65);">Generated on ${new Date().toLocaleString("en-US", { month: "long", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}</p>
     </div>
   `;
 }
 
 // Report helper: metric card HTML
 function reportMetricCard(label, value, color) {
-  return `<div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:12px; text-align:center;">
+  return `<div style="background:rgba(0,59,77,0.3); border-radius:8px; padding:12px; text-align:center; border:1px solid rgba(255,255,255,0.1);">
     <div style="font-size:1.4rem; font-weight:700; color:${color};">${value}</div>
-    <div style="font-size:0.7rem; color:#888; text-transform:uppercase; letter-spacing:0.04em; margin-top:4px;">${label}</div>
+    <div style="font-size:0.7rem; color:rgba(255,255,255,0.8); text-transform:uppercase; letter-spacing:0.04em; margin-top:4px; font-weight:600;">${label}</div>
   </div>`;
 }
 
@@ -1540,10 +1559,10 @@ function reportRiskBar(label, count, total, color) {
   const pct = total > 0 ? ((count / total) * 100).toFixed(0) : 0;
   return `<div style="flex:1; min-width:100px;">
     <div class="flex justify-between text-xs mb-1">
-      <span style="color:${color}">${label}</span>
-      <span class="text-gray-400">${count} (${pct}%)</span>
+      <span style="color:${color}; font-weight:600;">${label}</span>
+      <span style="color:rgba(255,255,255,0.85);">${count} (${pct}%)</span>
     </div>
-    <div style="height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden;">
+    <div style="height:6px; background:rgba(0,59,77,0.35); border-radius:3px; overflow:hidden;">
       <div style="height:100%; width:${pct}%; background:${color}; border-radius:3px;"></div>
     </div>
   </div>`;
@@ -1708,7 +1727,7 @@ function renderPhotoDocumentation(data) {
   }
 
   if (photos.length === 0) {
-    container.innerHTML = '<p class="text-sm text-gray-500 text-center py-6">No photo documentation available for the selected inspections.</p>';
+    container.innerHTML = '<p class="text-sm text-center py-6" style="color:rgba(255,255,255,0.7);">No photo documentation available for the selected inspections.</p>';
     return;
   }
 
@@ -1739,7 +1758,7 @@ function renderPhotoDocumentation(data) {
   html += '</div>';
 
   if (photos.length > 12) {
-    html += '<p class="text-xs text-gray-500 text-center mt-3">Showing 12 of ' + photos.length + ' documented photos</p>';
+    html += '<p class="text-xs text-center mt-3" style="color:rgba(255,255,255,0.75);">Showing 12 of ' + photos.length + ' documented photos</p>';
   }
 
   container.innerHTML = html;
