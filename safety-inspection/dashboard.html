@@ -396,6 +396,93 @@
       .dashboard-footer .text-gray-600,
       .dashboard-footer .text-gray-700 { color: rgba(255,255,255,0.7) !important; }
 
+      /* Lightbox overlay */
+      .lightbox-overlay {
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.88);
+        backdrop-filter: blur(8px);
+        z-index: 1100;
+        display: none;
+        align-items: center; justify-content: center;
+        flex-direction: column;
+      }
+      .lightbox-overlay.active { display: flex; }
+      .lightbox-modal {
+        max-width: 900px; width: 92%;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      .lightbox-image-container {
+        border-radius: 8px; overflow: hidden;
+        background: rgba(0,0,0,0.4);
+        max-height: 500px;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .lightbox-image-container img {
+        width: 100%; height: auto; max-height: 500px;
+        object-fit: contain;
+      }
+      .lightbox-details {
+        background: rgba(0,59,77,0.5);
+        border-radius: 8px;
+        padding: 16px; margin-top: 12px;
+        color: #ffffff;
+      }
+      .lightbox-nav {
+        display: flex; align-items: center; justify-content: center;
+        gap: 16px; margin-top: 12px;
+      }
+
+      /* Inspection detail overlay */
+      .inspection-detail-overlay {
+        position: fixed; inset: 0;
+        background: rgba(0,59,77,0.75);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        display: none;
+        align-items: flex-start; justify-content: center;
+        overflow-y: auto;
+        padding: 32px 0;
+      }
+      .inspection-detail-overlay.active { display: flex; }
+
+      .detail-section {
+        background: rgba(0,59,77,0.25);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-bottom: 16px;
+      }
+      .detail-section h4 {
+        color: #F4736B;
+        font-size: 0.9rem; font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 10px;
+      }
+      .checklist-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 6px 16px;
+      }
+      .checklist-item {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 0.82rem; padding: 4px 0;
+        color: rgba(255,255,255,0.9);
+      }
+      .checklist-icon-pass { color: #8DC63F; }
+      .checklist-icon-fail { color: #E8413C; }
+      .checklist-icon-na { color: rgba(255,255,255,0.4); }
+
+      /* Photo card body gradient variants */
+      .photo-card-body-gradient.hazard { background: linear-gradient(135deg, #E8413C, #a8302c); }
+      .photo-card-body-gradient.positive { background: linear-gradient(135deg, #8DC63F, #5a8a25); }
+      .photo-card-body-gradient.general { background: linear-gradient(135deg, #44C8C1, #003B4D); }
+
+      .photo-thumb img {
+        width: 100%; height: 120px; object-fit: cover;
+      }
+
       /* Print styles for report */
       @media print {
         body { background: white; color: #333; }
@@ -599,7 +686,10 @@
             <calcite-icon icon="camera" scale="s" style="color:#F4736B"></calcite-icon>
             Photo Documentation
           </h3>
-          <span class="text-xs text-gray-500" id="photoCount">0 photos across inspections</span>
+          <div class="flex items-center gap-3">
+            <calcite-button id="downloadSelectedPhotos" icon-start="download" appearance="outline" scale="s" kind="inverse" style="display:none">Download Selected</calcite-button>
+            <span class="text-xs text-gray-500" id="photoCount">0 photos across inspections</span>
+          </div>
         </div>
         <div class="panel-body" id="photoDocPanel">
           <!-- Photo grid injected by JS -->
@@ -662,13 +752,67 @@
             <p class="text-sm" style="color:rgba(255,255,255,0.85);" id="reportDateRange">Reporting period: --</p>
           </div>
           <div class="flex gap-2">
+            <calcite-button id="exportPdfBtn" icon-start="file-pdf" appearance="solid" scale="s" kind="brand">Export PDF</calcite-button>
             <calcite-button id="printReportBtn" icon-start="print" appearance="outline" scale="s" kind="inverse">Print</calcite-button>
             <calcite-button id="closeReportBtn" icon-start="x" appearance="transparent" scale="s" kind="inverse"></calcite-button>
+          </div>
+        </div>
+        <div class="mb-4" style="border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:12px;">
+          <calcite-label scale="s" style="color:rgba(255,255,255,0.85); margin-bottom:8px;">Report Scope</calcite-label>
+          <div class="flex flex-wrap gap-3 items-center">
+            <calcite-segmented-control id="reportScope" scale="s">
+              <calcite-segmented-control-item value="dashboard" checked>Full Dashboard</calcite-segmented-control-item>
+              <calcite-segmented-control-item value="project">By Project</calcite-segmented-control-item>
+              <calcite-segmented-control-item value="inspection">Single Inspection</calcite-segmented-control-item>
+            </calcite-segmented-control>
+            <calcite-select id="reportProjectSelect" scale="s" style="width:220px; display:none;">
+            </calcite-select>
+            <calcite-select id="reportInspectionSelect" scale="s" style="width:300px; display:none;">
+            </calcite-select>
           </div>
         </div>
         <div id="reportContent">
           <!-- Injected by JS -->
         </div>
+      </div>
+    </div>
+
+    <!-- ==================== LIGHTBOX ==================== -->
+    <div class="lightbox-overlay" id="lightboxOverlay">
+      <div class="lightbox-modal">
+        <div class="flex items-center justify-between mb-3">
+          <div id="lightboxBadge"></div>
+          <div class="flex gap-2">
+            <calcite-button id="lightboxDownloadBtn" icon-start="download" appearance="outline" scale="s" kind="inverse">Download</calcite-button>
+            <calcite-button id="lightboxCloseBtn" icon-start="x" appearance="transparent" scale="s" kind="inverse"></calcite-button>
+          </div>
+        </div>
+        <div class="lightbox-image-container">
+          <img id="lightboxImage" src="" alt="">
+        </div>
+        <div class="lightbox-details" id="lightboxDetails"></div>
+        <div class="lightbox-nav">
+          <calcite-button id="lightboxPrev" icon-start="chevron-left" appearance="transparent" scale="s" kind="inverse"></calcite-button>
+          <span id="lightboxCounter" class="text-sm" style="color:rgba(255,255,255,0.8)"></span>
+          <calcite-button id="lightboxNext" icon-start="chevron-right" appearance="transparent" scale="s" kind="inverse"></calcite-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== INSPECTION DETAIL MODAL ==================== -->
+    <div class="inspection-detail-overlay" id="inspectionDetailOverlay">
+      <div class="report-modal" style="max-width:900px" id="inspectionDetailModal">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 id="inspectionDetailTitle">Inspection Details</h2>
+            <p class="text-sm" style="color:rgba(255,255,255,0.85);" id="inspectionDetailSubtitle"></p>
+          </div>
+          <div class="flex gap-2">
+            <calcite-button id="inspectionDetailPdfBtn" icon-start="file-pdf" appearance="outline" scale="s" kind="inverse">Export PDF</calcite-button>
+            <calcite-button id="inspectionDetailCloseBtn" icon-start="x" appearance="transparent" scale="s" kind="inverse"></calcite-button>
+          </div>
+        </div>
+        <div id="inspectionDetailContent"></div>
       </div>
     </div>
 
@@ -680,6 +824,11 @@
       </div>
       <p class="text-xs">&copy; 2026 Worley. Data refreshes automatically.</p>
     </footer>
+
+    <!-- html2pdf.js for PDF export (hide AMD define like Chart.js) -->
+    <script>window.__d2=window.define;window.define=undefined;</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
+    <script>window.define=window.__d2;delete window.__d2;</script>
 
     <!-- Dashboard JS -->
     <script src="dashboard-config.js"></script>

@@ -14,6 +14,54 @@
 
 let filteredData = [];
 let chartInstances = {};
+let _currentPhotoArray = [];
+let _lastTableData = [];
+let _currentDetailRecord = null;
+
+const STOCK_PHOTOS = {
+  hazard: [
+    "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1590644365607-1c5e64e6f803?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1513467535987-fd81bc7d62f8?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1578496781379-7dcfb995293d?w=400&h=300&fit=crop",
+  ],
+  positive: [
+    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1531834685032-c34bf0d84c77?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1587582423116-ec07293f0395?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1605117882932-f9e32b03fea9?w=400&h=300&fit=crop",
+  ],
+  general: [
+    "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1429497419816-9ca5cfb4571a?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1545259741-2266e5f0e3e1?w=400&h=300&fit=crop",
+    "https://images.unsplash.com/photo-1585003791732-ced28e78491c?w=400&h=300&fit=crop",
+  ],
+};
+
+function getStockPhotoUrl(type, text) {
+  const arr = STOCK_PHOTOS[type] || STOCK_PHOTOS.general;
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) hash = ((hash << 5) - hash) + text.charCodeAt(i);
+  return arr[Math.abs(hash) % arr.length];
+}
+
+function getGradientForType(type) {
+  const map = {
+    hazard: "linear-gradient(135deg, #E8413C, #a8302c)",
+    positive: "linear-gradient(135deg, #8DC63F, #5a8a25)",
+    general: "linear-gradient(135deg, #44C8C1, #003B4D)",
+  };
+  return map[type] || map.general;
+}
 
 // Chart.js global defaults for dark theme (applied at init to ensure Chart.js is loaded)
 function applyChartDefaults() {
@@ -952,8 +1000,9 @@ function renderInspectionTable(data) {
   tbody.innerHTML = "";
 
   const sorted = [...data].sort((a, b) => b.generalInfo.inspectionDate.localeCompare(a.generalInfo.inspectionDate));
+  _lastTableData = sorted;
 
-  sorted.forEach((d) => {
+  sorted.forEach((d, idx) => {
     const compliance = getOverallCompliance([d]);
     const dateStr = new Date(d.generalInfo.inspectionDate + "T00:00:00").toLocaleDateString("en-US", {
       month: "short", day: "numeric", year: "numeric",
@@ -963,6 +1012,8 @@ function renderInspectionTable(data) {
     const typeLabel = INSPECTION_TYPE_LABELS[d.generalInfo.inspectionType] || d.generalInfo.inspectionType;
 
     const row = document.createElement("tr");
+    row.setAttribute("data-index", idx);
+    row.style.cursor = "pointer";
     const complianceColor = parseFloat(compliance) >= 90 ? "#c4ea8a" : parseFloat(compliance) >= 75 ? "#fff0a0" : "#ffb8b3";
     row.innerHTML = `
       <td class="whitespace-nowrap">${dateStr}</td>
@@ -1675,6 +1726,341 @@ function initReportModal() {
       window.print();
     });
   }
+
+  // PDF export button
+  var exportPdfBtn = document.getElementById("exportPdfBtn");
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener("click", async function () {
+      exportPdfBtn.setAttribute("loading", "");
+      exportPdfBtn.disabled = true;
+      try {
+        var scopeEl = document.querySelector("#reportScope calcite-segmented-control-item[checked]");
+        var scope = scopeEl ? scopeEl.value : "dashboard";
+        var targetData;
+        if (scope === "project") {
+          var projName = document.getElementById("reportProjectSelect")?.value;
+          targetData = filteredData.filter(function (d) { return d.generalInfo.projectName === projName; });
+        } else if (scope === "inspection") {
+          var iIdx = parseInt(document.getElementById("reportInspectionSelect")?.value);
+          targetData = [filteredData[iIdx]];
+        } else {
+          targetData = filteredData;
+        }
+        await generatePdf(scope, targetData);
+      } finally {
+        exportPdfBtn.removeAttribute("loading");
+        exportPdfBtn.disabled = false;
+      }
+    });
+  }
+
+  // Report scope controls
+  initReportScopeControls();
+}
+
+function initReportScopeControls() {
+  var scopeCtrl = document.getElementById("reportScope");
+  var projSelect = document.getElementById("reportProjectSelect");
+  var inspSelect = document.getElementById("reportInspectionSelect");
+  if (!scopeCtrl) return;
+
+  scopeCtrl.addEventListener("calciteSegmentedControlChange", function () {
+    var selected = scopeCtrl.querySelector("calcite-segmented-control-item[checked]");
+    var mode = selected ? selected.value : "dashboard";
+    projSelect.style.display = mode === "project" ? "" : "none";
+    inspSelect.style.display = mode === "inspection" ? "" : "none";
+
+    if (mode === "project") {
+      populateReportProjectSelect();
+      var projName = projSelect.value;
+      if (projName) generateReport(filteredData.filter(function (d) { return d.generalInfo.projectName === projName; }));
+    } else if (mode === "inspection") {
+      populateReportInspectionSelect();
+      var idx = parseInt(inspSelect.value);
+      if (!isNaN(idx) && filteredData[idx]) generateReport(filteredData.slice(idx, idx + 1));
+    } else {
+      generateReport(filteredData);
+    }
+  });
+
+  if (projSelect) {
+    projSelect.addEventListener("calciteSelectChange", function () {
+      var projName = projSelect.value;
+      if (projName) generateReport(filteredData.filter(function (d) { return d.generalInfo.projectName === projName; }));
+    });
+  }
+  if (inspSelect) {
+    inspSelect.addEventListener("calciteSelectChange", function () {
+      var idx = parseInt(inspSelect.value);
+      if (!isNaN(idx) && filteredData[idx]) generateReport(filteredData.slice(idx, idx + 1));
+    });
+  }
+}
+
+function populateReportProjectSelect() {
+  var sel = document.getElementById("reportProjectSelect");
+  if (!sel) return;
+  sel.innerHTML = "";
+  var projects = [...new Set(filteredData.map(function (d) { return d.generalInfo.projectName; }))].sort();
+  projects.forEach(function (p) {
+    var opt = document.createElement("calcite-option");
+    opt.value = p;
+    opt.textContent = p;
+    sel.appendChild(opt);
+  });
+}
+
+function populateReportInspectionSelect() {
+  var sel = document.getElementById("reportInspectionSelect");
+  if (!sel) return;
+  sel.innerHTML = "";
+  filteredData.forEach(function (d, idx) {
+    var dateStr = new Date(d.generalInfo.inspectionDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    var opt = document.createElement("calcite-option");
+    opt.value = String(idx);
+    opt.textContent = dateStr + " — " + d.generalInfo.projectName + " — " + d.generalInfo.inspectorName;
+    sel.appendChild(opt);
+  });
+}
+
+// ============================================================
+// PDF GENERATION
+// ============================================================
+
+var WORLEY_LOGO_SVG_DARK = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" fill="none" style="height:48px;width:auto;">'
+  + '<rect x="2" y="8" width="48" height="48" rx="8" fill="#E8413C"/>'
+  + '<path d="M10 24 Q18 18 26 24 T42 24" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" fill="none" opacity="1"/>'
+  + '<path d="M10 32 Q18 26 26 32 T42 32" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" fill="none" opacity="0.88"/>'
+  + '<path d="M10 40 Q18 34 26 40 T42 40" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" fill="none" opacity="0.76"/>'
+  + '<text x="62" y="38" font-family="Avenir Next,Avenir,Helvetica Neue,Arial,sans-serif" font-size="30" font-weight="700" fill="#003B4D" letter-spacing="0.5">worley</text>'
+  + '<text x="63" y="54" font-family="Avenir Next,Avenir,Helvetica Neue,Arial,sans-serif" font-size="10" font-weight="600" fill="#E8413C" letter-spacing="3.8">CONSULTING</text>'
+  + '</svg>';
+
+function buildPdfHeader(title, subtitle) {
+  return '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
+    + '<div>' + WORLEY_LOGO_SVG_DARK + '</div>'
+    + '<div style="text-align:right;font-size:10px;color:#666;">Generated ' + new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) + '</div>'
+    + '</div>'
+    + '<div style="height:3px;background:linear-gradient(90deg,#E8413C,#F4736B);border-radius:2px;margin-bottom:16px;"></div>'
+    + '<h1 style="font-size:20px;font-weight:700;color:#003B4D;margin:0 0 4px 0;">' + title + '</h1>'
+    + (subtitle ? '<p style="font-size:11px;color:#666;margin:0 0 16px 0;">' + subtitle + '</p>' : '<div style="margin-bottom:16px;"></div>');
+}
+
+function buildPdfFooter() {
+  return '<div style="margin-top:24px;padding-top:12px;border-top:2px solid #E8413C;text-align:center;">'
+    + '<p style="font-size:9px;color:#666;">This report was automatically generated by the Worley Safety Inspection Dashboard.</p>'
+    + '<p style="font-size:9px;color:#999;margin-top:2px;">© 2026 Worley. Confidential.</p>'
+    + '</div>';
+}
+
+function buildPdfMetric(label, value, color) {
+  return '<div style="text-align:center;padding:10px;border:1px solid #e0e0e0;border-radius:6px;background:#f9f9f9;">'
+    + '<div style="font-size:18px;font-weight:700;color:' + color + ';">' + value + '</div>'
+    + '<div style="font-size:8px;color:#888;text-transform:uppercase;letter-spacing:0.04em;margin-top:3px;">' + label + '</div>'
+    + '</div>';
+}
+
+function buildPdfDashboardContent(data) {
+  var compliance = getOverallCompliance(data);
+  var avgRating = getAverageRating(data);
+  var riskCounts = getRiskCounts(data);
+  var stopWork = getStopWorkCount(data);
+  var corrective = getCorrectiveActionCount(data);
+  var inspectors = getInspectorStats(data).sort(function (a, b) { return b.count - a.count; });
+  var sections = Object.keys(SECTION_LABELS);
+  var compVal = parseFloat(compliance);
+
+  var html = '';
+
+  // KPIs
+  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">';
+  html += buildPdfMetric("Total Inspections", data.length, "#003B4D");
+  html += buildPdfMetric("Compliance", compliance + "%", compVal >= 90 ? "#2d7a0f" : compVal >= 75 ? "#9d6b0a" : "#c42b1c");
+  html += buildPdfMetric("Avg Rating", avgRating + " / 5", "#003B4D");
+  html += buildPdfMetric("Stop Work Orders", stopWork, stopWork > 0 ? "#c42b1c" : "#2d7a0f");
+  html += buildPdfMetric("Corrective Actions", corrective, corrective > 0 ? "#9d6b0a" : "#2d7a0f");
+  html += buildPdfMetric("Unique Inspectors", inspectors.length, "#003B4D");
+  html += '</div>';
+
+  // Risk Distribution
+  html += '<div style="margin-bottom:16px;padding:12px;border:1px solid #e0e0e0;border-radius:6px;">';
+  html += '<h3 style="font-size:12px;font-weight:700;color:#003B4D;text-transform:uppercase;margin:0 0 8px 0;">Risk Distribution</h3>';
+  html += '<div style="display:flex;gap:12px;">';
+  ["low", "moderate", "high", "critical"].forEach(function (level) {
+    var c = { low: "#2d7a0f", moderate: "#9d6b0a", high: "#d4580a", critical: "#c42b1c" }[level];
+    var pct = data.length > 0 ? ((riskCounts[level] / data.length) * 100).toFixed(0) : 0;
+    html += '<div style="flex:1;"><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px;"><span style="color:' + c + ';font-weight:600;">' + level.charAt(0).toUpperCase() + level.slice(1) + '</span><span style="color:#666;">' + riskCounts[level] + ' (' + pct + '%)</span></div>'
+      + '<div style="height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + pct + '%;background:' + c + ';border-radius:3px;"></div></div></div>';
+  });
+  html += '</div></div>';
+
+  // Category Compliance table
+  html += '<div style="margin-bottom:16px;padding:12px;border:1px solid #e0e0e0;border-radius:6px;">';
+  html += '<h3 style="font-size:12px;font-weight:700;color:#003B4D;text-transform:uppercase;margin:0 0 8px 0;">Compliance by Category</h3>';
+  html += '<table style="width:100%;font-size:10px;border-collapse:collapse;"><thead><tr style="border-bottom:2px solid #003B4D;">';
+  html += '<th style="text-align:left;padding:4px 6px;color:#003B4D;">Category</th><th style="text-align:right;padding:4px 6px;color:#003B4D;">Pass</th><th style="text-align:right;padding:4px 6px;color:#003B4D;">Fail</th><th style="text-align:right;padding:4px 6px;color:#003B4D;">N/A</th><th style="text-align:right;padding:4px 6px;color:#003B4D;">Rate</th>';
+  html += '</tr></thead><tbody>';
+  sections.forEach(function (s) {
+    var stats = getSectionStats(data, s);
+    var applicable = stats.pass + stats.fail;
+    var rate = applicable > 0 ? ((stats.pass / applicable) * 100).toFixed(1) : "N/A";
+    var c = parseFloat(rate) >= 90 ? "#2d7a0f" : parseFloat(rate) >= 75 ? "#9d6b0a" : "#c42b1c";
+    html += '<tr style="border-bottom:1px solid #eee;"><td style="padding:4px 6px;">' + SECTION_LABELS[s] + '</td>';
+    html += '<td style="text-align:right;padding:4px 6px;color:#2d7a0f;">' + stats.pass + '</td>';
+    html += '<td style="text-align:right;padding:4px 6px;color:#c42b1c;">' + stats.fail + '</td>';
+    html += '<td style="text-align:right;padding:4px 6px;color:#999;">' + stats.na + '</td>';
+    html += '<td style="text-align:right;padding:4px 6px;font-weight:700;color:' + c + ';">' + rate + '%</td></tr>';
+  });
+  html += '</tbody></table></div>';
+
+  // Inspector table
+  if (inspectors.length > 0) {
+    html += '<div style="margin-bottom:16px;padding:12px;border:1px solid #e0e0e0;border-radius:6px;">';
+    html += '<h3 style="font-size:12px;font-weight:700;color:#003B4D;text-transform:uppercase;margin:0 0 8px 0;">Inspector Activity</h3>';
+    html += '<table style="width:100%;font-size:10px;border-collapse:collapse;"><thead><tr style="border-bottom:2px solid #003B4D;">';
+    html += '<th style="text-align:left;padding:4px 6px;color:#003B4D;">Inspector</th><th style="text-align:left;padding:4px 6px;color:#003B4D;">Role</th><th style="text-align:right;padding:4px 6px;color:#003B4D;">Inspections</th><th style="text-align:right;padding:4px 6px;color:#003B4D;">Compliance</th>';
+    html += '</tr></thead><tbody>';
+    inspectors.forEach(function (ins) {
+      var c = parseFloat(ins.compliance) >= 90 ? "#2d7a0f" : parseFloat(ins.compliance) >= 75 ? "#9d6b0a" : "#c42b1c";
+      html += '<tr style="border-bottom:1px solid #eee;"><td style="padding:4px 6px;">' + ins.name + '</td>';
+      html += '<td style="padding:4px 6px;color:#666;">' + (ROLE_LABELS[ins.role] || ins.role) + '</td>';
+      html += '<td style="text-align:right;padding:4px 6px;">' + ins.count + '</td>';
+      html += '<td style="text-align:right;padding:4px 6px;font-weight:700;color:' + c + ';">' + ins.compliance + '%</td></tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+
+  return html;
+}
+
+function buildPdfInspectionContent(record) {
+  var g = record.generalInfo;
+  var a = record.overallAssessment;
+  var compliance = getOverallCompliance([record]);
+  var dateStr = new Date(g.inspectionDate + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  var typeLabel = INSPECTION_TYPE_LABELS[g.inspectionType] || g.inspectionType;
+  var weatherLabel = WEATHER_LABELS[g.weather] || g.weather;
+  var roleLabel = ROLE_LABELS[g.inspectorRole] || g.inspectorRole;
+
+  var html = '';
+
+  // General Info grid
+  html += '<div style="margin-bottom:12px;padding:12px;border:1px solid #e0e0e0;border-radius:6px;">';
+  html += '<h3 style="font-size:11px;font-weight:700;color:#003B4D;text-transform:uppercase;margin:0 0 8px 0;">General Information</h3>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 16px;font-size:10px;">';
+  html += pdfField("Inspector", g.inspectorName) + pdfField("Role", roleLabel) + pdfField("Contractor", g.contractor);
+  html += pdfField("Date", dateStr) + pdfField("Time", g.inspectionTime) + pdfField("Type", typeLabel);
+  html += pdfField("Weather", weatherLabel + (g.temperature ? " (" + g.temperature + "°F)" : "")) + pdfField("Workers", g.workerCount) + pdfField("Shift", g.shift);
+  html += '</div></div>';
+
+  // Assessment
+  html += '<div style="margin-bottom:12px;padding:12px;border:1px solid #e0e0e0;border-radius:6px;">';
+  html += '<h3 style="font-size:11px;font-weight:700;color:#003B4D;text-transform:uppercase;margin:0 0 8px 0;">Overall Assessment</h3>';
+  html += '<div style="display:flex;gap:20px;font-size:10px;">';
+  var compColor = parseFloat(compliance) >= 90 ? "#2d7a0f" : parseFloat(compliance) >= 75 ? "#9d6b0a" : "#c42b1c";
+  html += '<div><span style="font-weight:700;font-size:16px;color:' + compColor + ';">' + compliance + '%</span> compliance</div>';
+  html += '<div>Rating: <strong>' + a.rating + '/5</strong></div>';
+  html += '<div>Risk: <strong style="color:' + ({ low: "#2d7a0f", moderate: "#9d6b0a", high: "#d4580a", critical: "#c42b1c" }[a.riskLevel] || "#333") + ';">' + a.riskLevel.toUpperCase() + '</strong></div>';
+  if (a.stopWorkIssued) html += '<div style="color:#c42b1c;font-weight:700;">⚠ STOP WORK ISSUED</div>';
+  html += '</div></div>';
+
+  // Checklist sections
+  Object.keys(SECTION_LABELS).forEach(function (sKey) {
+    var sd = record.inspectionResults[sKey];
+    if (!sd) return;
+    html += '<div style="margin-bottom:10px;padding:10px 12px;border:1px solid #e0e0e0;border-radius:6px;page-break-inside:avoid;">';
+    html += '<h3 style="font-size:11px;font-weight:700;color:#003B4D;text-transform:uppercase;margin:0 0 6px 0;">' + SECTION_LABELS[sKey] + '</h3>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;font-size:9px;">';
+    Object.entries(sd).forEach(function (entry) {
+      var label = ITEM_LABELS[entry[0]] || entry[0];
+      var sym, clr;
+      if (entry[1] === "pass") { sym = "✓"; clr = "#2d7a0f"; }
+      else if (entry[1] === "fail") { sym = "✗"; clr = "#c42b1c"; }
+      else { sym = "—"; clr = "#999"; }
+      html += '<div style="display:flex;gap:6px;align-items:center;"><span style="color:' + clr + ';font-weight:700;font-size:11px;">' + sym + '</span><span>' + label + '</span></div>';
+    });
+    html += '</div></div>';
+  });
+
+  // Corrective Actions
+  if (a.correctiveActionsRequired && a.correctiveActions) {
+    html += '<div style="margin-bottom:10px;padding:10px 12px;border:1px solid #e0e0e0;border-left:4px solid #c42b1c;border-radius:6px;">';
+    html += '<h3 style="font-size:11px;font-weight:700;color:#c42b1c;text-transform:uppercase;margin:0 0 6px 0;">Corrective Actions</h3>';
+    html += '<p style="font-size:10px;color:#333;">' + a.correctiveActions + '</p>';
+    if (a.correctionPriority) html += '<p style="font-size:9px;color:#c42b1c;font-weight:600;margin-top:4px;">Priority: ' + a.correctionPriority.toUpperCase() + '</p>';
+    html += '</div>';
+  }
+
+  if (a.positiveObservations) {
+    html += '<div style="margin-bottom:10px;padding:10px 12px;border:1px solid #e0e0e0;border-left:4px solid #2d7a0f;border-radius:6px;">';
+    html += '<h3 style="font-size:11px;font-weight:700;color:#2d7a0f;text-transform:uppercase;margin:0 0 6px 0;">Positive Observations</h3>';
+    html += '<p style="font-size:10px;color:#333;">' + a.positiveObservations + '</p>';
+    html += '</div>';
+  }
+
+  return html;
+}
+
+function pdfField(label, value) {
+  return '<div><div style="font-size:8px;color:#999;text-transform:uppercase;font-weight:600;">' + label + '</div><div style="color:#333;font-weight:500;">' + (value || "N/A") + '</div></div>';
+}
+
+function generatePdfFilename(scope, data) {
+  var date = new Date().toISOString().split("T")[0];
+  if (scope === "project" && data.length > 0) {
+    var proj = data[0].generalInfo.projectName.replace(/[^a-zA-Z0-9]+/g, "-").substring(0, 30);
+    return "Worley-Safety-" + proj + "-" + date + ".pdf";
+  }
+  if (scope === "inspection" && data.length === 1) {
+    var insp = data[0].generalInfo.projectName.replace(/[^a-zA-Z0-9]+/g, "-").substring(0, 20);
+    return "Worley-Inspection-" + insp + "-" + data[0].generalInfo.inspectionDate + ".pdf";
+  }
+  return "Worley-Safety-Dashboard-Report-" + date + ".pdf";
+}
+
+async function generatePdf(scope, targetData) {
+  if (typeof html2pdf === "undefined") {
+    alert("PDF library not loaded. Please check your network connection.");
+    return;
+  }
+
+  var pdfContainer = document.createElement("div");
+  pdfContainer.style.cssText = "position:absolute;left:-9999px;width:780px;background:#ffffff;color:#333;padding:32px;font-family:'Avenir Next','Avenir','Helvetica Neue',sans-serif;font-size:11px;line-height:1.5;";
+  document.body.appendChild(pdfContainer);
+
+  var title, subtitle;
+  if (scope === "inspection" && targetData.length === 1) {
+    var g = targetData[0].generalInfo;
+    title = "Safety Inspection Report";
+    subtitle = g.projectName + " — " + new Date(g.inspectionDate + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  } else if (scope === "project" && targetData.length > 0) {
+    title = "Project Safety Report — " + targetData[0].generalInfo.projectName;
+    subtitle = targetData.length + " inspection(s)";
+  } else {
+    title = "Safety Inspection Executive Report";
+    var dates = targetData.map(function (d) { return d.generalInfo.inspectionDate; }).sort();
+    subtitle = dates.length > 0 ? "Reporting Period: " + dates[0] + " to " + dates[dates.length - 1] + " (" + targetData.length + " inspections)" : "";
+  }
+
+  var htmlContent = buildPdfHeader(title, subtitle);
+  if (scope === "inspection" && targetData.length === 1) {
+    htmlContent += buildPdfInspectionContent(targetData[0]);
+  } else {
+    htmlContent += buildPdfDashboardContent(targetData);
+  }
+  htmlContent += buildPdfFooter();
+  pdfContainer.innerHTML = htmlContent;
+
+  await html2pdf().set({
+    margin: [10, 10, 15, 10],
+    filename: generatePdfFilename(scope, targetData),
+    image: { type: "jpeg", quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+  }).from(pdfContainer).save();
+
+  document.body.removeChild(pdfContainer);
 }
 
 // ============================================================
@@ -1717,9 +2103,12 @@ function renderPhotoDocumentation(data) {
         project: d.generalInfo.projectName,
         inspector: d.generalInfo.inspectorName,
         risk: d.overallAssessment.riskLevel,
+        imgUrl: getStockPhotoUrl(photo.type, photo.text),
       });
     });
   });
+
+  _currentPhotoArray = photos;
 
   var totalPhotoCount = data.reduce(function (sum, d) { return sum + (d.photoCount || 0); }, 0);
   if (countEl) {
@@ -1733,20 +2122,21 @@ function renderPhotoDocumentation(data) {
 
   var recent = photos.slice(0, 12);
 
-  var typeIcons = {
-    hazard: "exclamation-mark-triangle",
-    positive: "check-circle",
-    general: "camera",
-  };
-
   var html = '<div class="photo-grid">';
-  recent.forEach(function (photo) {
-    html += '<div class="photo-card">'
-      + '<div class="photo-thumb ' + photo.type + '">'
-      + '<calcite-icon icon="' + (typeIcons[photo.type] || "camera") + '" scale="l" class="photo-type-icon"></calcite-icon>'
+  recent.forEach(function (photo, idx) {
+    html += '<div class="photo-card" data-photo-index="' + idx + '" style="cursor:pointer">'
+      + '<div class="photo-thumb" style="position:relative; height:120px; overflow:hidden;">'
+      + '<img src="' + photo.imgUrl + '" alt="' + photo.text.replace(/"/g, '&quot;') + '" '
+      + 'style="width:100%;height:120px;object-fit:cover;" loading="lazy" '
+      + 'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'
+      + '<div style="display:none;height:120px;align-items:center;justify-content:center;background:' + getGradientForType(photo.type) + '">'
+      + '<calcite-icon icon="camera" scale="l" style="color:#fff;opacity:0.7"></calcite-icon></div>'
       + '<span class="photo-type-badge ' + photo.type + '">' + photo.type + '</span>'
+      + '<input type="checkbox" class="photo-select-cb" data-photo-index="' + idx + '" '
+      + 'style="position:absolute;top:8px;left:8px;z-index:2;width:16px;height:16px;cursor:pointer;" '
+      + 'onclick="event.stopPropagation()" title="Select for download">'
       + '</div>'
-      + '<div class="photo-card-body">'
+      + '<div class="photo-card-body photo-card-body-gradient ' + photo.type + '">'
       + '<div class="photo-card-desc">' + photo.text + '</div>'
       + '<div class="photo-card-meta">'
       + photo.date + ' &bull; ' + photo.project
@@ -1762,6 +2152,250 @@ function renderPhotoDocumentation(data) {
   }
 
   container.innerHTML = html;
+}
+
+// ============================================================
+// LIGHTBOX
+// ============================================================
+
+let _lightboxIndex = 0;
+
+function openLightbox(index) {
+  if (!_currentPhotoArray[index]) return;
+  _lightboxIndex = index;
+  var photo = _currentPhotoArray[index];
+  var overlay = document.getElementById("lightboxOverlay");
+  document.getElementById("lightboxImage").src = photo.imgUrl.replace("w=400&h=300", "w=1200&h=900");
+  document.getElementById("lightboxImage").alt = photo.text;
+  document.getElementById("lightboxBadge").innerHTML =
+    '<span class="risk-badge ' + photo.risk + '" style="font-size:0.75rem;">' + photo.type.toUpperCase() + '</span>';
+  document.getElementById("lightboxDetails").innerHTML =
+    '<p style="font-size:0.95rem;font-weight:600;margin-bottom:6px;">' + photo.text + '</p>'
+    + '<p style="font-size:0.82rem;color:rgba(255,255,255,0.75);">'
+    + photo.date + ' &bull; ' + photo.project + ' &bull; ' + photo.inspector + '</p>';
+  document.getElementById("lightboxCounter").textContent = (index + 1) + " / " + Math.min(_currentPhotoArray.length, 12);
+  overlay.classList.add("active");
+}
+
+function closeLightbox() {
+  document.getElementById("lightboxOverlay").classList.remove("active");
+}
+
+function initLightbox() {
+  var panel = document.getElementById("photoDocPanel");
+  if (panel) {
+    panel.addEventListener("click", function (e) {
+      var card = e.target.closest(".photo-card");
+      if (!card || e.target.classList.contains("photo-select-cb")) return;
+      var idx = parseInt(card.getAttribute("data-photo-index"));
+      if (!isNaN(idx)) openLightbox(idx);
+    });
+  }
+
+  document.getElementById("lightboxCloseBtn").addEventListener("click", closeLightbox);
+  document.getElementById("lightboxOverlay").addEventListener("click", function (e) {
+    if (e.target === this) closeLightbox();
+  });
+  document.getElementById("lightboxPrev").addEventListener("click", function () {
+    var maxIdx = Math.min(_currentPhotoArray.length, 12) - 1;
+    openLightbox(_lightboxIndex > 0 ? _lightboxIndex - 1 : maxIdx);
+  });
+  document.getElementById("lightboxNext").addEventListener("click", function () {
+    var maxIdx = Math.min(_currentPhotoArray.length, 12) - 1;
+    openLightbox(_lightboxIndex < maxIdx ? _lightboxIndex + 1 : 0);
+  });
+  document.getElementById("lightboxDownloadBtn").addEventListener("click", function () {
+    var photo = _currentPhotoArray[_lightboxIndex];
+    if (photo) downloadPhoto(photo.imgUrl.replace("w=400&h=300", "w=1200&h=900"), "safety-photo-" + (_lightboxIndex + 1) + ".jpg");
+  });
+  document.addEventListener("keydown", function (e) {
+    if (!document.getElementById("lightboxOverlay").classList.contains("active")) return;
+    if (e.key === "Escape") closeLightbox();
+    if (e.key === "ArrowLeft") document.getElementById("lightboxPrev").click();
+    if (e.key === "ArrowRight") document.getElementById("lightboxNext").click();
+  });
+
+  var dlBtn = document.getElementById("downloadSelectedPhotos");
+  if (dlBtn) {
+    dlBtn.addEventListener("click", downloadSelectedPhotos);
+  }
+  document.addEventListener("change", function (e) {
+    if (e.target.classList.contains("photo-select-cb")) updateDownloadButtonVisibility();
+  });
+}
+
+function downloadPhoto(url, filename) {
+  fetch(url, { mode: "cors" })
+    .then(function (r) { return r.blob(); })
+    .then(function (blob) {
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    })
+    .catch(function () { window.open(url, "_blank"); });
+}
+
+function downloadSelectedPhotos() {
+  var cbs = document.querySelectorAll(".photo-select-cb:checked");
+  cbs.forEach(function (cb, i) {
+    var idx = parseInt(cb.getAttribute("data-photo-index"));
+    var photo = _currentPhotoArray[idx];
+    if (photo) {
+      setTimeout(function () {
+        downloadPhoto(photo.imgUrl.replace("w=400&h=300", "w=1200&h=900"), "safety-photo-" + (idx + 1) + ".jpg");
+      }, i * 500);
+    }
+  });
+}
+
+function updateDownloadButtonVisibility() {
+  var btn = document.getElementById("downloadSelectedPhotos");
+  var checked = document.querySelectorAll(".photo-select-cb:checked");
+  if (btn) btn.style.display = checked.length > 0 ? "" : "none";
+}
+
+// ============================================================
+// INSPECTION DETAIL MODAL
+// ============================================================
+
+function renderInspectionDetail(record) {
+  var content = document.getElementById("inspectionDetailContent");
+  if (!content) return;
+
+  var g = record.generalInfo;
+  var a = record.overallAssessment;
+  var dateStr = new Date(g.inspectionDate + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  var typeLabel = INSPECTION_TYPE_LABELS[g.inspectionType] || g.inspectionType;
+  var weatherLabel = WEATHER_LABELS[g.weather] || g.weather;
+  var roleLabel = ROLE_LABELS[g.inspectorRole] || g.inspectorRole;
+  var compliance = getOverallCompliance([record]);
+  var compColor = parseFloat(compliance) >= 90 ? "#c4ea8a" : parseFloat(compliance) >= 75 ? "#fff0a0" : "#ffb8b3";
+  var riskBadgeColor = { low: "#8DC63F", moderate: "#edd317", high: "#F4736B", critical: "#E8413C" }[a.riskLevel] || "#ffffff";
+
+  document.getElementById("inspectionDetailTitle").textContent = g.projectName;
+  document.getElementById("inspectionDetailSubtitle").textContent = dateStr + " • " + g.inspectorName + " • " + typeLabel;
+
+  var html = '';
+
+  // General Info
+  html += '<div class="detail-section">';
+  html += '<h4><calcite-icon icon="information" scale="s" style="margin-right:6px;color:#F4736B"></calcite-icon> General Information</h4>';
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px 20px;">';
+  html += detailField("Inspector", g.inspectorName);
+  html += detailField("Role", roleLabel);
+  html += detailField("Project #", g.projectNumber || "N/A");
+  html += detailField("Contractor", g.contractor);
+  html += detailField("Inspection Type", typeLabel);
+  html += detailField("Date / Time", dateStr + " at " + g.inspectionTime);
+  html += detailField("Weather", weatherLabel + (g.temperature ? " (" + g.temperature + "°F)" : ""));
+  html += detailField("Workers On-Site", g.workerCount);
+  html += detailField("Shift", g.shift.charAt(0).toUpperCase() + g.shift.slice(1));
+  html += detailField("Location", g.latitude && g.longitude ? g.latitude + ", " + g.longitude : "N/A");
+  html += '</div></div>';
+
+  // Overall Assessment
+  html += '<div class="detail-section" style="border-color:' + riskBadgeColor + '44">';
+  html += '<h4><calcite-icon icon="gauge" scale="s" style="margin-right:6px;color:#F4736B"></calcite-icon> Overall Assessment</h4>';
+  html += '<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">';
+  html += '<div style="text-align:center;min-width:90px"><div style="font-size:1.8rem;color:' + compColor + ';font-weight:700;">' + compliance + '%</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.7);text-transform:uppercase;">Compliance</div></div>';
+  html += '<div style="text-align:center;min-width:80px"><div style="font-size:1.4rem;color:#fff0a0;">' + "★".repeat(parseInt(a.rating)) + '<span style="color:rgba(255,255,255,0.3)">' + "☆".repeat(5 - parseInt(a.rating)) + '</span></div><div style="font-size:0.7rem;color:rgba(255,255,255,0.7);">Rating</div></div>';
+  html += '<div><span class="risk-badge ' + a.riskLevel + '" style="font-size:0.8rem;">' + a.riskLevel.toUpperCase() + '</span></div>';
+  if (a.stopWorkIssued) html += '<div><span class="risk-badge critical" style="font-size:0.8rem;">STOP WORK ISSUED</span></div>';
+  html += '</div></div>';
+
+  // Checklist sections
+  var sections = Object.keys(SECTION_LABELS);
+  sections.forEach(function (sKey) {
+    var sectionData = record.inspectionResults[sKey];
+    if (!sectionData) return;
+    var pass = 0, fail = 0, na = 0;
+    Object.values(sectionData).forEach(function (v) { if (v === "pass") pass++; else if (v === "fail") fail++; else na++; });
+
+    html += '<div class="detail-section">';
+    html += '<h4><calcite-icon icon="clipboard-check" scale="s" style="margin-right:6px;color:#F4736B"></calcite-icon> ' + SECTION_LABELS[sKey];
+    html += ' <span style="float:right;font-size:0.75rem;font-weight:500;color:rgba(255,255,255,0.7);text-transform:none;letter-spacing:0;">';
+    html += '<span style="color:#c4ea8a">' + pass + 'P</span> <span style="color:#ffb8b3">' + fail + 'F</span> <span>' + na + 'N/A</span></span></h4>';
+    html += '<div class="checklist-grid">';
+    Object.entries(sectionData).forEach(function (entry) {
+      var itemId = entry[0], val = entry[1];
+      var label = ITEM_LABELS[itemId] || itemId;
+      var icon, cls;
+      if (val === "pass") { icon = "check-circle-f"; cls = "checklist-icon-pass"; }
+      else if (val === "fail") { icon = "x-circle-f"; cls = "checklist-icon-fail"; }
+      else { icon = "minus-circle"; cls = "checklist-icon-na"; }
+      html += '<div class="checklist-item"><calcite-icon icon="' + icon + '" scale="s" class="' + cls + '"></calcite-icon><span>' + label + '</span></div>';
+    });
+    html += '</div>';
+
+    var noteKey = sKey === "tools" ? "toolsNotes" : sKey === "fireHotWork" ? "fireNotes" : sKey + "Notes";
+    var note = record.sectionNotes && record.sectionNotes[noteKey];
+    if (note) html += '<p style="margin-top:8px;font-size:0.82rem;color:rgba(255,255,255,0.75);font-style:italic;">"' + note + '"</p>';
+    html += '</div>';
+  });
+
+  // Corrective Actions
+  if (a.correctiveActionsRequired && a.correctiveActions) {
+    html += '<div class="detail-section" style="border-color:rgba(232,65,60,0.4)">';
+    html += '<h4 style="color:#ffb8b3"><calcite-icon icon="exclamation-mark-triangle" scale="s" style="margin-right:6px;color:#ffb8b3"></calcite-icon> Corrective Actions Required</h4>';
+    html += '<p style="font-size:0.85rem;color:#ffffff;">' + a.correctiveActions + '</p>';
+    if (a.correctionPriority) html += '<p style="margin-top:6px;font-size:0.78rem;"><span class="risk-badge ' + (a.correctionPriority === "immediate" ? "critical" : a.correctionPriority === "today" ? "high" : "moderate") + '">' + a.correctionPriority.toUpperCase() + '</span></p>';
+    html += '</div>';
+  }
+
+  // Positive Observations
+  if (a.positiveObservations) {
+    html += '<div class="detail-section" style="border-color:rgba(141,198,63,0.4)">';
+    html += '<h4 style="color:#c4ea8a"><calcite-icon icon="thumbs-up" scale="s" style="margin-right:6px;color:#c4ea8a"></calcite-icon> Positive Observations</h4>';
+    html += '<p style="font-size:0.85rem;color:#ffffff;">' + a.positiveObservations + '</p>';
+    html += '</div>';
+  }
+
+  content.innerHTML = html;
+}
+
+function detailField(label, value) {
+  return '<div><div style="font-size:0.68rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.04em;font-weight:600;">' + label + '</div>'
+    + '<div style="font-size:0.88rem;color:#ffffff;font-weight:500;">' + (value || "N/A") + '</div></div>';
+}
+
+function openInspectionDetail(record) {
+  _currentDetailRecord = record;
+  renderInspectionDetail(record);
+  document.getElementById("inspectionDetailOverlay").classList.add("active");
+}
+
+function closeInspectionDetail() {
+  document.getElementById("inspectionDetailOverlay").classList.remove("active");
+}
+
+function initInspectionDetailModal() {
+  var overlay = document.getElementById("inspectionDetailOverlay");
+  var closeBtn = document.getElementById("inspectionDetailCloseBtn");
+  var pdfBtn = document.getElementById("inspectionDetailPdfBtn");
+
+  if (closeBtn) closeBtn.addEventListener("click", closeInspectionDetail);
+  if (overlay) overlay.addEventListener("click", function (e) { if (e.target === overlay) closeInspectionDetail(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && overlay && overlay.classList.contains("active")) closeInspectionDetail();
+  });
+  if (pdfBtn) pdfBtn.addEventListener("click", function () {
+    if (_currentDetailRecord) generatePdf("inspection", [_currentDetailRecord]);
+  });
+
+  // Table row click delegation (bind once)
+  var tbody = document.getElementById("inspectionTableBody");
+  if (tbody) {
+    tbody.addEventListener("click", function (e) {
+      var row = e.target.closest("tr");
+      if (!row) return;
+      var idx = parseInt(row.getAttribute("data-index"));
+      if (!isNaN(idx) && _lastTableData[idx]) openInspectionDetail(_lastTableData[idx]);
+    });
+  }
 }
 
 // ============================================================
@@ -1797,11 +2431,12 @@ document.addEventListener("DOMContentLoaded", () => {
       initFilterListeners();
       initTrendToggle();
       initReportModal();
+      initLightbox();
+      initInspectionDetailModal();
       initInspectionMap();
       renderAll(filteredData);
     } catch (err) {
       console.error("Dashboard initialization error:", err);
-      // Fall back to demo data if Feature Service fails at startup
       const allData = SAMPLE_INSPECTIONS || [];
       computeDatasetLatestDate(allData);
       populateFilterDropdowns(allData);
@@ -1809,6 +2444,8 @@ document.addEventListener("DOMContentLoaded", () => {
       initFilterListeners();
       initTrendToggle();
       initReportModal();
+      initLightbox();
+      initInspectionDetailModal();
       initInspectionMap();
       renderAll(filteredData);
     }
