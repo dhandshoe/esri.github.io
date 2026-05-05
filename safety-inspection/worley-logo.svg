@@ -1,12 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" fill="none">
-  <!-- Red rounded square mark -->
-  <rect x="2" y="8" width="48" height="48" rx="8" fill="#E8413C"/>
-  <!-- White wave motif inside the mark -->
-  <path d="M10 24 Q18 18 26 24 T42 24" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" fill="none" opacity="1"/>
-  <path d="M10 32 Q18 26 26 32 T42 32" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" fill="none" opacity="0.88"/>
-  <path d="M10 40 Q18 34 26 40 T42 40" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" fill="none" opacity="0.76"/>
-  <!-- "worley" wordmark -->
-  <text x="62" y="38" font-family="'Avenir Next','Avenir','Helvetica Neue',Arial,sans-serif" font-size="30" font-weight="700" fill="#ffffff" letter-spacing="0.5">worley</text>
-  <!-- "CONSULTING" sub-line -->
-  <text x="63" y="54" font-family="'Avenir Next','Avenir','Helvetica Neue',Arial,sans-serif" font-size="10" font-weight="600" fill="#E8413C" letter-spacing="3.8">CONSULTING</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <clipPath id="sphereClip">
+      <circle cx="50" cy="50" r="48"/>
+    </clipPath>
+    <radialGradient id="sphereShade" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="55%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.12"/>
+    </radialGradient>
+  </defs>
+
+  <circle cx="50" cy="50" r="48" fill="#ffffff"/>
+
+  <g clip-path="url(#sphereClip)">
+    <!-- Red curling band - top arc -->
+    <path d="M -10 32 C 18 12, 38 22, 58 18 C 80 14, 100 22, 110 18 L 110 8 C 90 4, 78 12, 56 8 C 32 4, 18 0, -10 14 Z"
+          fill="#E8413C"/>
+    <path d="M -10 28 C 12 18, 32 30, 50 28 C 72 26, 92 32, 110 28 L 110 36 C 90 40, 72 34, 50 36 C 32 38, 14 32, -10 40 Z"
+          fill="#E8413C" opacity="0.85"/>
+
+    <!-- Green vertical curling band - right side -->
+    <path d="M 58 -8 C 76 18, 60 38, 78 56 C 88 70, 75 88, 60 102 L 70 108 C 92 90, 102 70, 90 50 C 78 32, 92 16, 78 -10 Z"
+          fill="#8DC63F"/>
+    <path d="M 30 -8 C 18 12, 32 24, 22 40 C 12 56, 28 72, 18 92 L 30 102 C 44 80, 30 64, 40 48 C 50 30, 38 14, 50 -8 Z"
+          fill="#8DC63F" opacity="0.78"/>
+
+    <!-- Teal horizontal band - middle/lower curving -->
+    <path d="M -10 58 C 18 42, 40 60, 60 52 C 80 44, 100 56, 110 50 L 110 64 C 92 70, 72 60, 52 66 C 32 72, 12 66, -10 72 Z"
+          fill="#44C8C1"/>
+    <path d="M -10 78 C 14 70, 36 84, 56 78 C 78 72, 96 84, 110 78 L 110 92 C 90 100, 70 90, 50 96 C 30 102, 12 92, -10 98 Z"
+          fill="#44C8C1" opacity="0.82"/>
+
+    <!-- Red secondary thin band -->
+    <path d="M -10 88 C 10 80, 28 90, 44 84 C 60 78, 78 86, 110 80 L 110 100 L -10 100 Z"
+          fill="#E8413C" opacity="0.55"/>
+
+    <!-- Subtle 3D shading -->
+    <circle cx="50" cy="50" r="48" fill="url(#sphereShade)"/>
+  </g>
+
+  <!-- Subtle outer ring -->
+  <circle cx="50" cy="50" r="48" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="0.5"/>
 </svg>
