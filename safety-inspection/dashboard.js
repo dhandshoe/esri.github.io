@@ -1839,447 +1839,460 @@ function populateReportInspectionSelect() {
 }
 
 // ============================================================
-// PDF GENERATION
+// PDF GENERATION (jsPDF — no DOM cloning, no html2canvas)
 // ============================================================
 
-var WORLEY_LOGO_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width:64px;height:64px;display:block;">'
-  + '<defs>'
-  + '<clipPath id="pdfSphereClip"><circle cx="50" cy="50" r="48"/></clipPath>'
-  + '<radialGradient id="pdfSphereShade" cx="35%" cy="30%" r="80%">'
-  + '<stop offset="0%" stop-color="#ffffff" stop-opacity="0.45"/>'
-  + '<stop offset="55%" stop-color="#ffffff" stop-opacity="0"/>'
-  + '<stop offset="100%" stop-color="#000000" stop-opacity="0.12"/>'
-  + '</radialGradient>'
-  + '</defs>'
-  + '<circle cx="50" cy="50" r="48" fill="#ffffff"/>'
-  + '<g clip-path="url(#pdfSphereClip)">'
-  + '<path d="M -10 32 C 18 12, 38 22, 58 18 C 80 14, 100 22, 110 18 L 110 8 C 90 4, 78 12, 56 8 C 32 4, 18 0, -10 14 Z" fill="#E8413C"/>'
-  + '<path d="M -10 28 C 12 18, 32 30, 50 28 C 72 26, 92 32, 110 28 L 110 36 C 90 40, 72 34, 50 36 C 32 38, 14 32, -10 40 Z" fill="#E8413C" opacity="0.85"/>'
-  + '<path d="M 58 -8 C 76 18, 60 38, 78 56 C 88 70, 75 88, 60 102 L 70 108 C 92 90, 102 70, 90 50 C 78 32, 92 16, 78 -10 Z" fill="#8DC63F"/>'
-  + '<path d="M 30 -8 C 18 12, 32 24, 22 40 C 12 56, 28 72, 18 92 L 30 102 C 44 80, 30 64, 40 48 C 50 30, 38 14, 50 -8 Z" fill="#8DC63F" opacity="0.78"/>'
-  + '<path d="M -10 58 C 18 42, 40 60, 60 52 C 80 44, 100 56, 110 50 L 110 64 C 92 70, 72 60, 52 66 C 32 72, 12 66, -10 72 Z" fill="#44C8C1"/>'
-  + '<path d="M -10 78 C 14 70, 36 84, 56 78 C 78 72, 96 84, 110 78 L 110 92 C 90 100, 70 90, 50 96 C 30 102, 12 92, -10 98 Z" fill="#44C8C1" opacity="0.82"/>'
-  + '<path d="M -10 88 C 10 80, 28 90, 44 84 C 60 78, 78 86, 110 80 L 110 100 L -10 100 Z" fill="#E8413C" opacity="0.55"/>'
-  + '<circle cx="50" cy="50" r="48" fill="url(#pdfSphereShade)"/>'
-  + '</g>'
-  + '<circle cx="50" cy="50" r="48" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="0.5"/>'
-  + '</svg>';
+var _logoDataUrl = null;
 
-function pdfLogoLarge() {
-  return WORLEY_LOGO_SVG.replace('width:64px;height:64px', 'width:120px;height:120px');
+async function loadLogoForPdf() {
+  if (_logoDataUrl) return _logoDataUrl;
+  try {
+    var resp = await fetch('worley-logo.svg');
+    var svgText = await resp.text();
+    var canvas = document.createElement('canvas');
+    canvas.width = 200; canvas.height = 200;
+    var ctx = canvas.getContext('2d');
+    var img = new Image();
+    var blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    return new Promise(function (resolve) {
+      img.onload = function () { ctx.drawImage(img, 0, 0, 200, 200); _logoDataUrl = canvas.toDataURL('image/png'); URL.revokeObjectURL(url); resolve(_logoDataUrl); };
+      img.onerror = function () { URL.revokeObjectURL(url); resolve(null); };
+      img.src = url;
+    });
+  } catch (e) { return null; }
 }
 
-function pdfLogoSmall() {
-  return WORLEY_LOGO_SVG.replace('width:64px;height:64px', 'width:42px;height:42px');
+var PC = {
+  navy:[0,59,77], red:[232,65,60], coral:[244,115,107], teal:[68,200,193],
+  green:[141,198,63], greenDk:[45,122,15], white:[255,255,255],
+  gray:[136,136,136], grayLt:[246,248,249], grayBd:[224,230,234],
+  txt:[51,51,51], txtLt:[102,102,102],
+  rLow:[45,122,15], rMod:[157,107,10], rHi:[212,88,10], rCrit:[196,43,28],
+};
+
+function pdfLogo(doc, x, y, sz) {
+  if (_logoDataUrl) try { doc.addImage(_logoDataUrl, 'PNG', x, y, sz, sz); } catch (e) {}
 }
 
-function buildPdfCoverPage(title, subtitle, scope, dataLength) {
-  return '<div style="page-break-after:always; min-height:1000px; display:flex; flex-direction:column; justify-content:space-between; padding:0;">'
-    + '<div style="background:linear-gradient(135deg,#003B4D 0%,#00637E 100%); color:#fff; padding:60px 50px; border-radius:8px; position:relative; overflow:hidden;">'
-    + '<div style="position:absolute; top:-50px; right:-50px; width:300px; height:300px; background:radial-gradient(circle,rgba(232,65,60,0.18) 0%,transparent 70%); border-radius:50%;"></div>'
-    + '<div style="position:absolute; bottom:-80px; left:30%; width:280px; height:280px; background:radial-gradient(circle,rgba(68,200,193,0.12) 0%,transparent 70%); border-radius:50%;"></div>'
-    + '<div style="position:relative; z-index:2;">'
-    + '<div style="display:flex; align-items:center; gap:20px; margin-bottom:60px;">'
-    + pdfLogoLarge()
-    + '<div><div style="font-size:38px; font-weight:700; letter-spacing:1px; line-height:1;">worley</div>'
-    + '<div style="font-size:11px; letter-spacing:5px; color:#F4736B; font-weight:600; margin-top:4px;">CONSULTING</div></div>'
-    + '</div>'
-    + '<div style="height:4px; width:80px; background:#E8413C; border-radius:2px; margin-bottom:24px;"></div>'
-    + '<div style="font-size:13px; color:rgba(255,255,255,0.7); text-transform:uppercase; letter-spacing:3px; font-weight:600; margin-bottom:8px;">Field Safety Program</div>'
-    + '<h1 style="font-size:36px; font-weight:700; line-height:1.15; margin:0 0 16px 0; color:#ffffff;">' + title + '</h1>'
-    + '<p style="font-size:14px; color:rgba(255,255,255,0.85); line-height:1.5; max-width:500px; margin:0;">' + subtitle + '</p>'
-    + '</div>'
-    + '</div>'
-    + '<div style="padding:40px 50px; background:#f6f8f9; border-radius:8px; margin-top:24px;">'
-    + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">'
-    + '<div><div style="font-size:9px; text-transform:uppercase; letter-spacing:2px; color:#888; font-weight:700;">Report Type</div>'
-    + '<div style="font-size:14px; color:#003B4D; font-weight:600; margin-top:4px;">' + (scope === "inspection" ? "Single Inspection Detail" : scope === "project" ? "Project Safety Review" : "Comprehensive Dashboard Report") + '</div></div>'
-    + '<div><div style="font-size:9px; text-transform:uppercase; letter-spacing:2px; color:#888; font-weight:700;">Inspections Covered</div>'
-    + '<div style="font-size:14px; color:#003B4D; font-weight:600; margin-top:4px;">' + dataLength + ' inspection' + (dataLength !== 1 ? 's' : '') + '</div></div>'
-    + '<div><div style="font-size:9px; text-transform:uppercase; letter-spacing:2px; color:#888; font-weight:700;">Generated</div>'
-    + '<div style="font-size:14px; color:#003B4D; font-weight:600; margin-top:4px;">' + new Date().toLocaleString("en-US", { month: "long", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }) + '</div></div>'
-    + '<div><div style="font-size:9px; text-transform:uppercase; letter-spacing:2px; color:#888; font-weight:700;">Classification</div>'
-    + '<div style="font-size:14px; color:#003B4D; font-weight:600; margin-top:4px;">Internal &mdash; Confidential</div></div>'
-    + '</div></div>'
-    + '<div style="margin-top:40px; padding-top:16px; border-top:2px solid #E8413C; text-align:center;">'
-    + '<p style="font-size:9px; color:#999; margin:0;">© 2026 Worley. This report contains confidential information intended for authorized personnel only.</p>'
-    + '</div>'
-    + '</div>';
+function pdfSH(doc, y, title, sub) {
+  doc.setFillColor(232,65,60);
+  doc.rect(15, y, 1.5, 7, 'F');
+  doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.setTextColor(0,59,77);
+  doc.text(title, 20, y+5.5);
+  if (sub) {
+    var tw = doc.getTextWidth(title);
+    doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(136,136,136);
+    doc.text(sub, 20+tw+6, y+5.5);
+  }
+  return y + 12;
 }
 
-function buildPdfPageHeader(scope) {
-  return '<div style="display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; border-bottom:2px solid #E8413C; margin-bottom:20px;">'
-    + '<div style="display:flex; align-items:center; gap:10px;">'
-    + pdfLogoSmall()
-    + '<div><div style="font-size:13px; color:#003B4D; font-weight:700; letter-spacing:0.5px;">worley <span style="color:#E8413C; font-size:9px; letter-spacing:2px; font-weight:600;">CONSULTING</span></div>'
-    + '<div style="font-size:9px; color:#888; text-transform:uppercase; letter-spacing:1px;">Safety Inspection Report</div></div></div>'
-    + '<div style="font-size:9px; color:#888;">' + new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + '</div>'
-    + '</div>';
+function pdfPH(doc, y) {
+  pdfLogo(doc, 15, y-3, 8);
+  doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(0,59,77);
+  doc.text("worley", 25, y+1);
+  doc.setFontSize(6); doc.setTextColor(232,65,60);
+  doc.text("CONSULTING", 25, y+5);
+  doc.setFont("helvetica","normal"); doc.setFontSize(7); doc.setTextColor(136,136,136);
+  doc.text("Safety Inspection Report", 50, y+1);
+  doc.text(new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}), 195, y+1, {align:"right"});
+  doc.setFillColor(232,65,60); doc.rect(15, y+8, 180, 0.6, 'F');
+  return y + 14;
 }
 
-function buildPdfSectionHeader(title, subtitle) {
-  return '<div style="margin:24px 0 14px 0;">'
-    + '<div style="display:flex; align-items:baseline; gap:12px;">'
-    + '<div style="width:4px; height:22px; background:#E8413C; border-radius:2px;"></div>'
-    + '<h2 style="font-size:16px; font-weight:700; color:#003B4D; margin:0; letter-spacing:0.3px;">' + title + '</h2>'
-    + (subtitle ? '<span style="font-size:10px; color:#888; font-weight:500;">' + subtitle + '</span>' : '')
-    + '</div></div>';
+function pdfFT(doc) {
+  doc.setFillColor(232,65,60); doc.rect(15, 282, 180, 0.6, 'F');
+  pdfLogo(doc, 15, 284, 6);
+  doc.setFont("helvetica","normal"); doc.setFontSize(7); doc.setTextColor(136,136,136);
+  doc.text("Worley Field Safety Program", 23, 288);
+  doc.text("(c) 2026 Worley. Confidential - Internal use only.", 195, 288, {align:"right"});
 }
 
-function buildPdfKpiTile(label, value, accentColor, sublabel) {
-  return '<div style="background:#ffffff; border:1px solid #e0e6ea; border-radius:8px; padding:14px 16px; position:relative; overflow:hidden;">'
-    + '<div style="position:absolute; top:0; left:0; right:0; height:3px; background:' + accentColor + ';"></div>'
-    + '<div style="font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:#888; font-weight:700; margin-bottom:6px; padding-top:4px;">' + label + '</div>'
-    + '<div style="font-size:22px; font-weight:700; color:#003B4D; line-height:1;">' + value + '</div>'
-    + (sublabel ? '<div style="font-size:9px; color:#888; margin-top:4px;">' + sublabel + '</div>' : '')
-    + '</div>';
+function pdfRating(doc, x, y, rating) {
+  for (var i = 0; i < 5; i++) {
+    if (i < rating) { doc.setFillColor(237,211,23); doc.circle(x+i*4, y, 1.3, 'F'); }
+    else { doc.setDrawColor(200,200,200); doc.setFillColor(255,255,255); doc.circle(x+i*4, y, 1.3, 'FD'); }
+  }
 }
 
-function buildPdfRiskBar(label, count, total, color) {
-  var pct = total > 0 ? ((count / total) * 100).toFixed(0) : 0;
-  return '<div style="margin-bottom:10px;">'
-    + '<div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">'
-    + '<span style="font-weight:600; color:' + color + ';">' + label + '</span>'
-    + '<span style="color:#666;"><strong style="color:#003B4D;">' + count + '</strong> &nbsp;(' + pct + '%)</span>'
-    + '</div>'
-    + '<div style="height:8px; background:#e8edf0; border-radius:4px; overflow:hidden;">'
-    + '<div style="height:100%; width:' + pct + '%; background:linear-gradient(90deg,' + color + ',' + color + 'cc); border-radius:4px;"></div>'
-    + '</div></div>';
+function pdfCover(doc, scope, data) {
+  doc.setFillColor(0,59,77); doc.rect(0, 0, 210, 145, 'F');
+  pdfLogo(doc, 17, 25, 22);
+  doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(28);
+  doc.text("worley", 43, 38);
+  doc.setFontSize(9); doc.setTextColor(244,115,107);
+  doc.text("CONSULTING", 43, 44);
+  doc.setFillColor(232,65,60); doc.rect(15, 58, 50, 1.5, 'F');
+  doc.setTextColor(200,215,220); doc.setFont("helvetica","normal"); doc.setFontSize(9);
+  doc.text("FIELD SAFETY PROGRAM", 15, 70);
+
+  var title, subtitle;
+  if (scope === "inspection" && data.length === 1) {
+    var gi = data[0].generalInfo;
+    title = "Safety Inspection Report";
+    subtitle = "Detailed inspection record for " + gi.projectName + " conducted on " +
+      new Date(gi.inspectionDate+"T00:00:00").toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+  } else if (scope === "project" && data.length > 0) {
+    title = "Project Safety Performance Report";
+    subtitle = "Comprehensive safety review for " + data[0].generalInfo.projectName +
+      " covering " + data.length + " inspection" + (data.length!==1?"s":"");
+  } else {
+    title = "Safety Inspection Executive Report";
+    var dates = data.map(function(d){return d.generalInfo.inspectionDate;}).sort();
+    subtitle = "Comprehensive analysis of " + data.length + " safety inspection" + (data.length!==1?"s":"");
+    if (dates.length > 1) subtitle += " conducted " +
+      new Date(dates[0]+"T00:00:00").toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"}) +
+      " through " + new Date(dates[dates.length-1]+"T00:00:00").toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+  }
+
+  doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(26);
+  var tl = doc.splitTextToSize(title, 130);
+  doc.text(tl, 15, 82);
+  doc.setFont("helvetica","normal"); doc.setFontSize(11); doc.setTextColor(220,230,235);
+  doc.text(doc.splitTextToSize(subtitle, 145), 15, 82 + tl.length*10 + 6);
+
+  doc.setFillColor(246,248,249); doc.rect(15, 155, 180, 60, 'F');
+  doc.setDrawColor(224,230,234); doc.rect(15, 155, 180, 60, 'S');
+  var meta = [
+    ["REPORT TYPE", scope==="inspection"?"Single Inspection Detail":scope==="project"?"Project Safety Review":"Comprehensive Dashboard Report"],
+    ["INSPECTIONS COVERED", data.length+" inspection"+(data.length!==1?"s":"")],
+    ["GENERATED", new Date().toLocaleString("en-US",{month:"long",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"})],
+    ["CLASSIFICATION", "Internal - Confidential"],
+  ];
+  meta.forEach(function(m,i) {
+    var cx = 25+(i%2)*90, cy = 167+Math.floor(i/2)*26;
+    doc.setFont("helvetica","bold"); doc.setFontSize(7); doc.setTextColor(136,136,136);
+    doc.text(m[0], cx, cy);
+    doc.setFontSize(11); doc.setTextColor(0,59,77);
+    doc.text(m[1], cx, cy+6);
+  });
+
+  doc.setFillColor(232,65,60); doc.rect(15, 240, 180, 0.8, 'F');
+  doc.setFont("helvetica","normal"); doc.setFontSize(7); doc.setTextColor(153,153,153);
+  doc.text("(c) 2026 Worley. This report contains confidential information intended for authorized personnel only.", 105, 248, {align:"center"});
 }
 
-function buildPdfDashboardContent(data) {
+function pdfDashboard(doc, state, data, checkPage) {
   var compliance = getOverallCompliance(data);
   var avgRating = getAverageRating(data);
   var riskCounts = getRiskCounts(data);
   var stopWork = getStopWorkCount(data);
   var corrective = getCorrectiveActionCount(data);
-  var inspectors = getInspectorStats(data).sort(function (a, b) { return b.count - a.count; });
+  var inspectors = getInspectorStats(data).sort(function(a,b){return b.count-a.count;});
   var sections = Object.keys(SECTION_LABELS);
   var compVal = parseFloat(compliance);
 
-  // Status banner
-  var statusColor, statusLabel;
-  if (compVal >= 90 && stopWork === 0) { statusColor = "#2d7a0f"; statusLabel = "GOOD STANDING"; }
-  else if (compVal >= 75) { statusColor = "#9d6b0a"; statusLabel = "CAUTION ADVISED"; }
-  else { statusColor = "#c42b1c"; statusLabel = "ACTION REQUIRED"; }
+  var sc, sl;
+  if (compVal >= 90 && stopWork === 0) { sc = PC.rLow; sl = "GOOD STANDING"; }
+  else if (compVal >= 75) { sc = PC.rMod; sl = "CAUTION ADVISED"; }
+  else { sc = PC.rCrit; sl = "ACTION REQUIRED"; }
 
-  var html = '';
+  doc.setFillColor(246,248,249); doc.rect(15, state.y, 180, 18, 'F');
+  doc.setFillColor.apply(doc, sc); doc.rect(15, state.y, 1.5, 18, 'F');
+  doc.setFont("helvetica","bold"); doc.setFontSize(7); doc.setTextColor.apply(doc, sc);
+  doc.text("OVERALL STATUS", 21, state.y+5);
+  doc.setFontSize(14); doc.text(sl, 21, state.y+13);
+  doc.setFontSize(22); doc.text(compliance+"%", 190, state.y+13, {align:"right"});
+  doc.setFontSize(7); doc.setTextColor(136,136,136);
+  doc.text("COMPLIANCE RATE", 190, state.y+17, {align:"right"});
+  state.y += 24;
 
-  // Status banner
-  html += '<div style="background:linear-gradient(135deg,' + statusColor + '15,' + statusColor + '08); border-left:4px solid ' + statusColor + '; border-radius:6px; padding:16px 20px; margin-bottom:24px;">';
-  html += '<div style="display:flex; align-items:center; justify-content:space-between;">';
-  html += '<div><div style="font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:' + statusColor + '; font-weight:700;">Overall Status</div>';
-  html += '<div style="font-size:20px; font-weight:700; color:' + statusColor + '; margin-top:2px;">' + statusLabel + '</div></div>';
-  html += '<div style="text-align:right;"><div style="font-size:36px; font-weight:700; color:' + statusColor + '; line-height:1;">' + compliance + '%</div>';
-  html += '<div style="font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:#888; font-weight:600; margin-top:2px;">Compliance Rate</div></div>';
-  html += '</div></div>';
+  state.y = pdfSH(doc, state.y, "Executive Summary", data.length+" inspections analyzed");
 
-  html += buildPdfSectionHeader("Executive Summary", data.length + " inspections analyzed");
-
-  // KPI Grid
-  html += '<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px;">';
-  html += buildPdfKpiTile("Total Inspections", data.length, "#003B4D", "in reporting period");
-  html += buildPdfKpiTile("Avg Safety Rating", avgRating + " / 5", "#F4736B", parseFloat(avgRating) >= 4 ? "above target" : "review needed");
-  html += buildPdfKpiTile("Stop Work Orders", stopWork, stopWork > 0 ? "#c42b1c" : "#2d7a0f", stopWork > 0 ? "investigate" : "none issued");
-  html += buildPdfKpiTile("Corrective Actions", corrective, corrective > 0 ? "#9d6b0a" : "#2d7a0f", "open or scheduled");
-  html += buildPdfKpiTile("Active Inspectors", inspectors.length, "#44C8C1", "across program");
-  html += buildPdfKpiTile("High/Critical Risk", riskCounts.high + riskCounts.critical, (riskCounts.high + riskCounts.critical) > 0 ? "#c42b1c" : "#2d7a0f", "inspections");
-  html += '</div>';
-
-  // Risk Distribution
-  html += buildPdfSectionHeader("Risk Distribution");
-  html += '<div style="background:#f6f8f9; border-radius:8px; padding:16px 20px; margin-bottom:20px;">';
-  html += buildPdfRiskBar("Low Risk", riskCounts.low, data.length, "#2d7a0f");
-  html += buildPdfRiskBar("Moderate Risk", riskCounts.moderate, data.length, "#9d6b0a");
-  html += buildPdfRiskBar("High Risk", riskCounts.high, data.length, "#d4580a");
-  html += buildPdfRiskBar("Critical Risk", riskCounts.critical, data.length, "#c42b1c");
-  html += '</div>';
-
-  // Compliance by Category
-  html += buildPdfSectionHeader("Compliance by Category");
-  html += '<table style="width:100%; font-size:10px; border-collapse:separate; border-spacing:0; margin-bottom:20px; border:1px solid #e0e6ea; border-radius:8px; overflow:hidden;">';
-  html += '<thead><tr style="background:#003B4D; color:#fff;">';
-  html += '<th style="text-align:left; padding:10px 12px; font-size:9px; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Category</th>';
-  html += '<th style="text-align:right; padding:10px 12px; font-size:9px; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Pass</th>';
-  html += '<th style="text-align:right; padding:10px 12px; font-size:9px; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Fail</th>';
-  html += '<th style="text-align:right; padding:10px 12px; font-size:9px; text-transform:uppercase; letter-spacing:1px; font-weight:700;">N/A</th>';
-  html += '<th style="text-align:right; padding:10px 12px; font-size:9px; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Compliance</th>';
-  html += '<th style="text-align:left; padding:10px 12px; font-size:9px; text-transform:uppercase; letter-spacing:1px; font-weight:700; width:120px;">Performance</th>';
-  html += '</tr></thead><tbody>';
-  sections.forEach(function (s, idx) {
-    var stats = getSectionStats(data, s);
-    var applicable = stats.pass + stats.fail;
-    var rate = applicable > 0 ? ((stats.pass / applicable) * 100).toFixed(1) : 0;
-    var c = parseFloat(rate) >= 90 ? "#2d7a0f" : parseFloat(rate) >= 75 ? "#9d6b0a" : "#c42b1c";
-    var bg = idx % 2 === 0 ? "#ffffff" : "#f6f8f9";
-    html += '<tr style="background:' + bg + ';">';
-    html += '<td style="padding:8px 12px; color:#003B4D; font-weight:600;">' + SECTION_LABELS[s] + '</td>';
-    html += '<td style="padding:8px 12px; text-align:right; color:#2d7a0f; font-weight:600;">' + stats.pass + '</td>';
-    html += '<td style="padding:8px 12px; text-align:right; color:#c42b1c; font-weight:600;">' + stats.fail + '</td>';
-    html += '<td style="padding:8px 12px; text-align:right; color:#999;">' + stats.na + '</td>';
-    html += '<td style="padding:8px 12px; text-align:right; font-weight:700; color:' + c + ';">' + rate + '%</td>';
-    html += '<td style="padding:8px 12px;"><div style="height:6px; background:#e8edf0; border-radius:3px; overflow:hidden;"><div style="height:100%; width:' + rate + '%; background:' + c + ';"></div></div></td>';
-    html += '</tr>';
+  var tw = 57.3, th = 24;
+  var kpis = [
+    ["Total Inspections", data.length, PC.navy, "in reporting period"],
+    ["Avg Safety Rating", avgRating+" / 5", PC.coral, parseFloat(avgRating)>=4?"above target":"review needed"],
+    ["Stop Work Orders", stopWork, stopWork>0?PC.rCrit:PC.greenDk, stopWork>0?"investigate":"none issued"],
+    ["Corrective Actions", corrective, corrective>0?PC.rMod:PC.greenDk, "open or scheduled"],
+    ["Active Inspectors", inspectors.length, PC.teal, "across program"],
+    ["High/Critical Risk", riskCounts.high+riskCounts.critical, (riskCounts.high+riskCounts.critical)>0?PC.rCrit:PC.greenDk, "inspections"],
+  ];
+  kpis.forEach(function(k,i) {
+    var col = i%3, row = Math.floor(i/3);
+    var kx = 15+col*(tw+4), ky = state.y+row*(th+4);
+    doc.setFillColor(255,255,255); doc.rect(kx, ky, tw, th, 'F');
+    doc.setDrawColor(224,230,234); doc.rect(kx, ky, tw, th, 'S');
+    doc.setFillColor.apply(doc, k[2]); doc.rect(kx, ky, tw, 1.2, 'F');
+    doc.setFont("helvetica","bold"); doc.setFontSize(6.5); doc.setTextColor(136,136,136);
+    doc.text(String(k[0]).toUpperCase(), kx+4, ky+7);
+    doc.setFontSize(16); doc.setTextColor(0,59,77);
+    doc.text(String(k[1]), kx+4, ky+15);
+    doc.setFont("helvetica","normal"); doc.setFontSize(6.5); doc.setTextColor(136,136,136);
+    doc.text(k[3], kx+4, ky+20);
   });
-  html += '</tbody></table>';
+  state.y += (th+4)*2+6;
 
-  // Project breakdown
-  var projectMap = {};
-  data.forEach(function (d) {
+  checkPage(70);
+  state.y = pdfSH(doc, state.y, "Risk Distribution");
+  doc.setFillColor(246,248,249); doc.rect(15, state.y, 180, 60, 'F');
+  var ry = state.y + 4;
+  [["Low Risk",riskCounts.low,PC.rLow],["Moderate Risk",riskCounts.moderate,PC.rMod],
+   ["High Risk",riskCounts.high,PC.rHi],["Critical Risk",riskCounts.critical,PC.rCrit]
+  ].forEach(function(r) {
+    var pct = data.length>0?((r[1]/data.length)*100).toFixed(0):0;
+    doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor.apply(doc, r[2]);
+    doc.text(r[0], 20, ry+4);
+    doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(102,102,102);
+    doc.text(r[1]+" ("+pct+"%)", 190, ry+4, {align:"right"});
+    doc.setFillColor(232,237,240); doc.rect(20, ry+6, 170, 3, 'F');
+    if (parseFloat(pct)>0) { doc.setFillColor.apply(doc, r[2]); doc.rect(20, ry+6, 170*parseFloat(pct)/100, 3, 'F'); }
+    ry += 14;
+  });
+  state.y += 64;
+
+  checkPage(30);
+  state.y = pdfSH(doc, state.y, "Compliance by Category");
+  var compRows = sections.map(function(s) {
+    var st = getSectionStats(data, s), app = st.pass+st.fail;
+    var rate = app>0?((st.pass/app)*100).toFixed(1):"N/A";
+    return [SECTION_LABELS[s], String(st.pass), String(st.fail), String(st.na), rate!=="N/A"?rate+"%":rate];
+  });
+  doc.autoTable({
+    startY: state.y,
+    head: [["Category","Pass","Fail","N/A","Compliance"]],
+    body: compRows, theme: "grid",
+    headStyles: {fillColor:PC.navy, textColor:255, fontSize:7, fontStyle:"bold", cellPadding:3},
+    styles: {fontSize:8, cellPadding:2.5, textColor:PC.txt},
+    columnStyles: {0:{fontStyle:"bold",textColor:PC.navy},1:{halign:"right",textColor:PC.greenDk},2:{halign:"right",textColor:PC.rCrit},3:{halign:"right",textColor:PC.gray},4:{halign:"right",fontStyle:"bold"}},
+    alternateRowStyles: {fillColor:PC.grayLt},
+    margin: {left:15, right:15},
+    didParseCell: function(d) {
+      if (d.column.index===4 && d.section==="body") {
+        var v=parseFloat(d.cell.raw);
+        if(v>=90) d.cell.styles.textColor=PC.greenDk;
+        else if(v>=75) d.cell.styles.textColor=PC.rMod;
+        else if(!isNaN(v)) d.cell.styles.textColor=PC.rCrit;
+      }
+    },
+  });
+  state.y = doc.lastAutoTable.finalY + 8;
+
+  var pm = {};
+  data.forEach(function(d) {
     var p = d.generalInfo.projectName;
-    if (!projectMap[p]) projectMap[p] = { count: 0, totalPass: 0, totalApplicable: 0, risks: [] };
-    projectMap[p].count++;
-    projectMap[p].risks.push(d.overallAssessment.riskLevel);
-    Object.values(d.inspectionResults).forEach(function (section) {
-      Object.values(section).forEach(function (v) {
-        if (v === "pass") { projectMap[p].totalPass++; projectMap[p].totalApplicable++; }
-        else if (v === "fail") { projectMap[p].totalApplicable++; }
+    if (!pm[p]) pm[p] = {count:0, pass:0, app:0, risks:[]};
+    pm[p].count++; pm[p].risks.push(d.overallAssessment.riskLevel);
+    Object.values(d.inspectionResults).forEach(function(sec) {
+      Object.values(sec).forEach(function(v) {
+        if (v==="pass") {pm[p].pass++;pm[p].app++;} else if(v==="fail") {pm[p].app++;}
       });
     });
   });
-
-  if (Object.keys(projectMap).length > 1) {
-    html += '<div style="page-break-before:always;">' + buildPdfPageHeader() + '</div>';
-    html += buildPdfSectionHeader("Project Performance Summary");
-    html += '<table style="width:100%; font-size:10px; border-collapse:separate; border-spacing:0; margin-bottom:20px; border:1px solid #e0e6ea; border-radius:8px; overflow:hidden;">';
-    html += '<thead><tr style="background:#003B4D; color:#fff;"><th style="text-align:left; padding:10px 12px; font-size:9px; text-transform:uppercase; letter-spacing:1px;">Project</th>';
-    html += '<th style="text-align:right; padding:10px 12px; font-size:9px; text-transform:uppercase; letter-spacing:1px;">Inspections</th>';
-    html += '<th style="text-align:right; padding:10px 12px; font-size:9px; text-transform:uppercase; letter-spacing:1px;">Compliance</th>';
-    html += '<th style="text-align:left; padding:10px 12px; font-size:9px; text-transform:uppercase; letter-spacing:1px;">Highest Risk</th></tr></thead><tbody>';
-    Object.entries(projectMap).forEach(function (entry, idx) {
-      var name = entry[0], p = entry[1];
-      var pComp = p.totalApplicable > 0 ? ((p.totalPass / p.totalApplicable) * 100).toFixed(1) : 0;
-      var c = parseFloat(pComp) >= 90 ? "#2d7a0f" : parseFloat(pComp) >= 75 ? "#9d6b0a" : "#c42b1c";
-      var worstRisk = getWorstRisk(p.risks);
-      var rc = { low: "#2d7a0f", moderate: "#9d6b0a", high: "#d4580a", critical: "#c42b1c" }[worstRisk];
-      var bg = idx % 2 === 0 ? "#ffffff" : "#f6f8f9";
-      html += '<tr style="background:' + bg + ';">';
-      html += '<td style="padding:8px 12px; color:#003B4D; font-weight:600;">' + name + '</td>';
-      html += '<td style="padding:8px 12px; text-align:right;">' + p.count + '</td>';
-      html += '<td style="padding:8px 12px; text-align:right; font-weight:700; color:' + c + ';">' + pComp + '%</td>';
-      html += '<td style="padding:8px 12px;"><span style="color:' + rc + '; font-weight:700; text-transform:uppercase; font-size:9px; padding:3px 8px; background:' + rc + '20; border-radius:10px;">' + worstRisk + '</span></td>';
-      html += '</tr>';
+  if (Object.keys(pm).length > 1) {
+    checkPage(40);
+    state.y = pdfSH(doc, state.y, "Project Performance Summary");
+    var pRows = Object.entries(pm).map(function(e) {
+      var pc = e[1].app>0?((e[1].pass/e[1].app)*100).toFixed(1):"0";
+      return [e[0], String(e[1].count), pc+"%", getWorstRisk(e[1].risks).toUpperCase()];
     });
-    html += '</tbody></table>';
+    doc.autoTable({
+      startY: state.y,
+      head: [["Project","Inspections","Compliance","Highest Risk"]],
+      body: pRows, theme: "grid",
+      headStyles: {fillColor:PC.navy, textColor:255, fontSize:7, fontStyle:"bold", cellPadding:3},
+      styles: {fontSize:8, cellPadding:2.5, textColor:PC.txt},
+      columnStyles: {0:{fontStyle:"bold",textColor:PC.navy},1:{halign:"right"},2:{halign:"right",fontStyle:"bold"},3:{fontStyle:"bold"}},
+      alternateRowStyles: {fillColor:PC.grayLt},
+      margin: {left:15, right:15},
+      didParseCell: function(d) {
+        if (d.column.index===2 && d.section==="body") {
+          var v=parseFloat(d.cell.raw);
+          if(v>=90) d.cell.styles.textColor=PC.greenDk;
+          else if(v>=75) d.cell.styles.textColor=PC.rMod;
+          else d.cell.styles.textColor=PC.rCrit;
+        }
+        if (d.column.index===3 && d.section==="body") {
+          var rm={LOW:PC.rLow,MODERATE:PC.rMod,HIGH:PC.rHi,CRITICAL:PC.rCrit};
+          d.cell.styles.textColor = rm[d.cell.raw]||PC.txt;
+        }
+      },
+    });
+    state.y = doc.lastAutoTable.finalY + 8;
   }
 
-  // Inspector activity
   if (inspectors.length > 0) {
-    html += buildPdfSectionHeader("Inspector Activity", "Sorted by inspection count");
-    html += '<table style="width:100%; font-size:10px; border-collapse:separate; border-spacing:0; margin-bottom:20px; border:1px solid #e0e6ea; border-radius:8px; overflow:hidden;">';
-    html += '<thead><tr style="background:#003B4D; color:#fff;"><th style="text-align:left; padding:10px 12px; font-size:9px; text-transform:uppercase; letter-spacing:1px;">Inspector</th>';
-    html += '<th style="text-align:left; padding:10px 12px; font-size:9px; text-transform:uppercase; letter-spacing:1px;">Role</th>';
-    html += '<th style="text-align:right; padding:10px 12px; font-size:9px; text-transform:uppercase; letter-spacing:1px;">Inspections</th>';
-    html += '<th style="text-align:right; padding:10px 12px; font-size:9px; text-transform:uppercase; letter-spacing:1px;">Avg Rating</th>';
-    html += '<th style="text-align:right; padding:10px 12px; font-size:9px; text-transform:uppercase; letter-spacing:1px;">Compliance</th></tr></thead><tbody>';
-    inspectors.forEach(function (ins, idx) {
-      var c = parseFloat(ins.compliance) >= 90 ? "#2d7a0f" : parseFloat(ins.compliance) >= 75 ? "#9d6b0a" : "#c42b1c";
-      var bg = idx % 2 === 0 ? "#ffffff" : "#f6f8f9";
-      html += '<tr style="background:' + bg + ';">';
-      html += '<td style="padding:8px 12px; color:#003B4D; font-weight:600;">' + ins.name + '</td>';
-      html += '<td style="padding:8px 12px; color:#666;">' + (ROLE_LABELS[ins.role] || ins.role) + '</td>';
-      html += '<td style="padding:8px 12px; text-align:right;">' + ins.count + '</td>';
-      html += '<td style="padding:8px 12px; text-align:right; color:#9d6b0a;">' + ins.avgRating + '</td>';
-      html += '<td style="padding:8px 12px; text-align:right; font-weight:700; color:' + c + ';">' + ins.compliance + '%</td>';
-      html += '</tr>';
+    checkPage(40);
+    state.y = pdfSH(doc, state.y, "Inspector Activity", "Sorted by inspection count");
+    doc.autoTable({
+      startY: state.y,
+      head: [["Inspector","Role","Inspections","Avg Rating","Compliance"]],
+      body: inspectors.map(function(ins){return [ins.name, ROLE_LABELS[ins.role]||ins.role, String(ins.count), ins.avgRating, ins.compliance+"%"];}),
+      theme: "grid",
+      headStyles: {fillColor:PC.navy, textColor:255, fontSize:7, fontStyle:"bold", cellPadding:3},
+      styles: {fontSize:8, cellPadding:2.5, textColor:PC.txt},
+      columnStyles: {0:{fontStyle:"bold",textColor:PC.navy},2:{halign:"right"},3:{halign:"right"},4:{halign:"right",fontStyle:"bold"}},
+      alternateRowStyles: {fillColor:PC.grayLt},
+      margin: {left:15, right:15},
+      didParseCell: function(d) {
+        if (d.column.index===4 && d.section==="body") {
+          var v=parseFloat(d.cell.raw);
+          if(v>=90) d.cell.styles.textColor=PC.greenDk;
+          else if(v>=75) d.cell.styles.textColor=PC.rMod;
+          else d.cell.styles.textColor=PC.rCrit;
+        }
+      },
     });
-    html += '</tbody></table>';
+    state.y = doc.lastAutoTable.finalY + 8;
   }
 
-  // Recommendations
-  var sectionCompliance = sections.map(function (s) {
-    var stats = getSectionStats(data, s);
-    var applicable = stats.pass + stats.fail;
-    return { key: s, label: SECTION_LABELS[s], rate: applicable > 0 ? ((stats.pass / applicable) * 100) : 100, pass: stats.pass, fail: stats.fail, na: stats.na };
-  }).sort(function (a, b) { return a.rate - b.rate; });
-
-  var recs = generateRecommendations(data, sectionCompliance, riskCounts, stopWork);
+  var scomp = sections.map(function(s) {
+    var st = getSectionStats(data,s), app=st.pass+st.fail;
+    return {key:s, label:SECTION_LABELS[s], rate:app>0?(st.pass/app)*100:100, pass:st.pass, fail:st.fail, na:st.na};
+  }).sort(function(a,b){return a.rate-b.rate;});
+  var recs = generateRecommendations(data, scomp, riskCounts, stopWork);
   if (recs.length > 0) {
-    html += buildPdfSectionHeader("Automated Recommendations");
-    html += '<div style="background:linear-gradient(135deg,#003B4D08,#003B4D03); border-left:4px solid #003B4D; border-radius:6px; padding:16px 20px;">';
-    html += '<ol style="margin:0; padding-left:20px; font-size:11px; color:#333; line-height:1.7;">';
-    recs.forEach(function (r) {
-      html += '<li style="margin-bottom:8px;">' + r + '</li>';
-    });
-    html += '</ol></div>';
+    checkPage(recs.length*7+20);
+    state.y = pdfSH(doc, state.y, "Automated Recommendations");
+    var rH = recs.length*7+10;
+    doc.setFillColor(246,248,249); doc.rect(15, state.y, 180, rH, 'F');
+    doc.setFillColor(0,59,77); doc.rect(15, state.y, 1.5, rH, 'F');
+    doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(51,51,51);
+    recs.forEach(function(r,i) { doc.text(doc.splitTextToSize((i+1)+". "+r, 168), 21, state.y+7+i*7); });
+    state.y += rH + 6;
   }
-
-  return html;
 }
 
-function buildPdfInspectionContent(record) {
-  var g = record.generalInfo;
-  var a = record.overallAssessment;
+function pdfInspection(doc, state, record, checkPage) {
+  var g = record.generalInfo, a = record.overallAssessment;
   var compliance = getOverallCompliance([record]);
-  var dateStr = new Date(g.inspectionDate + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-  var typeLabel = INSPECTION_TYPE_LABELS[g.inspectionType] || g.inspectionType;
-  var weatherLabel = WEATHER_LABELS[g.weather] || g.weather;
-  var roleLabel = ROLE_LABELS[g.inspectorRole] || g.inspectorRole;
-
   var compVal = parseFloat(compliance);
-  var statusColor = compVal >= 90 && !a.stopWorkIssued ? "#2d7a0f" : compVal >= 75 ? "#9d6b0a" : "#c42b1c";
-  var riskColor = { low: "#2d7a0f", moderate: "#9d6b0a", high: "#d4580a", critical: "#c42b1c" }[a.riskLevel] || "#003B4D";
+  var sc = compVal>=90&&!a.stopWorkIssued?PC.rLow:compVal>=75?PC.rMod:PC.rCrit;
+  var rcm = {low:PC.rLow,moderate:PC.rMod,high:PC.rHi,critical:PC.rCrit};
+  var rc = rcm[a.riskLevel]||PC.navy;
+  var dateStr = new Date(g.inspectionDate+"T00:00:00").toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+  var typeLabel = INSPECTION_TYPE_LABELS[g.inspectionType]||g.inspectionType;
+  var weatherLabel = WEATHER_LABELS[g.weather]||g.weather;
+  var roleLabel = ROLE_LABELS[g.inspectorRole]||g.inspectorRole;
 
-  var html = '';
+  doc.setFillColor(246,248,249); doc.rect(15, state.y, 180, 22, 'F');
+  doc.setFillColor.apply(doc, sc); doc.rect(15, state.y, 1.5, 22, 'F');
+  doc.setFont("helvetica","bold"); doc.setFontSize(7); doc.setTextColor.apply(doc, sc);
+  doc.text("SITE COMPLIANCE", 21, state.y+5);
+  doc.setFontSize(22); doc.text(compliance+"%", 21, state.y+17);
+  doc.setFontSize(9); doc.setTextColor.apply(doc, rc);
+  doc.text(a.riskLevel.toUpperCase()+" RISK", 190, state.y+7, {align:"right"});
+  pdfRating(doc, 170, state.y+13, parseInt(a.rating));
+  doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(102,102,102);
+  doc.text("("+a.rating+"/5)", 190, state.y+14, {align:"right"});
+  if (a.stopWorkIssued) {
+    doc.setFillColor(196,43,28); doc.rect(152, state.y+17, 38, 5, 'F');
+    doc.setFont("helvetica","bold"); doc.setFontSize(6); doc.setTextColor(255,255,255);
+    doc.text("STOP WORK ISSUED", 171, state.y+20.5, {align:"center"});
+  }
+  state.y += 28;
 
-  // Status banner
-  html += '<div style="background:linear-gradient(135deg,' + statusColor + '15,' + statusColor + '05); border-left:4px solid ' + statusColor + '; border-radius:6px; padding:16px 20px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center;">';
-  html += '<div><div style="font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:' + statusColor + '; font-weight:700;">Site Compliance</div>';
-  html += '<div style="font-size:32px; font-weight:700; color:' + statusColor + '; line-height:1; margin-top:2px;">' + compliance + '%</div></div>';
-  html += '<div style="text-align:right;">';
-  html += '<div style="margin-bottom:6px;"><span style="display:inline-block; padding:4px 12px; background:' + riskColor + '; color:#fff; border-radius:14px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">' + a.riskLevel + ' RISK</span></div>';
-  html += '<div style="font-size:14px; color:#9d6b0a;">' + "★".repeat(parseInt(a.rating)) + '<span style="color:#ddd;">' + "☆".repeat(5 - parseInt(a.rating)) + '</span> <span style="color:#666; font-size:11px;">(' + a.rating + '/5)</span></div>';
-  if (a.stopWorkIssued) html += '<div style="margin-top:6px;"><span style="display:inline-block; padding:4px 10px; background:#c42b1c; color:#fff; border-radius:4px; font-size:9px; font-weight:700; letter-spacing:1px;">⚠ STOP WORK ISSUED</span></div>';
-  html += '</div></div>';
+  state.y = pdfSH(doc, state.y, "General Information");
+  var fields = [
+    ["Inspector",g.inspectorName],["Role",roleLabel],["Contractor",g.contractor],
+    ["Project Number",g.projectNumber||"N/A"],["Inspection Type",typeLabel],
+    ["Date / Time",dateStr+" @ "+g.inspectionTime],
+    ["Weather",weatherLabel+(g.temperature?" ("+g.temperature+"F)":"")],
+    ["Workers On-Site",String(g.workerCount)],
+    ["Shift",g.shift.charAt(0).toUpperCase()+g.shift.slice(1)],
+  ];
+  if (g.latitude&&g.longitude) fields.push(["GPS Location",g.latitude+", "+g.longitude]);
+  var fRows = Math.ceil(fields.length/3), fH = fRows*14+8;
+  doc.setFillColor(246,248,249); doc.rect(15, state.y, 180, fH, 'F');
+  fields.forEach(function(f,i) {
+    var fx = 20+(i%3)*56.7, fy = state.y+6+Math.floor(i/3)*14;
+    doc.setFont("helvetica","bold"); doc.setFontSize(6); doc.setTextColor(136,136,136);
+    doc.text(f[0].toUpperCase(), fx, fy);
+    doc.setFontSize(9); doc.setTextColor(0,59,77);
+    doc.text(String(f[1]), fx, fy+5);
+  });
+  state.y += fH + 6;
 
-  // General info
-  html += buildPdfSectionHeader("General Information");
-  html += '<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px 20px; padding:16px 20px; background:#f6f8f9; border-radius:8px; margin-bottom:20px;">';
-  html += pdfField("Inspector", g.inspectorName);
-  html += pdfField("Role", roleLabel);
-  html += pdfField("Contractor", g.contractor);
-  html += pdfField("Project Number", g.projectNumber || "N/A");
-  html += pdfField("Inspection Type", typeLabel);
-  html += pdfField("Date / Time", dateStr + " @ " + g.inspectionTime);
-  html += pdfField("Weather", weatherLabel + (g.temperature ? " (" + g.temperature + "°F)" : ""));
-  html += pdfField("Workers On-Site", g.workerCount);
-  html += pdfField("Shift", g.shift.charAt(0).toUpperCase() + g.shift.slice(1));
-  if (g.latitude && g.longitude) html += pdfField("GPS Location", g.latitude + ", " + g.longitude);
-  html += '</div>';
-
-  // Checklist
-  html += buildPdfSectionHeader("Inspection Checklist", "Detailed pass / fail / N/A by category");
-  Object.keys(SECTION_LABELS).forEach(function (sKey) {
+  checkPage(20);
+  state.y = pdfSH(doc, state.y, "Inspection Checklist", "Detailed results by category");
+  Object.keys(SECTION_LABELS).forEach(function(sKey) {
     var sd = record.inspectionResults[sKey];
     if (!sd) return;
-    var p = 0, f = 0, n = 0;
-    Object.values(sd).forEach(function (v) { if (v === "pass") p++; else if (v === "fail") f++; else n++; });
-    var applicable = p + f;
-    var rate = applicable > 0 ? ((p / applicable) * 100).toFixed(0) : "—";
-    var rateColor = parseFloat(rate) >= 90 ? "#2d7a0f" : parseFloat(rate) >= 75 ? "#9d6b0a" : "#c42b1c";
-
-    html += '<div style="margin-bottom:14px; border:1px solid #e0e6ea; border-radius:8px; overflow:hidden; page-break-inside:avoid;">';
-    html += '<div style="background:#f6f8f9; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e0e6ea;">';
-    html += '<div style="font-size:12px; font-weight:700; color:#003B4D;">' + SECTION_LABELS[sKey] + '</div>';
-    html += '<div style="font-size:10px; color:#666;"><span style="color:#2d7a0f; font-weight:700;">' + p + ' Pass</span> &nbsp;<span style="color:#c42b1c; font-weight:700;">' + f + ' Fail</span> &nbsp;<span>' + n + ' N/A</span> &nbsp;';
-    if (rate !== "—") html += '<span style="color:' + rateColor + '; font-weight:700; padding:2px 8px; background:' + rateColor + '15; border-radius:10px; margin-left:4px;">' + rate + '%</span>';
-    html += '</div></div>';
-    html += '<div style="padding:10px 14px; display:grid; grid-template-columns:1fr 1fr; gap:4px 16px;">';
-    Object.entries(sd).forEach(function (entry) {
-      var label = ITEM_LABELS[entry[0]] || entry[0];
-      var sym, clr, weight;
-      if (entry[1] === "pass") { sym = "✓"; clr = "#2d7a0f"; weight = "700"; }
-      else if (entry[1] === "fail") { sym = "✗"; clr = "#c42b1c"; weight = "700"; }
-      else { sym = "—"; clr = "#bbb"; weight = "500"; }
-      html += '<div style="display:flex; gap:8px; align-items:center; font-size:10px; padding:2px 0;"><span style="color:' + clr + '; font-weight:' + weight + '; font-size:13px; width:14px; text-align:center;">' + sym + '</span><span style="color:' + (entry[1] === "na" ? "#999" : "#333") + ';">' + label + '</span></div>';
+    var p=0, f=0, n=0;
+    Object.values(sd).forEach(function(v){if(v==="pass")p++;else if(v==="fail")f++;else n++;});
+    var app = p+f, rate = app>0?((p/app)*100).toFixed(0)+"%":"--";
+    var items = Object.entries(sd);
+    checkPage(items.length*4+14);
+    doc.autoTable({
+      startY: state.y,
+      head: [[{content: SECTION_LABELS[sKey]+"  ("+p+"P / "+f+"F / "+n+"N/A | "+rate+")", colSpan:2, styles:{fillColor:PC.navy, textColor:255, fontSize:8, fontStyle:"bold"}}]],
+      body: items.map(function(entry) {
+        var status = entry[1]==="pass"?"PASS":entry[1]==="fail"?"FAIL":"N/A";
+        return [status, ITEM_LABELS[entry[0]]||entry[0]];
+      }),
+      theme: "grid",
+      styles: {fontSize:7.5, cellPadding:2, textColor:PC.txt},
+      columnStyles: {0:{cellWidth:18, halign:"center", fontStyle:"bold"}, 1:{}},
+      alternateRowStyles: {fillColor:PC.grayLt},
+      margin: {left:15, right:15},
+      didParseCell: function(d) {
+        if (d.column.index===0 && d.section==="body") {
+          if (d.cell.raw==="PASS") d.cell.styles.textColor = PC.greenDk;
+          else if (d.cell.raw==="FAIL") d.cell.styles.textColor = PC.rCrit;
+          else d.cell.styles.textColor = [187,187,187];
+        }
+      },
     });
-    html += '</div></div>';
+    state.y = doc.lastAutoTable.finalY + 4;
   });
+  state.y += 4;
 
-  // Corrective Actions
   if (a.correctiveActionsRequired && a.correctiveActions) {
-    html += buildPdfSectionHeader("Corrective Actions Required");
-    html += '<div style="background:linear-gradient(135deg,#c42b1c10,#c42b1c05); border-left:4px solid #c42b1c; border-radius:6px; padding:16px 20px; margin-bottom:14px;">';
-    if (a.correctionPriority) html += '<div style="margin-bottom:8px;"><span style="display:inline-block; padding:4px 10px; background:#c42b1c; color:#fff; border-radius:4px; font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase;">Priority: ' + a.correctionPriority + '</span></div>';
-    html += '<p style="font-size:11px; color:#333; line-height:1.5; margin:0;">' + a.correctiveActions + '</p>';
-    html += '</div>';
+    checkPage(25);
+    state.y = pdfSH(doc, state.y, "Corrective Actions Required");
+    var caL = doc.splitTextToSize(a.correctiveActions, 168);
+    var caH = caL.length*4.5+(a.correctionPriority?16:8);
+    doc.setFillColor(246,248,249); doc.rect(15, state.y, 180, caH, 'F');
+    doc.setFillColor(196,43,28); doc.rect(15, state.y, 1.5, caH, 'F');
+    var caY = state.y+7;
+    if (a.correctionPriority) {
+      doc.setFillColor(196,43,28); doc.rect(20, state.y+3, 32, 5, 'F');
+      doc.setFont("helvetica","bold"); doc.setFontSize(6); doc.setTextColor(255,255,255);
+      doc.text("PRIORITY: "+a.correctionPriority.toUpperCase(), 22, state.y+6.5);
+      caY = state.y+13;
+    }
+    doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(51,51,51);
+    doc.text(caL, 20, caY);
+    state.y += caH + 6;
   }
 
-  // Positive Observations
   if (a.positiveObservations) {
-    html += buildPdfSectionHeader("Positive Observations");
-    html += '<div style="background:linear-gradient(135deg,#2d7a0f10,#2d7a0f05); border-left:4px solid #2d7a0f; border-radius:6px; padding:16px 20px; margin-bottom:14px;">';
-    html += '<p style="font-size:11px; color:#333; line-height:1.5; margin:0; font-style:italic;">"' + a.positiveObservations + '"</p>';
-    html += '</div>';
+    checkPage(20);
+    state.y = pdfSH(doc, state.y, "Positive Observations");
+    var poL = doc.splitTextToSize('"'+a.positiveObservations+'"', 168);
+    var poH = poL.length*4.5+8;
+    doc.setFillColor(246,248,249); doc.rect(15, state.y, 180, poH, 'F');
+    doc.setFillColor(45,122,15); doc.rect(15, state.y, 1.5, poH, 'F');
+    doc.setFont("helvetica","italic"); doc.setFontSize(9); doc.setTextColor(51,51,51);
+    doc.text(poL, 20, state.y+6);
+    state.y += poH + 6;
   }
-
-  return html;
-}
-
-function pdfField(label, value) {
-  return '<div><div style="font-size:8px; color:#888; text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">' + label + '</div>'
-    + '<div style="font-size:11px; color:#003B4D; font-weight:600; margin-top:2px;">' + (value || "N/A") + '</div></div>';
 }
 
 function generatePdfFilename(scope, data) {
   var date = new Date().toISOString().split("T")[0];
-  if (scope === "project" && data.length > 0) {
-    var proj = data[0].generalInfo.projectName.replace(/[^a-zA-Z0-9]+/g, "-").substring(0, 30);
-    return "Worley-Safety-" + proj + "-" + date + ".pdf";
-  }
-  if (scope === "inspection" && data.length === 1) {
-    var insp = data[0].generalInfo.projectName.replace(/[^a-zA-Z0-9]+/g, "-").substring(0, 20);
-    return "Worley-Inspection-" + insp + "-" + data[0].generalInfo.inspectionDate + ".pdf";
-  }
-  return "Worley-Safety-Dashboard-Report-" + date + ".pdf";
+  if (scope==="project"&&data.length>0) return "Worley-Safety-"+data[0].generalInfo.projectName.replace(/[^a-zA-Z0-9]+/g,"-").substring(0,30)+"-"+date+".pdf";
+  if (scope==="inspection"&&data.length===1) return "Worley-Inspection-"+data[0].generalInfo.projectName.replace(/[^a-zA-Z0-9]+/g,"-").substring(0,20)+"-"+data[0].generalInfo.inspectionDate+".pdf";
+  return "Worley-Safety-Dashboard-Report-"+date+".pdf";
 }
 
 async function generatePdf(scope, targetData) {
-  if (!targetData || targetData.length === 0) {
-    alert("No inspection data available for this scope. Please select a different scope or filter.");
-    return;
-  }
-
-  if (typeof html2pdf === "undefined") {
-    alert("PDF library is still loading. Please wait a moment and try again.");
-    return;
-  }
-
-  console.log("Generating PDF — scope:", scope, "records:", targetData.length);
-
-  var pdfContainer = document.createElement("div");
-  pdfContainer.id = "pdfRenderTarget";
-  pdfContainer.style.cssText = "position:fixed; top:0; left:-99999px; width:794px; background:#ffffff; color:#333; padding:32px 36px; font-family:'Helvetica Neue',Arial,sans-serif; font-size:11px; line-height:1.5; box-sizing:border-box; z-index:-1;";
-  document.body.appendChild(pdfContainer);
-
-  var title, subtitle;
-  if (scope === "inspection" && targetData.length === 1) {
-    var g = targetData[0].generalInfo;
-    title = "Safety Inspection Report";
-    subtitle = "Detailed inspection record for " + g.projectName + " conducted on " + new Date(g.inspectionDate + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-  } else if (scope === "project" && targetData.length > 0) {
-    title = "Project Safety Performance Report";
-    subtitle = "Comprehensive safety review for " + targetData[0].generalInfo.projectName + " covering " + targetData.length + " inspection" + (targetData.length !== 1 ? "s" : "");
-  } else {
-    title = "Safety Inspection Executive Report";
-    var dates = targetData.map(function (d) { return d.generalInfo.inspectionDate; }).sort();
-    var dr = dates.length > 0 ? new Date(dates[0] + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) + " through " + new Date(dates[dates.length - 1] + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "";
-    subtitle = "Comprehensive analysis of " + targetData.length + " safety inspection" + (targetData.length !== 1 ? "s" : "") + (dr ? " conducted " + dr : "") + ".";
-  }
-
-  var content = buildPdfCoverPage(title, subtitle, scope, targetData.length);
-  content += buildPdfPageHeader(scope);
-
-  if (scope === "inspection" && targetData.length === 1) {
-    content += buildPdfInspectionContent(targetData[0]);
-  } else {
-    content += buildPdfDashboardContent(targetData);
-  }
-
-  content += '<div style="margin-top:36px; padding-top:14px; border-top:2px solid #E8413C; display:flex; justify-content:space-between; align-items:center;">';
-  content += '<div style="display:flex; align-items:center; gap:8px;">' + pdfLogoSmall();
-  content += '<div style="font-size:9px; color:#888;">Worley Field Safety Program</div></div>';
-  content += '<div style="font-size:9px; color:#999;">© 2026 Worley. Confidential — Internal use only.</div>';
-  content += '</div>';
-
-  pdfContainer.innerHTML = content;
-
-  try {
-    await html2pdf().set({
-      margin: [12, 12, 16, 12],
-      filename: generatePdfFilename(scope, targetData),
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false, backgroundColor: "#ffffff" },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait", compress: true },
-      pagebreak: { mode: ["css", "legacy"], avoid: "tr" },
-    }).from(pdfContainer).save();
-    console.log("PDF generated successfully");
-  } catch (err) {
-    console.error("PDF generation error:", err);
-    alert("Error generating PDF: " + (err.message || err));
-  } finally {
-    if (pdfContainer.parentNode) document.body.removeChild(pdfContainer);
-  }
+  if (!targetData||targetData.length===0) { alert("No inspection data available for this scope."); return; }
+  var jsPDFClass = (window.jspdf&&window.jspdf.jsPDF)||window.jsPDF;
+  if (!jsPDFClass) { alert("PDF library is still loading. Please wait a moment and try again."); return; }
+  console.log("Generating PDF - scope:", scope, "records:", targetData.length);
+  if (!_logoDataUrl) await loadLogoForPdf();
+  var doc = new jsPDFClass({unit:"mm",format:"a4",orientation:"portrait",compress:true});
+  var state = {y:15};
+  function checkPage(needed) { if(state.y+needed>277){doc.addPage();state.y=15;state.y=pdfPH(doc,state.y);} }
+  pdfCover(doc, scope, targetData);
+  doc.addPage(); state.y=15; state.y=pdfPH(doc, state.y);
+  if (scope==="inspection"&&targetData.length===1) pdfInspection(doc, state, targetData[0], checkPage);
+  else pdfDashboard(doc, state, targetData, checkPage);
+  pdfFT(doc);
+  doc.save(generatePdfFilename(scope, targetData));
+  console.log("PDF generated successfully");
 }
 
 // ============================================================
