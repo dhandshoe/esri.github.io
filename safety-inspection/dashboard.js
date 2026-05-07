@@ -2280,8 +2280,12 @@ function generatePdfFilename(scope, data) {
 async function generatePdf(scope, targetData) {
   if (!targetData||targetData.length===0) { alert("No inspection data available for this scope."); return; }
   var jsPDFClass = (window.jspdf&&window.jspdf.jsPDF)||window.jsPDF;
-  if (!jsPDFClass) { alert("PDF library is still loading. Please wait a moment and try again."); return; }
-  console.log("Generating PDF - scope:", scope, "records:", targetData.length);
+  if (!jsPDFClass) {
+    console.error("jsPDF not loaded. Globals present:", { "window.jspdf": window.jspdf, "window.jsPDF": window.jsPDF });
+    alert("PDF library failed to load from CDN. Open the browser console for details, then hard-reload the page (Ctrl+Shift+R / Cmd+Shift+R). A network restriction or ad-blocker may be blocking jsdelivr/cdnjs/unpkg.");
+    return;
+  }
+  console.log("Generating PDF - scope:", scope, "records:", targetData.length, "autoTable available:", !!(jsPDFClass.API && jsPDFClass.API.autoTable));
   if (!_logoDataUrl) await loadLogoForPdf();
   var doc = new jsPDFClass({unit:"mm",format:"a4",orientation:"portrait",compress:true});
   var state = {y:15};

@@ -828,11 +828,22 @@
       <p class="text-xs">&copy; 2026 Worley. Data refreshes automatically.</p>
     </footer>
 
-    <!-- jsPDF for PDF export (hide AMD define like Chart.js) -->
-    <script>window.__d2=window.define;window.define=undefined;</script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-    <script>window.define=window.__d2;delete window.__d2;</script>
+    <!-- jsPDF for PDF export (hide AMD/CommonJS so UMD bundle registers as a global) -->
+    <script>
+      window.__pdf_define = window.define; window.define = undefined;
+      window.__pdf_exports = window.exports; window.exports = undefined;
+      window.__pdf_module = window.module; window.module = undefined;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+    <script>if(!(window.jspdf&&window.jspdf.jsPDF)){document.write('\x3Cscript src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js">\x3C/script>');}</script>
+    <script>if(!(window.jspdf&&window.jspdf.jsPDF)){document.write('\x3Cscript src="https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js">\x3C/script>');}</script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+    <script>
+      window.define = window.__pdf_define; delete window.__pdf_define;
+      window.exports = window.__pdf_exports; delete window.__pdf_exports;
+      window.module = window.__pdf_module; delete window.__pdf_module;
+      console.log("[PDF libs]", { jspdf: !!(window.jspdf && window.jspdf.jsPDF), autoTable: !!(window.jspdf && window.jspdf.jsPDF && window.jspdf.jsPDF.API && window.jspdf.jsPDF.API.autoTable) });
+    </script>
 
     <!-- Dashboard JS -->
     <script src="dashboard-config.js"></script>
